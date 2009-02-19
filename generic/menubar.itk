@@ -33,9 +33,11 @@
 #   This section lists possible future enhancements.
 #
 # ----------------------------------------------------------------------
-#  AUTHOR: Bill W. Scott                 EMAIL: bscott@spd.dsccc.com
+#  AUTHOR: Bill W. Scott
 #
-#  @(#) $Id: menubar.itk,v 1.4 1996/07/16 21:06:48 mulferts Exp $
+#  CURRENT MAINTAINER: Chad Smith --> csmith@adc.com or itclguy@yahoo.com
+#
+#  @(#) $Id: menubar.itk,v 1.8 2001/08/15 18:33:13 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -71,7 +73,7 @@ itk::usual Menubar {
 	    -highlightcolor -justify -padx -pady -wraplength
 }
 
-class iwidgets::Menubar {
+itcl::class iwidgets::Menubar {
     inherit itk::Widget
 
     constructor { args } {}
@@ -109,8 +111,6 @@ class iwidgets::Menubar {
 	method path { args } { }
 	method type { path } { }
 	method yposition { entryPath } { }
-
-	method _helpHandler { menuPath } { }
     }
 
     private {
@@ -121,6 +121,7 @@ class iwidgets::Menubar {
 	method radiobutton { radName args } { }
 	method separator { sepName args } { }
 	method cascade { casName args } { }
+	method _helpHandler { menuPath } { }
 	method _addMenuButton { buttonName args} { }
 	method _insertMenuButton { beforeMenuPath buttonName args} { }
 	method _makeMenuButton {buttonName args} { }
@@ -179,7 +180,7 @@ proc ::iwidgets::menubar { args } {
 # ------------------------------------------------------------------
 #                           CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Menubar::constructor { args } {
+itcl::body iwidgets::Menubar::constructor { args } {
     component hull configure -borderwidth 0
 
     #
@@ -222,7 +223,7 @@ body iwidgets::Menubar::constructor { args } {
 # menu
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::foreground {
+itcl::configbody iwidgets::Menubar::foreground {
 }
 
 # ------------------------------------------------------------------
@@ -231,7 +232,7 @@ configbody iwidgets::Menubar::foreground {
 # menu
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::activebackground {
+itcl::configbody iwidgets::Menubar::activebackground {
 }
 
 # ------------------------------------------------------------------
@@ -239,7 +240,7 @@ configbody iwidgets::Menubar::activebackground {
 #
 # menu
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::activeborderwidth {
+itcl::configbody iwidgets::Menubar::activeborderwidth {
 }
 
 # ------------------------------------------------------------------
@@ -248,7 +249,7 @@ configbody iwidgets::Menubar::activeborderwidth {
 # menu
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::activeforeground {
+itcl::configbody iwidgets::Menubar::activeforeground {
 }
 
 # ------------------------------------------------------------------
@@ -256,7 +257,7 @@ configbody iwidgets::Menubar::activeforeground {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::anchor {
+itcl::configbody iwidgets::Menubar::anchor {
 }
 
 # ------------------------------------------------------------------
@@ -265,7 +266,7 @@ configbody iwidgets::Menubar::anchor {
 # menu
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::borderwidth {
+itcl::configbody iwidgets::Menubar::borderwidth {
 }
 
 # ------------------------------------------------------------------
@@ -274,7 +275,7 @@ configbody iwidgets::Menubar::borderwidth {
 # menu
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::disabledforeground {
+itcl::configbody iwidgets::Menubar::disabledforeground {
 }
 
 # ------------------------------------------------------------------
@@ -283,7 +284,7 @@ configbody iwidgets::Menubar::disabledforeground {
 # menu
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::font {
+itcl::configbody iwidgets::Menubar::font {
 }
 
 # ------------------------------------------------------------------
@@ -291,7 +292,7 @@ configbody iwidgets::Menubar::font {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::highlightbackground {
+itcl::configbody iwidgets::Menubar::highlightbackground {
 }
 
 # ------------------------------------------------------------------
@@ -299,7 +300,7 @@ configbody iwidgets::Menubar::highlightbackground {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::highlightcolor {
+itcl::configbody iwidgets::Menubar::highlightcolor {
 }
 
 # ------------------------------------------------------------------
@@ -307,7 +308,7 @@ configbody iwidgets::Menubar::highlightcolor {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::highlightthickness {
+itcl::configbody iwidgets::Menubar::highlightthickness {
 }
 
 # ------------------------------------------------------------------
@@ -315,7 +316,7 @@ configbody iwidgets::Menubar::highlightthickness {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::justify {
+itcl::configbody iwidgets::Menubar::justify {
 }
 
 # ------------------------------------------------------------------
@@ -323,7 +324,7 @@ configbody iwidgets::Menubar::justify {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::padx {
+itcl::configbody iwidgets::Menubar::padx {
 }
 
 # ------------------------------------------------------------------
@@ -331,7 +332,7 @@ configbody iwidgets::Menubar::padx {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::pady {
+itcl::configbody iwidgets::Menubar::pady {
 }
 
 # ------------------------------------------------------------------
@@ -339,7 +340,7 @@ configbody iwidgets::Menubar::pady {
 #
 # menubutton
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::wraplength {
+itcl::configbody iwidgets::Menubar::wraplength {
 }
 
 # ------------------------------------------------------------------
@@ -351,7 +352,7 @@ configbody iwidgets::Menubar::wraplength {
 # an add command to the Menubar. 
 #
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::menubuttons {
+itcl::configbody iwidgets::Menubar::menubuttons {
     if { $itk_option(-menubuttons) != {} } {
 
 	# IF one exists already, delete the old one and create
@@ -390,7 +391,7 @@ configbody iwidgets::Menubar::menubuttons {
 # of a help status bar. Whenever the mouse leaves a menu entry, 
 # the helpVariable is set to the empty string {}.
 # ------------------------------------------------------------------
-configbody iwidgets::Menubar::helpvariable {
+itcl::configbody iwidgets::Menubar::helpvariable {
     if {"" != $itk_option(-helpvariable) &&
 	![string match ::* $itk_option(-helpvariable)] &&
         ![string match @itcl* $itk_option(-helpvariable)]} {
@@ -447,7 +448,7 @@ configbody iwidgets::Menubar::helpvariable {
 # Names).
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::add { type path args } {
+itcl::body iwidgets::Menubar::add { type path args } {
     if ![regexp \
             {^(menubutton|command|cascade|separator|radiobutton|checkbutton)$} \
             $type] {
@@ -496,7 +497,7 @@ body iwidgets::Menubar::add { type path args } {
 # ponentPathName2 is ignored.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::delete { args } {
+itcl::body iwidgets::Menubar::delete { args } {
 
     # ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Handle out of bounds in arg lengths
@@ -541,7 +542,7 @@ body iwidgets::Menubar::delete { args } {
 # passed in, -1 is returned.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::index { path } {
+itcl::body iwidgets::Menubar::index { path } {
 
     # ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Path conversions
@@ -590,7 +591,7 @@ body iwidgets::Menubar::index { path } {
 # Returns -1 if the menubar frame is passed in.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::insert { beforeComponent type name args } {
+itcl::body iwidgets::Menubar::insert { beforeComponent type name args } {
      if ![regexp \
             {^(menubutton|command|cascade|separator|radiobutton|checkbutton)$} \
             $type] {
@@ -635,7 +636,7 @@ body iwidgets::Menubar::insert { beforeComponent type name args } {
 # issued.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::invoke { entryPath } {
+itcl::body iwidgets::Menubar::invoke { entryPath } {
 
     # ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Path Conversions
@@ -671,7 +672,7 @@ body iwidgets::Menubar::invoke { entryPath } {
 # determines the valid available options.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::menucget { path opt } {
+itcl::body iwidgets::Menubar::menucget { path opt } {
     return [lindex [menuconfigure $path $opt] 4]
 }
 
@@ -695,7 +696,7 @@ body iwidgets::Menubar::menucget { path opt } {
 # options.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::menuconfigure { path args } {
+itcl::body iwidgets::Menubar::menuconfigure { path args } {
 
     # ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Path Conversions
@@ -737,7 +738,7 @@ body iwidgets::Menubar::menuconfigure { path args } {
 # The default mode is -glob.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::path { args } {
+itcl::body iwidgets::Menubar::path { args } {
 
     set len [llength $args]
     if { $len < 1 || $len > 2 } {
@@ -788,7 +789,7 @@ body iwidgets::Menubar::path { args } {
 # a menubutton or a menu.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::type { path } {
+itcl::body iwidgets::Menubar::type { path } {
 
     # ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Path Conversions
@@ -838,7 +839,7 @@ body iwidgets::Menubar::type { path } {
 # entry, an error is issued.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::yposition { entryPath } {
+itcl::body iwidgets::Menubar::yposition { entryPath } {
 
     # ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Path Conversions
@@ -880,7 +881,7 @@ body iwidgets::Menubar::yposition { entryPath } {
 # for creating entries on the menu pane associated with the 
 # menubutton
 # -------------------------------------------------------------
-body iwidgets::Menubar::menubutton { menuName args } {
+itcl::body iwidgets::Menubar::menubutton { menuName args } {
     eval "add menubutton .$menuName $args"
 }
 
@@ -895,7 +896,7 @@ body iwidgets::Menubar::menubutton { menuName args } {
 # that follow (args)
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::options { args } {
+itcl::body iwidgets::Menubar::options { args } {
     eval "$_tkMenuPath configure $args"
 }
 
@@ -913,7 +914,7 @@ body iwidgets::Menubar::options { args } {
 # the add{} method.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::command { cmdName args } {
+itcl::body iwidgets::Menubar::command { cmdName args } {
     set path $_ourMenuPath.$cmdName
 
     # error checking
@@ -939,7 +940,7 @@ body iwidgets::Menubar::command { cmdName args } {
 # naming it $chkName.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::checkbutton { chkName args } {
+itcl::body iwidgets::Menubar::checkbutton { chkName args } {
     eval "add checkbutton $_ourMenuPath.$chkName $args"
 }
 
@@ -954,7 +955,7 @@ body iwidgets::Menubar::checkbutton { chkName args } {
 # naming it $radName.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::radiobutton { radName args } {
+itcl::body iwidgets::Menubar::radiobutton { radName args } {
     eval "add radiobutton $_ourMenuPath.$radName $args"
 }
 
@@ -969,7 +970,7 @@ body iwidgets::Menubar::radiobutton { radName args } {
 # naming it $sepName.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::separator { sepName args } {
+itcl::body iwidgets::Menubar::separator { sepName args } {
     eval $_tkMenuPath add separator
     set _pathMap($_ourMenuPath.$sepName) [_getPdIndex $_tkMenuPath end]
 }
@@ -986,7 +987,7 @@ body iwidgets::Menubar::separator { sepName args } {
 # adding a new menu pane and its associated entries found.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::cascade { casName args } {
+itcl::body iwidgets::Menubar::cascade { casName args } {
     
     # Save the current menu we are adding to, cascade can change
     # the current menu through -menu options.
@@ -1013,7 +1014,7 @@ body iwidgets::Menubar::cascade { casName args } {
 # Makes a new menubutton & associated -menu, pack appended
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_addMenuButton { buttonName args} {
+itcl::body iwidgets::Menubar::_addMenuButton { buttonName args} {
 
     eval "_makeMenuButton $buttonName $args"
 
@@ -1037,7 +1038,7 @@ body iwidgets::Menubar::_addMenuButton { buttonName args} {
 # another menubutton specified by $beforeMenuPath
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_insertMenuButton { beforeMenuPath buttonName args} {
+itcl::body iwidgets::Menubar::_insertMenuButton { beforeMenuPath buttonName args} {
 
     eval "_makeMenuButton $buttonName $args"
 
@@ -1061,7 +1062,7 @@ body iwidgets::Menubar::_insertMenuButton { beforeMenuPath buttonName args} {
 # The -menu option if present will trigger attaching a menu pane.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_makeMenuButton {buttonName args} {
+itcl::body iwidgets::Menubar::_makeMenuButton {buttonName args} {
 
     #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Capture the -menu option if present
@@ -1128,7 +1129,7 @@ body iwidgets::Menubar::_makeMenuButton {buttonName args} {
 # Assumes the existence of $itk_component($buttonName)
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_makeMenu \
+itcl::body iwidgets::Menubar::_makeMenu \
 	{ componentName widgetName menuPath menuEvalStr } {
 
     #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
@@ -1155,7 +1156,7 @@ body iwidgets::Menubar::_makeMenu \
     # Attach help handler to this menu
     # ''''''''''''''''''''''''''''''''
     bind $itk_component($componentName) <<MenuSelect>> \
-	    [code $this _helpHandler $menuPath.menu]
+	    [itcl::code $this _helpHandler $menuPath.menu]
 
     #,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Handle -menu
@@ -1192,7 +1193,7 @@ body iwidgets::Menubar::_makeMenu \
 # in the -menubutton/-menus options
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_substEvalStr { evalStr } {
+itcl::body iwidgets::Menubar::_substEvalStr { evalStr } {
     upvar $evalStr evalStrRef
     set evalStrRef [uplevel $_callerLevel [list subst $evalStrRef]]
 }
@@ -1212,7 +1213,7 @@ body iwidgets::Menubar::_substEvalStr { evalStr } {
 #
 # The basic rule is '.menu' is not needed.
 # -------------------------------------------------------------
-body iwidgets::Menubar::_deleteMenu { menuPath {menuPath2 {}} } {
+itcl::body iwidgets::Menubar::_deleteMenu { menuPath {menuPath2 {}} } {
 
     if { $menuPath2 == "" } {
 	# get a corrected path (subst for number, last, end)
@@ -1267,7 +1268,7 @@ body iwidgets::Menubar::_deleteMenu { menuPath {menuPath2 {}} } {
 # deletes a single Menu (menubutton and menu pane with entries)
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_deleteAMenu { path } {
+itcl::body iwidgets::Menubar::_deleteAMenu { path } {
 
     # We will normalize the path to not include the '.menu' if
     # it is on the path already.
@@ -1306,7 +1307,7 @@ body iwidgets::Menubar::_deleteAMenu { path } {
 # Adds an entry to menu.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_addEntry { type path args } {
+itcl::body iwidgets::Menubar::_addEntry { type path args } {
 
     # Error Checking
     # ''''''''''''''
@@ -1341,7 +1342,13 @@ body iwidgets::Menubar::_addEntry { type path args } {
 	# Handle Non-CASCADE
 	# ''''''''''''''''''
     } else {
-	# add the entry
+	# add the entry if one doesn't already exist with the same
+	# command name
+	if [::info exists _pathMap($path)] {
+	  set cmdname [lindex [split $path .] end]
+	  error "Cannot add $type \"$cmdname\". A menu item already\
+	    exists with this name."
+	}
 	eval [list $tkMenuPath add $type] $args
 	set _pathMap($path) [_getPdIndex $tkMenuPath end]
     }
@@ -1359,7 +1366,7 @@ body iwidgets::Menubar::_addEntry { type path args } {
 # Creates a cascade button.  Handles the -menu option
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_addCascade { tkMenuPath path args } {
+itcl::body iwidgets::Menubar::_addCascade { tkMenuPath path args } {
 
     # get the cascade name from our path
     regsub {.*[.]} $path "" cascadeName
@@ -1408,7 +1415,7 @@ body iwidgets::Menubar::_addCascade { tkMenuPath path args } {
 # passed for customization of the entry.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_insertEntry { beforeEntryPath type name args } {
+itcl::body iwidgets::Menubar::_insertEntry { beforeEntryPath type name args } {
 
     # convert entryPath to an index value
     set bfIndex $_pathMap($beforeEntryPath)
@@ -1416,12 +1423,18 @@ body iwidgets::Menubar::_insertEntry { beforeEntryPath type name args } {
     # first verify that beforeEntryPath is actually a path to
     # an entry and not to menu, menubutton, etc.
     if { ! [regexp {^[0-9]+$} $bfIndex] } {
-	error "bad entry path: beforeEntryPath is not an entry"
+	error "bad entry path: $beforeEntryPath is not an entry"
     }
 
     # get the menu path from the entry path name
     regsub {[.][^.]*$} $beforeEntryPath "" menuPathPrefix
     set tkMenuPath $_pathMap($menuPathPrefix.menu)
+
+    # If this entry already exists in the path map, throw an error.
+    if [::info exists _pathMap($menuPathPrefix.$name)] {
+      error "Cannot insert $type \"$name\". A menu item already\
+	exists with this name."
+    }
 
     # INDEX is zero based at this point.
 
@@ -1438,7 +1451,7 @@ body iwidgets::Menubar::_insertEntry { beforeEntryPath type name args } {
 	set path [lindex $entries $i]
 
 	# add one to each entry after the inserted one.
-	set _pathMap($path) [expr $i + 1]
+	set _pathMap($path) [expr {$i + 1}]
     }
 
     # get the -helpstr option if present
@@ -1465,7 +1478,7 @@ body iwidgets::Menubar::_insertEntry { beforeEntryPath type name args } {
 		set path [lindex $entries $i]
 
 		# sub the one we added earlier.
-		set _pathMap($path) [expr $_pathMap($path) - 1]
+		set _pathMap($path) [expr {$_pathMap($path) - 1}]
 		# @@ delete $hs
 	    }
 	    error $errMsg
@@ -1484,7 +1497,7 @@ body iwidgets::Menubar::_insertEntry { beforeEntryPath type name args } {
 		set path [lindex $entries $i]
 
 		# sub the one we added earlier.
-		set _pathMap($path) [expr $_pathMap($path) - 1]
+		set _pathMap($path) [expr {$_pathMap($path) - 1}]
 		# @@ delete $hs
 	    }
 	    error $errMsg
@@ -1509,7 +1522,7 @@ body iwidgets::Menubar::_insertEntry { beforeEntryPath type name args } {
 # Creates a cascade button.  Handles the -menu option
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_insertCascade { bfIndex tkMenuPath path args } {
+itcl::body iwidgets::Menubar::_insertCascade { bfIndex tkMenuPath path args } {
 
     # get the cascade name from our path
     regsub {.*[.]} $path "" cascadeName
@@ -1558,7 +1571,7 @@ body iwidgets::Menubar::_insertCascade { bfIndex tkMenuPath path args } {
 # deletes the entries from entryPath to entryPath2 
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_deleteEntry { entryPath {entryPath2 {}} } {
+itcl::body iwidgets::Menubar::_deleteEntry { entryPath {entryPath2 {}} } {
 
     if { $entryPath2 == "" } {
 	# get a corrected path (subst for number, last, end)
@@ -1589,7 +1602,7 @@ body iwidgets::Menubar::_deleteEntry { entryPath {entryPath2 {}} } {
 	unset _pathMap([lindex $entries $entryIndex])
 
 	# Subtract off 1 for each entry below the deleted one.
-	for {set i [expr $entryIndex + 1]} \
+	for {set i [expr {$entryIndex + 1}]} \
 		{$i < [llength $entries]} \
 		{incr i} {
 	    set epath [lindex $entries $i]
@@ -1646,15 +1659,15 @@ body iwidgets::Menubar::_deleteEntry { entryPath {entryPath2 {}} } {
 
 	# Subtract off 1 for each entry below the deleted range.
 	# Loop from one below the bottom delete entry to end list
-	for {set i [expr $toEntryIndex + 1]} \
+	for {set i [expr {$toEntryIndex + 1}]} \
 		{$i < [llength $entries]} \
 		{incr i} {
 	    # take this path and sets its index back by size of
 	    # deleted range.
 	    set path [lindex $entries $i]
 	    set _pathMap($path) \
-		    [expr $_pathMap($path) - \
-		    (($toEntryIndex - $fromEntryIndex) + 1)]
+		    [expr {$_pathMap($path) - \
+		    (($toEntryIndex - $fromEntryIndex) + 1)}]
 	}
 
 	# ... Delete the menu entry widget ...
@@ -1685,7 +1698,7 @@ body iwidgets::Menubar::_deleteEntry { entryPath {entryPath2 {}} } {
 # args   : the args for configuration
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_configureMenu { path tkPath {option {}} args } {
+itcl::body iwidgets::Menubar::_configureMenu { path tkPath {option {}} args } {
 
     set class [winfo class $tkPath]
 
@@ -1749,14 +1762,14 @@ body iwidgets::Menubar::_configureMenu { path tkPath {option {}} args } {
 # if we are before another menu, get the beforePath
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_configureMenuOption { type path args } {
+itcl::body iwidgets::Menubar::_configureMenuOption { type path args } {
 
     regsub {[.][^.]*$} $path "" pathPrefix
 
     if { $type == "menubutton" } {
 	set menuList [_getMenuList]
 	set pos [lsearch $menuList $path]
-	if { $pos == [expr [llength $menuList] - 1] } {
+	if { $pos == ([llength $menuList] - 1) } {
 	    set insert false
 	} else {
 	    set insert true
@@ -1799,7 +1812,7 @@ body iwidgets::Menubar::_configureMenuOption { type path args } {
 # args   : the args for configuration
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_configureMenuEntry { path index {option {}} args } {
+itcl::body iwidgets::Menubar::_configureMenuEntry { path index {option {}} args } {
 
     set type [type $path]
 
@@ -1881,7 +1894,7 @@ body iwidgets::Menubar::_configureMenuEntry { path index {option {}} args } {
 # comment
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_unsetPaths { parent } {
+itcl::body iwidgets::Menubar::_unsetPaths { parent } {
 
     # first get the complete list of all menu paths
     set pathList [array names _pathMap]
@@ -1903,7 +1916,7 @@ body iwidgets::Menubar::_unsetPaths { parent } {
 # get the corresponding menu widget name for tk
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_entryPathToTkMenuPath {entryPath} {
+itcl::body iwidgets::Menubar::_entryPathToTkMenuPath {entryPath} {
 
     # get the menu path from the entry path name
     # by stripping off the entry component of the path
@@ -1941,7 +1954,7 @@ body iwidgets::Menubar::_entryPathToTkMenuPath {entryPath} {
 # zero-based result.
 # 
 # -------------------------------------------------------------
-body iwidgets::Menubar::_getTkIndex { tkMenuPath tkIndex} {
+itcl::body iwidgets::Menubar::_getTkIndex { tkMenuPath tkIndex} {
 
     # if there is a tear off make it 1-based index
     if { [$tkMenuPath cget -tearoff] } {
@@ -1965,7 +1978,7 @@ body iwidgets::Menubar::_getTkIndex { tkMenuPath tkIndex} {
 # Always returns a zero-based index.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_getPdIndex { tkMenuPath tkIndex } {
+itcl::body iwidgets::Menubar::_getPdIndex { tkMenuPath tkIndex } {
 
     # get the index from the tk menu
     # this 0 based for non-tearoff and 1-based for tearoffs
@@ -1987,7 +2000,7 @@ body iwidgets::Menubar::_getPdIndex { tkMenuPath tkIndex } {
 # returned list is a list of our menu paths
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_getMenuList { } {
+itcl::body iwidgets::Menubar::_getMenuList { } {
     # get the menus that are packed
     set tkPathList [pack slaves $itk_component(menubar)]
 
@@ -2012,7 +2025,7 @@ body iwidgets::Menubar::_getMenuList { } {
 # path .mbar.file.menu
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_getEntryList { menu } {
+itcl::body iwidgets::Menubar::_getEntryList { menu } {
 
     # if it ends with menu, clip it off
     regsub {[.]menu$} $menu "" menuPath
@@ -2053,7 +2066,7 @@ body iwidgets::Menubar::_getEntryList { menu } {
 # keywords 'last' and 'end' as well as numeric digits.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_parsePath { path } {
+itcl::body iwidgets::Menubar::_parsePath { path } {
     set segments [split [string trimleft $path .] .]
 
     set concatPath ""
@@ -2083,7 +2096,7 @@ body iwidgets::Menubar::_parsePath { path } {
 #	It is hard to know this upfront so it seems harder to generalize.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_getSymbolicPath { parent segment } {
+itcl::body iwidgets::Menubar::_getSymbolicPath { parent segment } {
 
     # if the segment is a number, then look it up positionally
     # MATCH numeric index
@@ -2114,7 +2127,7 @@ body iwidgets::Menubar::_getSymbolicPath { parent segment } {
 
 # -------------------------------------------------------------
 # 
-# PROTECTED METHOD: _helpHandler
+# PRIVATE METHOD: _helpHandler
 #
 # Bound to the <Motion> event on a menu pane. This puts the
 # help string associated with the menu entry into the 
@@ -2122,7 +2135,7 @@ body iwidgets::Menubar::_getSymbolicPath { parent segment } {
 # entry, the status widget is cleared.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_helpHandler { menuPath } {
+itcl::body iwidgets::Menubar::_helpHandler { menuPath } {
 
     if { $itk_option(-helpvariable) == {} } {
 	return
@@ -2171,7 +2184,7 @@ body iwidgets::Menubar::_helpHandler { menuPath } {
 # in the form of #num where num is the level number caller stack frame.
 #
 # -------------------------------------------------------------
-body iwidgets::Menubar::_getCallerLevel { } {
+itcl::body iwidgets::Menubar::_getCallerLevel { } {
 
     set levelName {}
     set levelsAreValid true
@@ -2182,7 +2195,7 @@ body iwidgets::Menubar::_getCallerLevel { } {
 	# Hit the end of the stack frame
 	if [catch {uplevel #$level {namespace current}}] {
 	    set levelsAreValid false
-	    set callerLevel #[expr $level - 1]
+	    set callerLevel #[expr {$level - 1}]
 	    # still going
 	} else {
 	    set newLevelName [uplevel #$level {namespace current}]
@@ -2191,7 +2204,7 @@ body iwidgets::Menubar::_getCallerLevel { } {
 		    $newLevelName == "::iwidgets::Menubar" } {
 		# If so, we are done-- set the callerLevel
 		set levelsAreValid false
-		set callerLevel #[expr $level - 1]
+		set callerLevel #[expr {$level - 1}]
 	    } else {
 		set levelName $newLevelName
 	    }
@@ -2207,15 +2220,31 @@ body iwidgets::Menubar::_getCallerLevel { } {
 # in frames.  Since our menubuttons are within the Menubar class, the
 # default proc won't find them during menu traversal.  This proc
 # redefines the default proc to remedy the problem.
-#
+#-----------------------------------------------------------
+# BUG FIX: csmith (Chad Smith: csmith@adc.com), 3/30/99
+#-----------------------------------------------------------
+# The line, "set qchild ..." below had a typo.  It should be
+# "info command $child" instead of "winfo command $child".
+#-----------------------------------------------------------
 proc tkMenuFind {w char} {
     global tkPriv
     set char [string tolower $char]
 
+    # Added by csmith, 5/10/01, to fix a bug reported on the itcl mailing list.
+    if {$w == "."} {
+      foreach child [winfo child $w] {
+        set match [tkMenuFind $child $char]
+	if {$match != ""} {
+	  return $match
+	}
+      }
+      return {}
+    }
+
     foreach child [winfo child $w] {
 	switch [winfo class $child] {
 	    Menubutton {
-		set qchild [winfo command $child]
+		set qchild [info command $child]
 		set char2 [string index [$qchild cget -text] \
 			[$qchild cget -underline]]
 		if {([string compare $char [string tolower $char2]] == 0)
@@ -2236,5 +2265,3 @@ proc tkMenuFind {w char} {
     }
     return {}
 }
-
-

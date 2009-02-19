@@ -5,26 +5,29 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) scrolledtext.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS scrolledtext iwid
+.HS iwidgets::scrolledtext iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-scrolledtext \- Create and manipulate a scrolled text widget
+iwidgets::scrolledtext \- Create and manipulate a scrolled text widget
 .SH SYNOPSIS
-\fBscrolledtext\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::scrolledtext\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- Scrolledwidget <- Scrolledtext
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Scrolledwidget <- iwidgets::Scrolledtext
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
 \fBactiveBackground\fR	\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR
-\fBexportSelection\fR	\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR
-\fBinsertBackground\fR	\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR
-\fBinsertWidth\fR	\fBpadX\fR	\fBpadY\fR	\fBrelief\fR
-\fBselectBackground\fR	\fBselectBorderWidth\fR	\fBselectForeground\fR	\fBsetGrid\fR 
+\fBexportSelection\fR		\fBforeground\fR	\fBhighlightColor\fR
+\fBhighlightThickness\fR	\fBinsertBackground\fR
+\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR
+\fBinsertWidth\fR		\fBpadX\fR	\fBpadY\fR
+\fBrelief\fR		\fBselectBackground\fR
+\fBselectBorderWidth\fR	\fBselectForeground\fR
+\fBsetGrid\fR 
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -41,7 +44,7 @@ associated options.
 .nf
 .ta 4c 8c 12c
 \fBspacing1\fR	\fBspacing2\fR	\fBspacing3\fR	\fBstate\fR
-\fBwrap\fR
+\fBtabs\fR	\fBwrap\fR
 .fi
 .LP
 See the "text" widget manual entry for details on the above
@@ -52,7 +55,7 @@ associated options.
 .ta 4c 8c 12c
 \fBdisabledForeground\fR	\fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR
 \fBlabelMargin\fR	\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
-\fBstate\fR
+\fBstate\fR	\fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" class manual entry for details on the inherited options.
@@ -168,7 +171,7 @@ manner.  The default width is zero.
 
 .SH DESCRIPTION
 .PP
-The \fBscrolledtext\fR command creates 
+The \fBiwidgets::scrolledtext\fR command creates 
 a scrolled text widget with additional options to manage
 the scrollbars.  This includes options to control the method
 in which the scrollbars are displayed, i.e. statically or  dynamically.
@@ -178,7 +181,7 @@ file I/O.
 
 .SH "METHODS"
 .PP
-The \fBscrolledtext\fR command creates a new Tcl command whose
+The \fBiwidgets::scrolledtext\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -193,9 +196,10 @@ commands are possible for scrolledtext widgets:
 .nf
 .ta 4c 8c 12c
 \fBbbox\fR	\fBcompare\fR	\fBdebug\fR	\fBdelete\fR	
-\fBdlineinfo\fR	\fBget\fR	\fBindex\fR	\fBinsert\fR
-\fBmark\fR	\fBscan\fR	\fBsearch\fR	\fBsee\fR
-\fBtag\fR	\fBwindow\fR	\fBxview\fR	\fByview\fR
+\fBdlineinfo\fR	\fBget\fR	\fBimage\fR	\fBindex\fR
+\fBinsert\fR	\fBmark\fR	\fBscan\fR	\fBsearch\fR
+\fBsee\fR	\fBtag\fR	\fBwindow\fR	\fBxview\fR
+\fByview\fR
 .fi
 .LP
 See the "text" manual entry for details on the standard methods.
@@ -205,7 +209,7 @@ See the "text" manual entry for details on the standard methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBscrolledtext\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::scrolledtext\fR
 command.
 .TP
 \fIpathName \fBchildsite\fR
@@ -225,7 +229,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBscrolledtext\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::scrolledtext\fR
 command.
 .TP
 \fIpathName \fBimport\fR \fIfilename\fR ?\fIindex\fR?
@@ -265,9 +269,10 @@ manual entry for details on the vertsb component item.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  option add *textBackground white
 
- scrolledtext .st -scrollmode dynamic -labeltext "Password File"
+ iwidgets::scrolledtext .st -hscrollmode dynamic -labeltext "Password File"
 
  pack .st -padx 10 -pady 10 -fill both -expand yes
 

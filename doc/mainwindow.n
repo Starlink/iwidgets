@@ -5,23 +5,24 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) mainwindow.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS mainwindow iwid
+.HS iwidgets::mainwindow iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-mainwindow \- Create and manipulate a mainwindow widget
+iwidgets::mainwindow \- Create and manipulate a mainwindow widget
 .SH SYNOPSIS
-\fBmainwindow\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::mainwindow\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Toplevel <- shell <- mainwindow
+itk::Toplevel <- iwidgets::Shell <- iwidgets::Mainwindow
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBbackground\fR	\fBcursor\fR	\fBdisabledForeground\fR	\fBfont\fR
-\fBforeground\fR	\fBhighlightBackground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR
+\fB
+background  cursor               disabledForeground  font
+foreground  highlightBackground  highlightColor      highlightThickness\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -124,13 +125,13 @@ Specifies the normal foreground color for the toolbar.
 
 .SH DESCRIPTION
 .PP
-The \fBmainwindow\fR command creates a mainwindow shell which contains
+The \fBiwidgets::mainwindow\fR command creates a mainwindow shell which contains
 a menubar, toolbar, mousebar, childsite, status line, and help line.  
 Each item may be filled and configured to suit individual needs.
 
 .SH "METHODS"
 .PP
-The \fBmainwindow\fR command create a new Tcl command whose
+The \fBiwidgets::mainwindow\fR command create a new Tcl command whose
 name is \fIpathName\fR.  This command may be used to invoke various
 operations on the widget.  It has the following general form:
 .DS C
@@ -152,7 +153,7 @@ See the "shell" manual entry for details on the above inherited methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBmainwindow\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::mainwindow\fR
 command.
 .TP
 \fIpathName \fBchildsite\fR
@@ -169,7 +170,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBmainwindow\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::mainwindow\fR
 command.
 .TP
 \fIpathName \fBmenubar\fR ?\fIargs\fR?
@@ -261,7 +262,8 @@ the toolbar component item.
 
 .SH EXAMPLE
 .DS
- mainwindow .mw
+ package require Iwidgets 4.0
+ iwidgets::mainwindow .mw
 
  #
  # Add a File menubutton
@@ -289,7 +291,7 @@ the toolbar component item.
  #
  # Install a scrolledtext widget in the childsite.
  #
- scrolledtext [.mw childsite].st
+ iwidgets::scrolledtext [.mw childsite].st
  pack [.mw childsite].st -fill both -expand yes
 
  #

@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts              EMAIL: mulferts@austin.dsccc.com
 #
-#  @(#) $Id: selectiondialog.itk,v 1.3 1996/07/12 16:18:16 mulferts Exp $
+#  @(#) $Id: selectiondialog.itk,v 1.2 2001/08/07 19:56:48 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -49,7 +49,7 @@ itk::usual Selectiondialog {
 # ------------------------------------------------------------------
 #                           SELECTIONDIALOG
 # ------------------------------------------------------------------
-class iwidgets::Selectiondialog {
+itcl::class iwidgets::Selectiondialog {
     inherit iwidgets::Dialog
 
     constructor {args} {}
@@ -84,7 +84,7 @@ option add *Selectiondialog.master "." widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::constructor {args} {
+itcl::body iwidgets::Selectiondialog::constructor {args} {
     #
     # Set the borderwidth to zero.
     #
@@ -95,14 +95,14 @@ body iwidgets::Selectiondialog::constructor {args} {
     #
     itk_component add selectionbox {
 	iwidgets::Selectionbox $itk_interior.selectionbox \
-		-dblclickcommand [code $this invoke]
+		-dblclickcommand [itcl::code $this invoke]
     } {
 	usual
 
 	keep -childsitepos -exportselection -itemscommand -itemslabel \
 	    -itemson -selectionlabel -selectionon -selectioncommand
     }
-    configure -itemscommand [code $this selectitem]
+    configure -itemscommand [itcl::code $this selectitem]
     
     pack $itk_component(selectionbox) -fill both -expand yes
     set itk_interior [$itk_component(selectionbox) childsite]
@@ -121,7 +121,7 @@ body iwidgets::Selectiondialog::constructor {args} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::childsite {} {
+itcl::body iwidgets::Selectiondialog::childsite {} {
     return [$itk_component(selectionbox) childsite]
 }
 
@@ -130,7 +130,7 @@ body iwidgets::Selectiondialog::childsite {} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::get {} {
+itcl::body iwidgets::Selectiondialog::get {} {
     return [$itk_component(selectionbox) get]
 }
 
@@ -139,7 +139,7 @@ body iwidgets::Selectiondialog::get {} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::curselection {} {
+itcl::body iwidgets::Selectiondialog::curselection {} {
     return [$itk_component(selectionbox) curselection]
 }
 
@@ -148,7 +148,7 @@ body iwidgets::Selectiondialog::curselection {} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::clear {component} {
+itcl::body iwidgets::Selectiondialog::clear {component} {
     $itk_component(selectionbox) clear $component
 
     return
@@ -159,7 +159,7 @@ body iwidgets::Selectiondialog::clear {component} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::insert {component index args} {
+itcl::body iwidgets::Selectiondialog::insert {component index args} {
     eval $itk_component(selectionbox) insert $component $index $args
 
     return
@@ -170,7 +170,7 @@ body iwidgets::Selectiondialog::insert {component index args} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::delete {first {last {}}} {
+itcl::body iwidgets::Selectiondialog::delete {first {last {}}} {
     $itk_component(selectionbox) delete $first $last
 
     return
@@ -181,7 +181,7 @@ body iwidgets::Selectiondialog::delete {first {last {}}} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::size {} {
+itcl::body iwidgets::Selectiondialog::size {} {
     return [$itk_component(selectionbox) size]
 }
 
@@ -190,7 +190,7 @@ body iwidgets::Selectiondialog::size {} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::scan {option args} {
+itcl::body iwidgets::Selectiondialog::scan {option args} {
     return [eval $itk_component(selectionbox) scan $option $args]
 }
 
@@ -199,7 +199,7 @@ body iwidgets::Selectiondialog::scan {option args} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::nearest {y} {
+itcl::body iwidgets::Selectiondialog::nearest {y} {
     return [$itk_component(selectionbox) nearest $y]
 }
 
@@ -208,7 +208,7 @@ body iwidgets::Selectiondialog::nearest {y} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::index {index} {
+itcl::body iwidgets::Selectiondialog::index {index} {
     return [$itk_component(selectionbox) index $index]
 }
 
@@ -217,7 +217,7 @@ body iwidgets::Selectiondialog::index {index} {
 #
 # Thinwrapped method of selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::selection {option args} {
+itcl::body iwidgets::Selectiondialog::selection {option args} {
     eval $itk_component(selectionbox) selection $option $args
 }
 
@@ -226,7 +226,7 @@ body iwidgets::Selectiondialog::selection {option args} {
 #
 # Set the default button to ok and select the item.
 # ------------------------------------------------------------------
-body iwidgets::Selectiondialog::selectitem {} {
+itcl::body iwidgets::Selectiondialog::selectitem {} {
     default OK
     $itk_component(selectionbox) selectitem
 }

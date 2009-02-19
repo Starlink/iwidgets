@@ -4,27 +4,28 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
-'\" @(#) WIDGET.n
-'/"
+'\" @(#) tabset.n
+'\"
 .so man.macros
-.HS tabset iwid
+.HS iwidgets::tabset iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 '\"
 '\"
 .SH NAME
-tabset \- create and manipulate tabs as as set
+iwidgets::tabset \- create and manipulate tabs as as set
 .SH SYNOPSIS
-\fBtabset\fR \fIpathName\fR ?\fIoptions\fR?
+\fBiwidgets::tabset\fR \fIpathName\fR ?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- tabset
+itk::Widget <- iwidgets::Tabset
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBbackground\fR	\fBfont\fR	\fBselectBackground\fR	\fBcursor\fR
-\fBforeground\fR	\fBselectForeground\fR	\fBdisabledForeground\fR	\fBheight\fR
-\fBwidth\fR
+\fB
+background  font              selectBackground    cursor
+foreground  selectForeground  disabledForeground  height
+width\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -207,11 +208,11 @@ tabs open to the left.
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtabset\fR command creates a new window (given by the pathName 
+The \fBiwidgets::tabset\fR command creates a new window (given by the pathName 
 argument) and makes it into a \fBtabset\fR widget. Additional \fIoptions\fR, 
 described above may be specified on the command line or in the option 
 database to configure aspects of the tabset such as its colors, font, and 
-text. The \fBtabset\fR command returns its \fIpathName\fR argument. At the 
+text. The \fBiwidgets::tabset\fR command returns its \fIpathName\fR argument. At the 
 time this command is invoked, there must not exist a window 
 named \fIpathName\fR, but pathName's parent must exist.
 .PP
@@ -236,7 +237,7 @@ tab sides are drawn with, gap between tabs, starting margin of tabs,
 internal padding around labels in a tab, the font, and its text or bitmap.
 .SH "WIDGET-SPECIFIC METHODS"
 .PP
-The \fBtabset\fR command creates a new Tcl command whose name 
+The \fBiwidgets::tabset\fR command creates a new Tcl command whose name 
 is \fIpathName\fR. This command may be used to invoke various operations on 
 the widget. It has the following general form:
 .DS C
@@ -376,7 +377,7 @@ identical to the corresponding sublist of the value returned if no option
 is specified). If one or more option-value pairs are specified, then the 
 command modifies the given widget option(s) to have the given value(s); in 
 this case the command returns an empty string. \fIOption\fR may have any 
-of the values accepted by the tabset command.
+of the values accepted by the iwidgets::tabset command.
 .TP
 \fIpathName\fR \fBdelete\fR \fIindex1\fR ?\fIindex2\fR?
 Delete all of the tabs between \fIindex1\fR and \fIindex2\fR inclusive. 
@@ -426,6 +427,7 @@ also selects the corresponding tab.
 .nf
 .IP
 .ta 2c 8c 12c
+package require Iwidgets 4.0
 # Define a proc that knows how to select an item 
 # from a list given an index from the tabset -command callback.
   proc selectItem { item } {
@@ -452,7 +454,7 @@ also selects the corresponding tab.
 .IP
 # Create a tabset, set its -command to call selectItem
 # Add two labels to the tabset (one and two).
-  tabset .ts -command selectItem
+  iwidgets::tabset .ts -command selectItem
   .ts add -label 1
   .ts add -label 2
   .ts select 0

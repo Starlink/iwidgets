@@ -5,18 +5,18 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) feedback.n
-'/" 
+'\" 
 .so man.macros
-.HS feedback iwid
+.HS iwidgets::feedback iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-feedback \- Create and manipulate a feedback widget to display feedback on
+iwidgets::feedback \- Create and manipulate a feedback widget to display feedback on
 the current status of an ongoing operation to the user.
 .SH SYNOPSIS
-\fBfeedback\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::feedback\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- Feedback
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Feedback
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -31,7 +31,7 @@ See the "options" manual entry for details on the standard options.
 .nf
 .ta 4c 8c 12c
 \fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR	\fBlabelMargin\fR
-\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR 
+\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR 	\fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" class manual entry for details on the inherited options.
@@ -75,14 +75,14 @@ Specifies the total number of steps for the status bar. The default is 10.
 
 .SH DESCRIPTION
 .PP
-The \fBfeedback\fR command creates a widget to display feedback on
+The \fBiwidgets::feedback\fR command creates a widget to display feedback on
 the current status of an ongoing operation to the user. Display is given as
 a percentage and as a thermometer type bar. Options exist for adding a label
 and controlling its position.
 
 .SH "METHODS"
 .PP
-The \fBfeedback\fR command creates a new Tcl command whose
+The \fBiwidgets::feedback\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This command may be used to invoke various
 operations on the widget.  It has the following general form:
 .DS C
@@ -111,7 +111,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBfeedback\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::feedback\fR
 command.
 .TP
 \fIpathName\fR \fBreset\fR
@@ -124,7 +124,8 @@ by \fIinc\fR. \fIInc\fR defaults to 1.
 
 .SH EXAMPLE
 .DS
- feedback .fb -labeltext "Status" -steps 20
+ package require Iwidgets 4.0
+ iwidgets::feedback .fb -labeltext "Status" -steps 20
  pack .fb -padx 10 -pady 10 -fill both -expand yes
 
  for {set i 0} {$i < 20} {incr i} {

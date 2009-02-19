@@ -5,23 +5,24 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) tabnotebook.n
-'/"
+'\"
 .so man.macros
-.HS tabnotebook iwid
+.HS iwidgets::tabnotebook iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-tabnotebook \- create and manipulate tabnotebook widgets
+iwidgets::tabnotebook \- create and manipulate tabnotebook widgets
 .SH SYNOPSIS
-\fBtabnotebook\fR \fIpathName\fR? \fIoptions\fR?
+\fBiwidgets::tabnotebook\fR \fIpathName\fR? \fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- tabnotebook
+itk::Widget <- iwidgets::Tabnotebook
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBbackground\fR	\fBdisabledForeground\fR	\fBforeground\fR	\fBscrollCommand\fR
-\fBcursor\fR	\fBfont\fR	\fBheight\fR	\fBwidth\fR
+\fB
+background  disabledForeground  foreground  scrollCommand
+cursor      font                height      width\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -270,11 +271,11 @@ area. Must be n, s, e, or w. Defaults to s.
 .BE
 .SH DESCRIPTION
 .PP
-The \fBtabnotebook\fR command creates a new window (given by the pathName 
+The \fBiwidgets::tabnotebook\fR command creates a new window (given by the pathName 
 argument) and makes it into a \fBtabnotebook\fR widget. Additional options, 
 described above may be specified on the command line or in the option 
 database to configure aspects of the tabnotebook such as its colors, font, 
-and text. The tabnotebook command returns its pathName argument. At the 
+and text. The iwidgets::tabnotebook command returns its pathName argument. At the 
 time this command is invoked, there must not exist a window named 
 pathName, but pathName's parent must exist.
 .PP
@@ -343,7 +344,7 @@ Microsoft-style tabs, Borland property tab styles, or Borland Delphi
 style tabs all with the same tabnotebook.
 .SH "WIDGET-SPECIFIC METHODS"
 .PP
-The \fBtabnotebook\fR command creates a new Tcl command whose name 
+The \fBiwidgets::tabnotebook\fR command creates a new Tcl command whose name 
 is \fIpathName\fR. This command may be used to invoke various operations 
 on the widget. It has the following general form:
 .DS C
@@ -503,7 +504,7 @@ identical to the corresponding sublist of the value returned if no option
 is specified). If one or more option-value pairs are specified, then the 
 command modifies the given widget option(s) to have the given value(s); in 
 this case the command returns an empty string. \fIOption\fR may have any 
-of the values accepted by the tabnotebook command.
+of the values accepted by the iwidgets::tabnotebook command.
 .TP
 \fIpathName\fR \fBdelete\fR \fIindex1\fR ?\fIindex2\fR?
 Delete all of the pages between \fIindex1\fR and \fIindex2\fR inclusive. 
@@ -623,8 +624,9 @@ Following is an example that creates a tabnotebook with two pages.
 .nf
 .IP
 .ta 2c 8c 12c
+package require Iwidgets 4.0
 # Create the tabnotebook widget and pack it.
-  tabnotebook .tn -width 100 -height 100
+  iwidgets::tabnotebook .tn -width 100 -height 100
   pack .tn \\
 	-anchor nw \\
 	-fill both \\

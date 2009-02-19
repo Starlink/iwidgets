@@ -1,4 +1,3 @@
-#  PWD: edits for various  set $variable $value" bugs
 #
 # Notebook Widget
 # ----------------------------------------------------------------------
@@ -29,7 +28,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Bill W. Scott                 EMAIL: bscott@spd.dsccc.com
 #
-#  @(#) $Id: notebook.itk,v 1.4 1996/07/16 21:07:19 mulferts Exp $
+#  @(#) $Id: notebook.itk,v 1.4 2001/08/15 18:33:31 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -70,7 +69,7 @@ itk::usual Notebook {
 # ------------------------------------------------------------------
 #                            NOTEBOOK
 # ------------------------------------------------------------------
-class iwidgets::Notebook {
+itcl::class iwidgets::Notebook {
     inherit itk::Widget
     
     constructor {args} {}
@@ -115,12 +114,12 @@ proc ::iwidgets::notebook {pathName args} {
 # ------------------------------------------------------------------
 #                      CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Notebook::constructor {args}  {
+itcl::body iwidgets::Notebook::constructor {args}  {
     #
     # Create the outermost frame to maintain geometry.
     #
     itk_component add cs {
-	frame $itk_interior.cs
+	frame $itk_interior.cs 
     } {
 	keep -cursor -background -width -height
     }
@@ -141,7 +140,7 @@ body iwidgets::Notebook::constructor {args}  {
 #
 # Sets the bg color of all the pages in the Notebook.
 # ------------------------------------------------------------------
-configbody iwidgets::Notebook::background {
+itcl::configbody iwidgets::Notebook::background {
     if {$itk_option(-background) != {}} {
 	_configurePages -background $itk_option(-background)
     }
@@ -153,7 +152,7 @@ configbody iwidgets::Notebook::background {
 # Determines whether pages are automatically unpacked and
 # packed when pages get selected.
 # ------------------------------------------------------------------
-configbody iwidgets::Notebook::auto {
+itcl::configbody iwidgets::Notebook::auto {
     if {$itk_option(-auto) != {}} {
     }
 }
@@ -166,7 +165,7 @@ configbody iwidgets::Notebook::auto {
 # 
 # typically for scrollbars.
 # ------------------------------------------------------------------
-configbody iwidgets::Notebook::scrollcommand {
+itcl::configbody iwidgets::Notebook::scrollcommand {
     if {$itk_option(-scrollcommand) != {}} {
 	_scrollCommand
     }
@@ -178,12 +177,12 @@ configbody iwidgets::Notebook::scrollcommand {
 # Creates a page and appends it to the list of pages.
 # processes pageconfigure for the page added.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::add { args } {
+itcl::body iwidgets::Notebook::add { args } {
     # The args list should be an even # of params, if not then
     # prob missing value for last item in args list. Signal error.
     set len [llength $args]
-    if { [expr $len % 2] } {
-	error "value for \"[lindex $args [expr $len - 1]]\" missing"
+    if {$len % 2} {
+	error "value for \"[lindex $args [expr {$len - 1}]]\" missing"
     }
     
     # add a Page component
@@ -204,7 +203,7 @@ body iwidgets::Notebook::add { args } {
 # to the page index.  If called with no arguments, returns a list 
 # of all child sites
 # ------------------------------------------------------------------
-body iwidgets::Notebook::childsite { args } {
+itcl::body iwidgets::Notebook::childsite { args } {
     set len [llength $args]
     
     switch $len {
@@ -228,7 +227,7 @@ body iwidgets::Notebook::childsite { args } {
 	    # index out of range
 	    if { $index < 0 || $index >= [llength $_pages] } {
 		error "bad Notebook page index in childsite method:\
-			should be between 0 and [expr [llength $_pages] - 1]"
+			should be between 0 and [expr {[llength $_pages] - 1}]"
 	    }
 	    
 	    set pathName [lindex $_pages $index]
@@ -249,7 +248,7 @@ body iwidgets::Notebook::childsite { args } {
 # 
 # Deletes a page or range of pages from the notebook
 # ------------------------------------------------------------------
-body iwidgets::Notebook::delete { args } {
+itcl::body iwidgets::Notebook::delete { args } {
     # empty notebook
     if { $_pages == {} } {
 	error "can't delete page, no pages in the notebook\
@@ -263,7 +262,7 @@ body iwidgets::Notebook::delete { args } {
 	    
 	    if { $fromPage < 0 || $fromPage >= [llength $_pages] } {
 		error "bad Notebook page index in delete method:\
-			should be between 0 and [expr [llength $_pages] - 1]"
+			should be between 0 and [expr {[llength $_pages] - 1}]"
 	    }
 	    
 	    set toPage $fromPage
@@ -275,14 +274,14 @@ body iwidgets::Notebook::delete { args } {
 	    
 	    if { $fromPage < 0 || $fromPage >= [llength $_pages] } {
 		error "bad Notebook page index1 in delete method:\
-			should be between 0 and [expr [llength $_pages] - 1]"
+			should be between 0 and [expr {[llength $_pages] - 1}]"
 	    }
 	    
 	    set toPage [_index $_pages [lindex $args 1] $_currPage]
 	    
 	    if { $toPage < 0 || $toPage >= [llength $_pages] } {
 		error "bad Notebook page index2 in delete method:\
-			should be between 0 and [expr [llength $_pages] - 1]"
+			should be between 0 and [expr {[llength $_pages] - 1}]"
 		error "bad Notebook page index2"
 	    }
 	    
@@ -308,7 +307,7 @@ body iwidgets::Notebook::delete { args } {
 #
 # Given an index identifier returns the numeric index of the page
 # ------------------------------------------------------------------
-body iwidgets::Notebook::index { args } {
+itcl::body iwidgets::Notebook::index { args } {
     if { [llength $args] != 1 } {
 	error "wrong # args: should be\
 		\"$itk_component(hull) index index\""
@@ -327,7 +326,7 @@ body iwidgets::Notebook::index { args } {
 # Inserts a page before a index. The before page may
 # be specified as a label or a page position. 
 # ------------------------------------------------------------------
-body iwidgets::Notebook::insert { args } {
+itcl::body iwidgets::Notebook::insert { args } {
     # ... Error: no args passed
     set len [llength $args]
     if { $len == 0 } {
@@ -343,8 +342,8 @@ body iwidgets::Notebook::insert { args } {
     # The args list should be an even # of params, if not then
     # prob missing value for last item in args list. Signal error.
     set len [llength $args]
-    if { [expr $len % 2] } {
-	error "value for \"[lindex $args [expr $len - 1]]\" missing"
+    if { $len % 2 } {
+	error "value for \"[lindex $args [expr {$len - 1}]]\" missing"
     }
     
     # ... Error: catch notebook empty
@@ -359,7 +358,7 @@ body iwidgets::Notebook::insert { args } {
     # ... Error: catch bad value for before page.
     if { $page < 0 || $page >= [llength $_pages] } {
 	error "bad Notebook page index in insert method:\
-		should be between 0 and [expr [llength $_pages] - 1]"
+		should be between 0 and [expr {[llength $_pages] - 1}]"
     }
     
     # ... Start the business of inserting
@@ -387,7 +386,7 @@ body iwidgets::Notebook::insert { args } {
 #
 # Selects the previous page. Wraps at first back to last page.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::prev { } {
+itcl::body iwidgets::Notebook::prev { } {
     # catch empty notebook
     if { $_pages == {} } {
 	error "can't move to previous page,\
@@ -395,9 +394,9 @@ body iwidgets::Notebook::prev { } {
     }
     
     # bump to the previous page and wrap if necessary
-    set prev [expr $_currPage - 1]
+    set prev [expr {$_currPage - 1}]
     if { $prev < 0 } {
-	set prev [expr [llength $_pages] - 1]
+	set prev [expr {[llength $_pages] - 1}]
     }
     
     select $prev
@@ -410,7 +409,7 @@ body iwidgets::Notebook::prev { } {
 #
 # Selects the next page. Wraps at last back to first page.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::next { } {
+itcl::body iwidgets::Notebook::next { } {
     # catch empty notebook
     if { $_pages == {} } {
 	error "can't move to next page,\
@@ -418,7 +417,7 @@ body iwidgets::Notebook::next { } {
     }
     
     # bump to the next page and wrap if necessary
-    set next [expr $_currPage + 1]
+    set next [expr {$_currPage + 1}]
     if { $next >= [llength $_pages] } {
 	set next 0
     }
@@ -435,7 +434,7 @@ body iwidgets::Notebook::next { } {
 # be a page number or a pattern matching the label associated with 
 # a page.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::pageconfigure { args } {
+itcl::body iwidgets::Notebook::pageconfigure { args } {
     # ... Error: no args passed
     set len [llength $args]
     if { $len == 0 } {
@@ -452,7 +451,7 @@ body iwidgets::Notebook::pageconfigure { args } {
     # ... Error: page out of range
     if { $page < 0 || $page >= [llength $_pages] } {
 	error "bad Notebook page index in pageconfigure method:\
-		should be between 0 and [expr [llength $_pages] - 1]"
+		should be between 0 and [expr {[llength $_pages] - 1}]"
     }
     
     # Configure the page component
@@ -467,13 +466,13 @@ body iwidgets::Notebook::pageconfigure { args } {
 # be a page number or a pattern matching the label associated with 
 # a page.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::pagecget { index option } {
+itcl::body iwidgets::Notebook::pagecget { index option } {
     set page [_index $_pages $index $_currPage]
     
     # ... Error: page out of range
     if { $page < 0 || $page >= [llength $_pages] } {
 	error "bad Notebook page index in pagecget method:\
-		should be between 0 and [expr [llength $_pages] - 1]"
+		should be between 0 and [expr {[llength $_pages] - 1}]"
     }
     
     # Get the page info.
@@ -489,7 +488,7 @@ body iwidgets::Notebook::pagecget { index option } {
 # selected page or -1 if tried to do a select select when there is 
 # no selection.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::select { index } {
+itcl::body iwidgets::Notebook::select { index } {
     global page$itk_component(hull)
     
     # ... Error: empty notebook
@@ -507,7 +506,7 @@ body iwidgets::Notebook::select { index } {
     
     if { $reqPage < 0 || $reqPage >= [llength $_pages] } {
 	error "bad Notebook page index in select method:\
-		should be between 0 and [expr [llength $_pages] - 1]"
+		should be between 0 and [expr {[llength $_pages] - 1}]"
     }
     
     # if we already have this page selected, then ignore selection.
@@ -562,7 +561,7 @@ body iwidgets::Notebook::select { index } {
 #
 # Selects the page by using num as indicator of next or	previous
 # ------------------------------------------------------------------
-body iwidgets::Notebook::view { args } {
+itcl::body iwidgets::Notebook::view { args } {
     set len [llength $args]
     switch -- $len {
 	0 {
@@ -579,7 +578,7 @@ body iwidgets::Notebook::view { args } {
 	    if { $arg == "moveto" } {
 		set fraction [lindex $args 1]
 		if { [catch { set page \
-			[expr round($fraction/(1.0/[llength $_pages]))]}]} {
+			[expr {round($fraction/(1.0/[llength $_pages]))}]}]} {
 		    error "expected floating-point number \
 			    but got \"$fraction\""
 		}
@@ -603,7 +602,7 @@ body iwidgets::Notebook::view { args } {
 		if { ! [regexp {^[-]*[0-9]*$} $amount] } {
 		    error "expected integer but got \"$amount\""
 		}
-		set page [expr $_currPage + $amount]
+		set page [expr {$_currPage + $amount}]
 		if { $page >= 0 && $page < [llength $_pages] } {
 		    select $page
 		}
@@ -633,7 +632,7 @@ body iwidgets::Notebook::view { args } {
 #
 # Returns a list of child sites for all pages in the notebook.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::_childSites { } {
+itcl::body iwidgets::Notebook::_childSites { } {
     # empty notebook
     if { $_pages == {} } {
 	error "can't get childsite list,\
@@ -659,11 +658,11 @@ body iwidgets::Notebook::_childSites { } {
 # it is designed to talk to scrollbars and the the
 # tabset also knows how to obey scrollbar protocol.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::_scrollCommand { } {
+itcl::body iwidgets::Notebook::_scrollCommand { } {
     if { $itk_option(-scrollcommand) != {} } {
         if  { $_currPage != -1 }  {
-	    set relTop [expr ($_currPage*1.0) / [llength $_pages]]
-	    set relBottom [expr (($_currPage+1)*1.0) / [llength $_pages]]
+	    set relTop [expr {($_currPage*1.0) / [llength $_pages]}]
+	    set relBottom [expr {(($_currPage+1)*1.0) / [llength $_pages]}]
 	    set scrollCommand "$itk_option(-scrollcommand) $relTop $relBottom"
 	} else {
 	    set scrollCommand "$itk_option(-scrollcommand) 0 1"
@@ -684,13 +683,13 @@ body iwidgets::Notebook::_scrollCommand { } {
 # an integer it looks it up in the $pathList array.
 # If it fails it returns -1
 # ------------------------------------------------------------------
-body iwidgets::Notebook::_index { pathList index select} {
+itcl::body iwidgets::Notebook::_index { pathList index select} {
     switch -- $index {
 	select {
 	    set number $select
 	}
 	end {
-	    set number [expr [llength $pathList] -1]
+	    set number [expr {[llength $pathList] -1}]
 	}
 	default {
 	    # is it a number already?
@@ -730,7 +729,7 @@ body iwidgets::Notebook::_index { pathList index select} {
 # Creates a page, using unique page naming, propagates background
 # and keeps unique id up to date.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::_createPage { args } {
+itcl::body iwidgets::Notebook::_createPage { args } {
     #
     # create an internal name for the page: .n.cs.page0, .n.cs.page1, etc.
     #
@@ -753,7 +752,7 @@ body iwidgets::Notebook::_createPage { args } {
 #
 # Also keeps the current selection in bounds.
 # ------------------------------------------------------------------
-body iwidgets::Notebook::_deletePages { fromPage toPage } {
+itcl::body iwidgets::Notebook::_deletePages { fromPage toPage } {
     for { set page $fromPage } { $page <= $toPage } { incr page } {
 	# kill the widget
 	set pathName [lindex $_pages $page]
@@ -765,7 +764,7 @@ body iwidgets::Notebook::_deletePages { fromPage toPage } {
     
     # If we deleted a selected page set our selection to none
     if { $_currPage >= $fromPage && $_currPage <= $toPage } {
-	set _currPage -1; #PWD: was $_currPage
+	set _currPage -1
     }
     
     # make sure _currPage stays in sync with new numbering...
@@ -792,7 +791,7 @@ body iwidgets::Notebook::_deletePages { fromPage toPage } {
 #
 # Does the pageconfigure method on each page in the notebook
 # ------------------------------------------------------------------
-body iwidgets::Notebook::_configurePages { args } {
+itcl::body iwidgets::Notebook::_configurePages { args } {
     # make sure we have pages
     if { [catch {set _pages}] } {
 	return
@@ -812,7 +811,7 @@ body iwidgets::Notebook::_configurePages { args } {
 #
 # This method is up for debate... do we need the -tabcommand option?
 # ------------------------------------------------------------------
-body iwidgets::Notebook::_tabCommand { } {
+itcl::body iwidgets::Notebook::_tabCommand { } {
     global page$itk_component(hull)
     
     if { $itk_option(-tabcommand) != {} } {
@@ -873,7 +872,7 @@ option add *Page.disabledForeground #a3a3a3     widgetDefault
 option add *Page.label              {}       widgetDefault
 option add *Page.command            {}       widgetDefault
 
-class iwidgets::Page {
+itcl::class iwidgets::Page {
     inherit itk::Widget
     
     constructor {args} {}
@@ -889,12 +888,12 @@ class iwidgets::Page {
 # ------------------------------------------------------------------
 #                          CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Page::constructor {args} {
+itcl::body iwidgets::Page::constructor {args} {
     #
     # Create the outermost frame to maintain geometry.
     #
     itk_component add cs {
-	frame $itk_interior.cs
+	frame $itk_interior.cs 
     } {
 	keep -cursor -background -width -height
     }
@@ -912,7 +911,7 @@ body iwidgets::Page::constructor {args} {
 #
 # Sets the disabledForeground color of this page
 # ------------------------------------------------------------------
-configbody iwidgets::Page::disabledforeground {
+itcl::configbody iwidgets::Page::disabledforeground {
 }
 
 # ------------------------------------------------------------------
@@ -921,7 +920,7 @@ configbody iwidgets::Page::disabledforeground {
 # Sets the label of this page.  The label is a string identifier 
 # for this page.
 # ------------------------------------------------------------------
-configbody iwidgets::Page::label {
+itcl::configbody iwidgets::Page::label {
 }
 
 # ------------------------------------------------------------------
@@ -929,7 +928,7 @@ configbody iwidgets::Page::label {
 #
 # The Tcl Command to associate with this page.
 # ------------------------------------------------------------------
-configbody iwidgets::Page::command {
+itcl::configbody iwidgets::Page::command {
 }
 
 # ------------------------------------------------------------------
@@ -941,7 +940,7 @@ configbody iwidgets::Page::command {
 #
 # Returns the child site widget of this page
 # ------------------------------------------------------------------
-body iwidgets::Page::childsite { } {
+itcl::body iwidgets::Page::childsite { } {
     return $itk_component(cs)
 }
 

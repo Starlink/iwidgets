@@ -11,9 +11,22 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: dateentry.test,v 1.1 1996/01/02 15:21:45 mulferts Exp $
+# @(#) $Id: dateentry.test,v 1.5 2001/11/16 15:28:03 smithc Exp $
 
-package require Iwidgets 3.0
+package require tcltest
+namespace import -force ::tcltest::*
+
+if [catch {package require Iwidgets 4.0}] {
+  # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
+  # env var is initialized in the Makefile when doing a 'make test'.
+  # If sourcing this file independently, this variable must be set manually.
+  if ![info exists env(IWIDGETS_LIBRARY)] {
+    error "Unable to locate Iwidgets package.  Set your IWIDGETS_LIBRARY\
+      environment\nvariable to the directory that contains iwidgets.tcl"
+  }
+  lappend auto_path $env(IWIDGETS_LIBRARY)
+  package require Iwidgets 4.0
+}
 
 if {[string compare test [info procs test]] == 1} {
     source defs
@@ -42,7 +55,7 @@ incr c
 #
 test Dateentry-2.$o {configuration option} {
     llength [.de configure]
-} {43}
+} {46}
 
 incr o
 
@@ -56,10 +69,20 @@ foreach test {
     {-exportselection 0 0} 
     {-foreground Green Green} 
     {-foreground Black Black} 
+    {-gmt true true}
+    {-gmt false false}
+    {-gmt on on}
+    {-gmt off off}
+    {-gmt 1 1}
+    {-gmt 0 0}
+    {-gmt yes yes}
+    {-gmt no no}
     {-highlightcolor Red Red}
     {-highlightthickness 2 2}
     {-insertbackground Yellow Yellow} 
     {-insertbackground Black Black} 
+    {-int yes yes}
+    {-int no no}
     {-iq low low}
     {-iq average average}
     {-iq high high}
@@ -88,6 +111,15 @@ foreach test {
     {-selectcolor blue blue}
     {-selectthickness 2 2}
     {-startday monday monday}
+    {-sticky w w} 
+    {-sticky nw nw} 
+    {-sticky n n} 
+    {-sticky ne ne} 
+    {-sticky e e} 
+    {-sticky se se} 
+    {-sticky s s} 
+    {-sticky sw sw} 
+    {-sticky news news}
     {-titlefont -*-helvetica-bold-r-normal--*-140-* -*-helvetica-bold-r-normal--*-140-*}
     {-weekdaybackground mistyrose mistyrose}
     {-weekendbackground white white}
@@ -108,6 +140,7 @@ foreach test {
 #
 foreach test {
   {-iq bogus {bad iq option "bogus": should be high, average or low}}
+  {-gmt bogus {bad gmt option "bogus": should be boolean}}
   {-childsitepos bogus {bad childsite option "bogus": should be n, e, s, or w}}} {
 	set option [lindex $test 0]
         test Dateentry-2.$o "configuration options, $option" {
@@ -181,3 +214,6 @@ test Dateentry-1.$c {Dateentry destruction} {
     destroy .de
     update 
 } {}
+
+::tcltest::cleanupTests
+exit

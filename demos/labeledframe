@@ -1,14 +1,8 @@
-#!/bin/sh
 # ----------------------------------------------------------------------
 #  DEMO: labeledframe in [incr Widgets]
 # ----------------------------------------------------------------------
-#\
-exec itkwish "$0" ${1+"$@"}
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
-#
-# Demo script for the Labeledframe class
-#
 set tk_strictMotif 1
 
 iwidgets::Labeledframe .pr -labelpos ne -labeltext "Print range"

@@ -5,26 +5,29 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) pushbutton.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS pushbutton iwid
+.HS iwidgets::pushbutton iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-pushbutton \- Create and manipulate a push button widget
+iwidgets::pushbutton \- Create and manipulate a push button widget
 .SH SYNOPSIS
-\fBpushbutton\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::pushbutton\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- pushbutton
+itk::Widget <- iwidgets::Pushbutton
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBactiveForeground\fR	\fBbackground\fR	\fBbitmap\fR
-\fBborderWidth\fR	\fBcommand\fR	\fBcursor\fR	\fBdisabledForeground\fR
-\fBfont\fR	\fBforeground\fR	\fBhighlightBackground\fR	\fBhighlightColor\fR
-\fBhighlightThickness\fR	\fBimage\fR	\fBpadX\fR	\fBpadY\fR
-\fBstate\fR	\fBtext\fR	\fBunderline\fR	\fBwrapLength\fR
+\fB
+activeBackground       activeForeground       background
+bitmap                 borderWidth            command
+cursor                 disabledForeground     font
+foreground             highlightBackground    highlightColor
+highlightThickness     image                  padX
+padY                   state                  text
+underline              wrapLength\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -76,12 +79,12 @@ highlightring and defaultringpad.
 
 .SH DESCRIPTION
 .PP
-The \fBpushbutton\fR command creates a push button with an 
+The \fBiwidgets::pushbutton\fR command creates a push button with an 
 optional default ring used for default designation and traversal.
 
 .SH "METHODS"
 .PP
-The \fBpushbutton\fR command creates a new Tcl command whose
+The \fBiwidgets::pushbutton\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -105,7 +108,7 @@ See the "button" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBpushbutton\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::pushbutton\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -119,7 +122,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBpushbutton\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::pushbutton\fR
 command.
 
 .SH "COMPONENTS"
@@ -136,7 +139,8 @@ component item.
 
 .SH EXAMPLE
 .DS
-pushbutton .pb -text "Hello" -command {puts "Hello World"} -defaultring 1
+package require Iwidgets 4.0
+iwidgets::pushbutton .pb -text "Hello" -command {puts "Hello World"} -defaultring 1
 pack .pb -padx 10 -pady 10
 .DE
 .SH AUTHOR

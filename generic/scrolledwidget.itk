@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark Ulferts                        mulferts@austin.dsccc.com 
 #
-#  @(#) $Id: scrolledwidget.itk,v 1.4 1996/07/12 16:16:38 mulferts Exp $
+#  @(#) $Id: scrolledwidget.itk,v 1.2 2001/08/07 19:56:48 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -48,7 +48,7 @@ itk::usual Scrolledwidget {
 # ------------------------------------------------------------------
 #                            SCROLLEDWIDGET
 # ------------------------------------------------------------------
-class iwidgets::Scrolledwidget {
+itcl::class iwidgets::Scrolledwidget {
     inherit iwidgets::Labeledwidget
 
     constructor {args} {}
@@ -91,7 +91,7 @@ option add *Scrolledwidget.labelPos n widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledwidget::constructor {args} {
+itcl::body iwidgets::Scrolledwidget::constructor {args} {
 
     #
     # Turn off the borderwidth on the hull and save off the 
@@ -103,7 +103,7 @@ body iwidgets::Scrolledwidget::constructor {args} {
     #
     # Check if the scrollbars need mapping upon a configure event.
     #
-    bind $_interior <Configure> [code $this _configureEvent]
+    bind $_interior <Configure> [itcl::code $this _configureEvent]
 
     #
     # Turn off propagation in the containing shell.
@@ -147,7 +147,7 @@ body iwidgets::Scrolledwidget::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTURCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledwidget::destructor {} {
+itcl::body iwidgets::Scrolledwidget::destructor {} {
 }
 
 # ------------------------------------------------------------------
@@ -159,7 +159,7 @@ body iwidgets::Scrolledwidget::destructor {} {
 #
 # Set the width of the scrollbars.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledwidget::sbwidth {
+itcl::configbody iwidgets::Scrolledwidget::sbwidth {
     $itk_component(vertsb) configure -width $itk_option(-sbwidth)
     $itk_component(horizsb) configure -width $itk_option(-sbwidth)
 }
@@ -169,7 +169,7 @@ configbody iwidgets::Scrolledwidget::sbwidth {
 #
 # Set the distance between the scrollbars and the list box.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledwidget::scrollmargin {
+itcl::configbody iwidgets::Scrolledwidget::scrollmargin {
     set pixels [winfo pixels $_interior	$itk_option(-scrollmargin)]
     	
     if {$_hmode == "on"} {
@@ -186,7 +186,7 @@ configbody iwidgets::Scrolledwidget::scrollmargin {
 #
 # Enable/disable display and mode of veritcal scrollbars.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledwidget::vscrollmode {
+itcl::configbody iwidgets::Scrolledwidget::vscrollmode {
     switch $itk_option(-vscrollmode) {
     	static {
     	    _vertScrollbarDisplay on
@@ -210,7 +210,7 @@ configbody iwidgets::Scrolledwidget::vscrollmode {
 #
 # Enable/disable display and mode of horizontal scrollbars.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledwidget::hscrollmode {
+itcl::configbody iwidgets::Scrolledwidget::hscrollmode {
     switch $itk_option(-hscrollmode) {
     	static {
     	    _horizScrollbarDisplay on
@@ -235,7 +235,7 @@ configbody iwidgets::Scrolledwidget::hscrollmode {
 # Specifies the width of the scrolled widget.  The value may be 
 # specified in any of the forms acceptable to Tk_GetPixels.  
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledwidget::width {
+itcl::configbody iwidgets::Scrolledwidget::width {
     $_interior configure -width \
 	[winfo pixels $_interior $itk_option(-width)] 
 }
@@ -246,7 +246,7 @@ configbody iwidgets::Scrolledwidget::width {
 # Specifies the height of the scrolled widget.  The value may be 
 # specified in any of the forms acceptable to Tk_GetPixels.  
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledwidget::height {
+itcl::configbody iwidgets::Scrolledwidget::height {
     $_interior configure -height \
 	[winfo pixels $_interior $itk_option(-height)] 
 }
@@ -260,7 +260,7 @@ configbody iwidgets::Scrolledwidget::height {
 #
 # Displays the vertical scrollbar based on the input mode.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledwidget::_vertScrollbarDisplay {mode} {
+itcl::body iwidgets::Scrolledwidget::_vertScrollbarDisplay {mode} {
     switch $mode  {
 	on {
 	    set _vmode on
@@ -288,7 +288,7 @@ body iwidgets::Scrolledwidget::_vertScrollbarDisplay {mode} {
 #
 # Displays the horizontal scrollbar based on the input mode.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledwidget::_horizScrollbarDisplay {mode} {
+itcl::body iwidgets::Scrolledwidget::_horizScrollbarDisplay {mode} {
     switch $mode  {
 	on {
 	    set _hmode on
@@ -318,7 +318,7 @@ body iwidgets::Scrolledwidget::_horizScrollbarDisplay {mode} {
 # and maximum frame size as well as the current -vscrollmode and 
 # -hscrollmode settings.  Parameters are automatic scroll parameters.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledwidget::_scrollWidget {wid first last} {
+itcl::body iwidgets::Scrolledwidget::_scrollWidget {wid first last} {
     $wid set $first $last
 
     if {$wid == $itk_component(vertsb)} {
@@ -369,7 +369,7 @@ body iwidgets::Scrolledwidget::_scrollWidget {wid first last} {
 # Resets the recheck flags which determine if we'll try and map
 # the scrollbars in dynamic mode.  
 # ------------------------------------------------------------------
-body iwidgets::Scrolledwidget::_configureEvent {} {
+itcl::body iwidgets::Scrolledwidget::_configureEvent {} {
     update idletasks
     set _recheckVert 1
     set _recheckHoriz 1

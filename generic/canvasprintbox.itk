@@ -73,7 +73,7 @@ itk::usual Canvasprintbox {
 # the settings will have on the output.
 #
 #>
-class iwidgets::Canvasprintbox {
+itcl::class iwidgets::Canvasprintbox {
 	inherit itk::Widget
 
 	#
@@ -181,7 +181,7 @@ proc ::iwidgets::canvasprintbox {args} {
 # printed. Any change to this attribute will automatically update the "stamp".
 # Defaults to an empty list.
 #>
-configbody iwidgets::Canvasprintbox::printregion {
+itcl::configbody iwidgets::Canvasprintbox::printregion {
 	if {$itk_option(-printregion) != ""
 	&& [llength $itk_option(-printregion)] != 4} {
 		error {bad option "printregion": should contain 4 coordinates}
@@ -195,7 +195,7 @@ configbody iwidgets::Canvasprintbox::printregion {
 # The corresponding entry-widget will reflect the contents of
 # either the printcmd attribute or the filename attribute.
 #>
-configbody iwidgets::Canvasprintbox::output {
+itcl::configbody iwidgets::Canvasprintbox::output {
 	switch $itk_option(-output) {
 	    file - printer {
 		set _globVar($this,output) $itk_option(-output)
@@ -213,7 +213,7 @@ configbody iwidgets::Canvasprintbox::output {
 # The command will get the postscript directed to its standard
 # input. (Only when output is set to "printer")
 #>
-configbody iwidgets::Canvasprintbox::printcmd {
+itcl::configbody iwidgets::Canvasprintbox::printcmd {
 	set _globVar($this,printeref) $itk_option(-printcmd)
 	_update_attr
 }
@@ -224,7 +224,7 @@ configbody iwidgets::Canvasprintbox::printcmd {
 # and/or vpagecnt is more than 1, x.y is appended to the filename
 # where x is the horizontal page number and y the vertical page number.
 #>
-configbody iwidgets::Canvasprintbox::filename {
+itcl::configbody iwidgets::Canvasprintbox::filename {
 	set _globVar($this,fileef) $itk_option(-filename)
 	_update_attr
 }
@@ -233,12 +233,13 @@ configbody iwidgets::Canvasprintbox::filename {
 # The pagesize the printer supports. Changes to this attribute
 # will be reflected immediately in the "stamp".
 #>
-configbody iwidgets::Canvasprintbox::pagesize {
+itcl::configbody iwidgets::Canvasprintbox::pagesize {
 	set opt [string tolower $itk_option(-pagesize)]
 	set lst [string tolower [ezPaperInfo types]]
 	if {[lsearch $lst $opt] == -1} {
 		error "bad option \"pagesize\": should be one of: [ezPaperInfo types]"
 	}
+	$itk_component(paperom) select "*[string range $opt 1 end]"
 	_update_canvas
 }
 
@@ -247,7 +248,7 @@ configbody iwidgets::Canvasprintbox::pagesize {
 # It can take the value "portrait" or "landscape" (default). Changes
 # to this attribute will be reflected immediately in the "stamp".
 #>
-configbody iwidgets::Canvasprintbox::orient {
+itcl::configbody iwidgets::Canvasprintbox::orient {
 	switch $itk_option(-orient) {
 	    "portrait" - "landscape" {
 		$itk_component(orientom) select $itk_option(-orient)
@@ -268,7 +269,7 @@ configbody iwidgets::Canvasprintbox::orient {
 # and the output will never fall outside of the boundaries
 # of the page.
 #>
-configbody iwidgets::Canvasprintbox::stretch {
+itcl::configbody iwidgets::Canvasprintbox::stretch {
 	if {$itk_option(-stretch) != 0 && $itk_option(-stretch) != 1} {
 		error {bad option "stretch": should be a boolean}
 	}
@@ -287,7 +288,7 @@ configbody iwidgets::Canvasprintbox::stretch {
 # hpagecnt end vpagecnt). Any change to this attribute will
 # automatically update the "stamp".
 #>
-configbody iwidgets::Canvasprintbox::posterize {
+itcl::configbody iwidgets::Canvasprintbox::posterize {
 	if {$itk_option(-posterize) != "0" && $itk_option(-posterize) != "1"} {
 		error "expected boolean but got \"$itk_option(-posterize)\""
 	}
@@ -301,7 +302,7 @@ configbody iwidgets::Canvasprintbox::posterize {
 # attribute specifies how many pages should be used horizontaly.
 # Any change to this attribute will automatically update the "stamp".
 #>
-configbody iwidgets::Canvasprintbox::hpagecnt {
+itcl::configbody iwidgets::Canvasprintbox::hpagecnt {
 	set _globVar($this,hpc) $itk_option(-hpagecnt)
 	_update_canvas
 }
@@ -312,7 +313,7 @@ configbody iwidgets::Canvasprintbox::hpagecnt {
 # attribute specifies how many pages should be used verticaly.
 # Any change to this attribute will automatically update the "stamp".
 #>
-configbody iwidgets::Canvasprintbox::vpagecnt {
+itcl::configbody iwidgets::Canvasprintbox::vpagecnt {
 	set _globVar($this,vpc) $itk_option(-vpagecnt)
 	_update_canvas
 }
@@ -320,7 +321,7 @@ configbody iwidgets::Canvasprintbox::vpagecnt {
 # ------------------------------------------------------------------
 # CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Canvasprintbox::constructor {args} {
+itcl::body iwidgets::Canvasprintbox::constructor {args} {
 	set _globVar($this,output) printer
 	set _globVar($this,printeref) ""
 	set _globVar($this,fileef) "canvas.ps"
@@ -351,11 +352,11 @@ body iwidgets::Canvasprintbox::constructor {args} {
 	itk_component add printerrb {
 		radiobutton $cs.printerrb \
 			-text Printer \
-			-variable [scope _globVar($this,output)] \
+			-variable [itcl::scope _globVar($this,output)] \
 			-anchor w \
 			-justify left \
 			-value printer \
-			-command [code $this _update_attr]
+			-command [itcl::code $this _update_attr]
 	} { 
 		usual
 		rename -font -labelfont labelFont Font
@@ -365,7 +366,7 @@ body iwidgets::Canvasprintbox::constructor {args} {
 			-labeltext "command:" \
 			-state normal \
 			-labelpos w \
-			-textvariable [scope _globVar($this,printeref)]
+			-textvariable [itcl::scope _globVar($this,printeref)]
 	}
 
 	itk_component add filerb {
@@ -373,9 +374,9 @@ body iwidgets::Canvasprintbox::constructor {args} {
 			-text File \
 			-justify left \
 			-anchor w \
-			-variable [scope _globVar($this,output)] \
+			-variable [itcl::scope _globVar($this,output)] \
 			-value file \
-			-command [code $this _update_attr]
+			-command [itcl::code $this _update_attr]
 	} { 
 		usual
 		rename -font -labelfont labelFont Font
@@ -385,7 +386,7 @@ body iwidgets::Canvasprintbox::constructor {args} {
 			-labeltext "filename:" \
 			-state disabled \
 			-labelpos w \
-			-textvariable [scope _globVar($this,fileef)]
+			-textvariable [itcl::scope _globVar($this,fileef)]
 	}
 
 	itk_component add propsframe {
@@ -399,7 +400,7 @@ body iwidgets::Canvasprintbox::constructor {args} {
 		iwidgets::optionmenu $cs.paperom \
 			-labelpos w -cyclicon 1 \
 			-labeltext "Paper size:" \
-			-command [code $this refresh]
+			-command [itcl::code $this refresh]
 	} { 
 		usual
 		rename -font -labelfont labelFont Font
@@ -409,7 +410,7 @@ body iwidgets::Canvasprintbox::constructor {args} {
 
 	itk_component add orientom {
 		iwidgets::radiobox $itk_interior.orientom \
-			-labeltext "Orientation" -command [code $this refresh]
+			-labeltext "Orientation" -command [itcl::code $this refresh]
 	}
 	$itk_component(orientom) add landscape -text Landscape
 	$itk_component(orientom) add portrait -text Portrait
@@ -421,8 +422,8 @@ body iwidgets::Canvasprintbox::constructor {args} {
 			-text {Stretch to fit} \
 			-justify left \
 			-anchor w \
-			-variable [scope _globVar($this,stretchcb)] \
-			-command [code $this refresh]
+			-variable [itcl::scope _globVar($this,stretchcb)] \
+			-command [itcl::code $this refresh]
 	} { 
 		usual
 		rename -font -labelfont labelFont Font
@@ -434,8 +435,8 @@ body iwidgets::Canvasprintbox::constructor {args} {
 			-text Posterize \
 			-justify left \
 			-anchor w \
-			-variable [scope _globVar($this,postercb)] \
-			-command [code $this refresh]
+			-variable [itcl::scope _globVar($this,postercb)] \
+			-command [itcl::code $this refresh]
 	} { 
 		usual
 		rename -font -labelfont labelFont Font
@@ -444,17 +445,17 @@ body iwidgets::Canvasprintbox::constructor {args} {
 	itk_component add hpcnt {
 		iwidgets::entryfield $cs.hpcnt \
 			-labeltext on \
-			-textvariable [scope _globVar($this,hpc)] \
+			-textvariable [itcl::scope _globVar($this,hpc)] \
 			-validate integer -width 3 \
-			-command [code $this refresh]
+			-command [itcl::code $this refresh]
 	}
 
 	itk_component add vpcnt {
 		iwidgets::entryfield $cs.vpcnt \
 			-labeltext by \
-			-textvariable [scope _globVar($this,vpc)] \
+			-textvariable [itcl::scope _globVar($this,vpc)] \
 			-validate integer -width 3 \
-			-command [code $this refresh]
+			-command [itcl::code $this refresh]
 	}
 
 	itk_component add pages {
@@ -490,8 +491,8 @@ body iwidgets::Canvasprintbox::constructor {args} {
 
 	eval itk_initialize $args
 
-	bind $itk_component(pages) <Map> +[code $this _mapEventHandler]
-	bind $itk_component(canvas) <Configure> +[code $this refresh]
+	bind $itk_component(pages) <Map> +[itcl::code $this _mapEventHandler]
+	bind $itk_component(canvas) <Configure> +[itcl::code $this refresh]
 }
 
 
@@ -507,7 +508,7 @@ body iwidgets::Canvasprintbox::constructor {args} {
 # In:	canv - The canvas to be printed
 # Out:	canvas (attrib) - Holds the canvas to be printed
 #>	
-body iwidgets::Canvasprintbox::setcanvas {canv} {
+itcl::body iwidgets::Canvasprintbox::setcanvas {canv} {
 	set canvas $canv
 	_update_canvas
 }
@@ -519,7 +520,7 @@ body iwidgets::Canvasprintbox::setcanvas {canv} {
 # In:	itk_option (attrib)
 # Out:	The value of -printercmd or -filename
 #>
-body iwidgets::Canvasprintbox::getoutput {} {
+itcl::body iwidgets::Canvasprintbox::getoutput {} {
 	switch $_globVar($this,output) {
 	  "file" {
 		return $_globVar($this,fileef)
@@ -538,14 +539,14 @@ body iwidgets::Canvasprintbox::getoutput {} {
 # In:	itk_option, rotate (attrib)
 # Out:	A boolean indicating wether printing was successful
 #>
-body iwidgets::Canvasprintbox::print {} {
+itcl::body iwidgets::Canvasprintbox::print {} {
 
 	global env tcl_platform
 
 	stop
 
 	if {$itk_option(-output) == "file"} {
-		set nm $itk_option(-filename)
+		set nm $_globVar($this,fileef)
 		if {[string range $nm 0 1] == "~/"} {
 			set nm "$env(HOME)/[string range $nm 2 end]"
 		}
@@ -558,21 +559,21 @@ body iwidgets::Canvasprintbox::print {} {
 	set y1 [lindex $pr 1]
 	set x2 [lindex $pr 2]
 	set y2 [lindex $pr 3]
-	set cx [expr int(($x2 + $x1) / 2)]
-	set cy [expr int(($y2 + $y1) / 2)]
+	set cx [expr {int(($x2 + $x1) / 2)}]
+	set cy [expr {int(($y2 + $y1) / 2)}]
 	if {!$itk_option(-stretch)} {
 		set ps [_calc_poster_size]
-		set pshw [expr int([lindex $ps 0] / 2)]
-		set pshh [expr int([lindex $ps 1] / 2)]
-		set x [expr $cx - $pshw]
-		set y [expr $cy - $pshh]
+		set pshw [expr {int([lindex $ps 0] / 2)}]
+		set pshh [expr {int([lindex $ps 1] / 2)}]
+		set x [expr {$cx - $pshw}]
+		set y [expr {$cy - $pshh}]
 		set w [ezPaperInfo $itk_option(-pagesize) pwidth $itk_option(-orient) $win]
 		set h [ezPaperInfo $itk_option(-pagesize) pheight $itk_option(-orient) $win]
 	} else {
 		set x $x1
 		set y $y1
-		set w [expr ($x2-$x1) / $_globVar($this,hpc)]
-		set h [expr ($y2-$y1) / $_globVar($this,vpc)]
+		set w [expr {($x2-$x1) / $_globVar($this,hpc)}]
+		set h [expr {($y2-$y1) / $_globVar($this,vpc)}]
 	}
 
 	set i 0
@@ -612,10 +613,10 @@ body iwidgets::Canvasprintbox::print {} {
 				}
 			}
 
-			set py [expr $py + $h]
+			set py [expr {$py + $h}]
 			incr j
 		}
-		set px [expr $px + $w]
+		set px [expr {$px + $w}]
 		incr i
 	}
 
@@ -626,7 +627,7 @@ body iwidgets::Canvasprintbox::print {} {
 # Retrieves the current value for all edit fields and updates
 # the stamp accordingly. Is useful for Apply-buttons.
 #>
-body iwidgets::Canvasprintbox::refresh {} {
+itcl::body iwidgets::Canvasprintbox::refresh {} {
 	stop
 	_update_canvas
         return
@@ -637,7 +638,7 @@ body iwidgets::Canvasprintbox::refresh {} {
 # when a Canvasprintbox gets withdrawn. It's therefore advised
 # that you perform a stop before you do something like that.
 #>
-body iwidgets::Canvasprintbox::stop {} {
+itcl::body iwidgets::Canvasprintbox::stop {} {
 
 	if {$_reposition != ""} {
 		after cancel $_reposition
@@ -669,11 +670,11 @@ body iwidgets::Canvasprintbox::stop {} {
 #	of the total paper area which will be used for printing
 #	in pixels.
 #
-body iwidgets::Canvasprintbox::_calc_poster_size {} {
-	set tpw [expr [ezPaperInfo $itk_option(-pagesize) \
-		pwidth $itk_option(-orient) $win]*$_globVar($this,hpc)]
-	set tph [expr [ezPaperInfo $itk_option(-pagesize) \
-		pheight $itk_option(-orient) $win]*$_globVar($this,vpc)]
+itcl::body iwidgets::Canvasprintbox::_calc_poster_size {} {
+	set tpw [expr {[ezPaperInfo $itk_option(-pagesize) \
+		pwidth $itk_option(-orient) $win]*$_globVar($this,hpc)}]
+	set tph [expr {[ezPaperInfo $itk_option(-pagesize) \
+		pheight $itk_option(-orient) $win]*$_globVar($this,vpc)}]
 
 	return "$tpw $tph"
 }
@@ -689,7 +690,7 @@ body iwidgets::Canvasprintbox::_calc_poster_size {} {
 # Out:	Four floats specifying the region to be printed in
 #	pixel-coordinates (topleft & bottomright).
 #
-body iwidgets::Canvasprintbox::_calc_print_region {} {
+itcl::body iwidgets::Canvasprintbox::_calc_print_region {} {
 	set printreg [expr {$itk_option(-printregion) != "" 
 		? $itk_option(-printregion) : [$canvas bbox all]}]
 
@@ -715,16 +716,16 @@ body iwidgets::Canvasprintbox::_calc_print_region {} {
 # In:	stretch (attrib)
 # Out:	A float specifying the scaling factor.
 #
-body iwidgets::Canvasprintbox::_calc_print_scale {} {
+itcl::body iwidgets::Canvasprintbox::_calc_print_scale {} {
 	if {$itk_option(-stretch)} {
 		set pr [_calc_print_region]
-		set prw [expr [lindex $pr 2] - [lindex $pr 0]]
-		set prh [expr [lindex $pr 3] - [lindex $pr 1]]
+		set prw [expr {[lindex $pr 2] - [lindex $pr 0]}]
+		set prh [expr {[lindex $pr 3] - [lindex $pr 1]}]
 		set ps [_calc_poster_size]
 		set psw [lindex $ps 0]
 		set psh [lindex $ps 1]
-		set sfx [expr $psw / $prw]
-		set sfy [expr $psh / $prh]
+		set sfx [expr {$psw / $prw}]
+		set sfy [expr {$psh / $prh}]
 		set sf [expr {$sfx < $sfy ? $sfx : $sfy}]
 		return $sf
 	} else {
@@ -739,13 +740,13 @@ body iwidgets::Canvasprintbox::_calc_print_scale {} {
 # In:	win, canvas (attrib)
 # Out:	-
 #
-body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
+itcl::body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
 	if {$win == "" || $canvas == "" || [$canvas find all] == ""} {
 		return
 	}
 	if {$when == "later"} {
 		if {$_reposition == ""} {
-			set _reposition [after idle [code $this _update_canvas now]]
+			set _reposition [after idle [itcl::code $this _update_canvas now]]
 		}
 		return
 	}
@@ -773,25 +774,25 @@ body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
 	# total amount of "paper" that would be needed to print the
 	# contents of the "source".
 	#
-	set xsf [expr $width/[lindex $ps 0]]
-	set ysf [expr $height/[lindex $ps 1]]
+	set xsf [expr {$width/[lindex $ps 0]}]
+	set ysf [expr {$height/[lindex $ps 1]}]
 	set sf [expr {$xsf < $ysf ? $xsf : $ysf}]
-	set w [expr [lindex $ps 0]*$sf]
-	set h [expr [lindex $ps 1]*$sf]
-	set x1 [expr ($width-$w)/2]
-	set y1 [expr ($height-$h)/2]
-	set x2 [expr $x1+$w]
-	set y2 [expr $y1+$h]
-	set cx [expr ($x2+$x1)/ 2]
-	set cy [expr ($y2+$y1)/ 2]
+	set w [expr {[lindex $ps 0]*$sf}]
+	set h [expr {[lindex $ps 1]*$sf}]
+	set x1 [expr {($width-$w)/2}]
+	set y1 [expr {($height-$h)/2}]
+	set x2 [expr {$x1+$w}]
+	set y2 [expr {$y1+$h}]
+	set cx [expr {($x2+$x1)/ 2}]
+	set cy [expr {($y2+$y1)/ 2}]
 
 	set printreg [_calc_print_region]
 	set prx1 [lindex $printreg 0]
 	set pry1 [lindex $printreg 1]
 	set prx2 [lindex $printreg 2]
 	set pry2 [lindex $printreg 3]
-	set prcx [expr ($prx2+$prx1)/2]
-	set prcy [expr ($pry2+$pry1)/2]
+	set prcx [expr {($prx2+$prx1)/2}]
+	set prcy [expr {($pry2+$pry1)/2}]
 
 	set psf [_calc_print_scale]
 
@@ -801,14 +802,14 @@ body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
 	# texts are not copied because they can't be scaled,
 	# a rectangle will be created instead.
 	#
-	set tsf [expr $sf * $psf]
-	set dx [expr $cx-($prcx*$tsf)]
-	set dy [expr $cy-($prcy*$tsf)]
+	set tsf [expr {$sf * $psf}]
+	set dx [expr {$cx-($prcx*$tsf)}]
+	set dy [expr {$cy-($prcy*$tsf)}]
 	$canvw create rectangle \
-		[expr $x1+0] \
-		[expr $y1+0] \
-		[expr $x2-0] \
-		[expr $y2-0] -fill white
+		[expr {$x1+0}] \
+		[expr {$y1+0}] \
+		[expr {$x2-0}] \
+		[expr {$y2-0}] -fill white
 	set items [eval "$canvas find overlapping $printreg"]
 
 	set itemCount [llength $items]
@@ -859,7 +860,7 @@ body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
 		$canvw scale $i2 0 0 $tsf $tsf
 		$canvw move $i2 $dx $dy
 
-		if {[expr $cnt%25] == 0} {
+		if {($cnt%25) == 0} {
 			update
 		}
 		if {$_reposition == ""} {
@@ -871,7 +872,7 @@ body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
 	set i 1
 	set vlines {}
 	while {$i < $_globVar($this,hpc)} {
-		set p [expr $p + ($w/$_globVar($this,hpc))]
+		set p [expr {$p + ($w/$_globVar($this,hpc))}]
 		set l [$canvw create line $p $y1 $p $y2]
 		lappend vlines $l
 		incr i
@@ -881,7 +882,7 @@ body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
 	set i 1
 	set vlines {}
 	while {$i < $_globVar($this,vpc)} {
-		set p [expr $p + ($h/$_globVar($this,vpc))]
+		set p [expr {$p + ($h/$_globVar($this,vpc))}]
 		set l [$canvw create line $x1 $p $x2 $p]
 		lappend vlines $l
 		incr i
@@ -900,10 +901,10 @@ body iwidgets::Canvasprintbox::_update_canvas {{when later}} {
 #		of all radiobuttons and checkboxes.
 # Out:	-
 #
-body iwidgets::Canvasprintbox::_update_attr {{when "later"}} {
+itcl::body iwidgets::Canvasprintbox::_update_attr {{when "later"}} {
 	if {$when != "now"} {
 		if {$_update_attr_id == ""} {
-			set _update_attr_id [after idle [code $this _update_attr now]]
+			set _update_attr_id [after idle [itcl::code $this _update_attr now]]
 		}
 		return
 	}
@@ -958,7 +959,7 @@ body iwidgets::Canvasprintbox::_update_attr {{when "later"}} {
 #
 # Gets called when the CanvasPrintBox-widget gets mapped.
 #
-body iwidgets::Canvasprintbox::_mapEventHandler {} {
+itcl::body iwidgets::Canvasprintbox::_mapEventHandler {} {
 	set win $itk_interior
 	set canvw $itk_component(canvas)
 	if {$canvas != ""} {
@@ -970,7 +971,7 @@ body iwidgets::Canvasprintbox::_mapEventHandler {} {
 #
 # Destroy this object and its associated widgets.
 #
-body iwidgets::Canvasprintbox::destructor {} {
+itcl::body iwidgets::Canvasprintbox::destructor {} {
 	stop
 }
 
@@ -978,7 +979,7 @@ body iwidgets::Canvasprintbox::destructor {} {
 # Hold the information about common paper sizes. A bit of a hack, but it
 # should be possible to add your own if you take a look at it.
 #
-body iwidgets::Canvasprintbox::ezPaperInfo {size {attr ""} \
+itcl::body iwidgets::Canvasprintbox::ezPaperInfo {size {attr ""} \
 	{orient "portrait"} {window ""}} {
     
 	set size [string tolower $size]

@@ -1,4 +1,4 @@
-#  PWD: edits for various  set $variable $value" bugs
+#
 # Calendar
 # ----------------------------------------------------------------------
 # Implements a calendar widget for the selection of a date.  It displays
@@ -20,7 +20,7 @@
 # mega-widget and the command and option interface was expanded to make 
 # it even more configurable, but the underlying logic is the same.
 #
-# @(#) $Id: $
+# @(#) $Id: calendar.itk,v 1.7 2002/09/05 19:33:06 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -55,7 +55,7 @@ itk::usual Calendar {
 # ------------------------------------------------------------------
 #                            CALENDAR
 # ------------------------------------------------------------------
-class iwidgets::Calendar {
+itcl::class iwidgets::Calendar {
     inherit itk::Widget
     
     constructor {args} {}
@@ -80,6 +80,7 @@ class iwidgets::Calendar {
     itk_option define -currentdatefont currentDateFont Font \
 	-*-helvetica-bold-r-normal--*-120-*
     itk_option define -startday startDay Day sunday
+    itk_option define -int int DateFormat no
 
     public method get {{format "-string"}} ;# Returns the selected date
     public method select {{date_ "now"}}   ;# Selects date, moving select ring
@@ -101,6 +102,7 @@ class iwidgets::Calendar {
     private variable _selected {}
     private variable _initialized 0
     private variable _offset 0
+    private variable _format {}
 }
 
 #
@@ -119,7 +121,7 @@ option add *Calendar.height 165 widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Calendar::constructor {args} {
+itcl::body iwidgets::Calendar::constructor {args} {
     #
     # Create the canvas which displays each page of the calendar.
     #
@@ -137,14 +139,14 @@ body iwidgets::Calendar::constructor {args} {
     #
     itk_component add backward {
 	button $itk_component(page).backward \
-		-command [code $this _change -1]
+		-command [itcl::code $this _change -1]
     } {
 	keep -background -cursor 
     }
 
     itk_component add forward {
 	button $itk_component(page).forward \
-		-command [code $this _change +1]
+		-command [itcl::code $this _change +1]
     } {
 	keep -background -cursor 
     }
@@ -158,7 +160,7 @@ body iwidgets::Calendar::constructor {args} {
     # Bind to the configure event which will be used to redraw
     # the calendar and display the month.
     #
-    bind $itk_component(page) <Configure> [code $this _configureHandler]
+    bind $itk_component(page) <Configure> [itcl::code $this _configureHandler]
     
     #
     # Evaluate the option arguments.
@@ -169,6 +171,27 @@ body iwidgets::Calendar::constructor {args} {
 # ------------------------------------------------------------------
 #                             OPTIONS
 # ------------------------------------------------------------------
+# ------------------------------------------------------------------
+# OPTION: -int
+#
+# Added by Mark Alston 2001/10/21
+#
+# Allows for the use of dates in "international" format: YYYY-MM-DD.
+# It must be a boolean value.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Calendar::int { 
+    switch $itk_option(-int) {
+	1 - yes - true - on {
+	  set itk_option(-int) yes
+	}
+	0 - no - false - off {
+	  set itk_option(-int) no
+	}
+	default {
+	    error "bad int option \"$itk_option(-int)\": should be boolean"
+	}
+    }
+}
 
 # ------------------------------------------------------------------
 # OPTION: -command
@@ -177,7 +200,7 @@ body iwidgets::Calendar::constructor {args} {
 # selects a date on the calendar, the date is substituted in
 # place of "%d" in this command, and the command is executed.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::command {}
+itcl::configbody iwidgets::Calendar::command {}
 
 # ------------------------------------------------------------------
 # OPTION: -days
@@ -186,7 +209,7 @@ configbody iwidgets::Calendar::command {}
 # days of the week header above the dates.  The default value is 
 # {Su Mo Tu We Th Fr Sa}.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::days {
+itcl::configbody iwidgets::Calendar::days {
     if {$_initialized} {
 	if {[$itk_component(page) find withtag days] != {}} {
 	    $itk_component(page) delete days
@@ -201,7 +224,7 @@ configbody iwidgets::Calendar::days {
 # Specifies a image to be displayed on the backwards calendar 
 # button.  If none is specified, a default is provided.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::backwardimage {
+itcl::configbody iwidgets::Calendar::backwardimage {
 
     #
     # If no image is given, then we'll use the default image.
@@ -260,7 +283,7 @@ configbody iwidgets::Calendar::backwardimage {
 # Specifies a image to be displayed on the forwards calendar 
 # button.  If none is specified, a default is provided.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::forwardimage {
+itcl::configbody iwidgets::Calendar::forwardimage {
 
     #
     # If no image is given, then we'll use the default image.
@@ -318,7 +341,7 @@ configbody iwidgets::Calendar::forwardimage {
 # Specifies the background for the weekdays which allows it to
 # be visually distinguished from the weekend.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::weekdaybackground {
+itcl::configbody iwidgets::Calendar::weekdaybackground {
     if {$_initialized} {
 	$itk_component(page) itemconfigure weekday \
 		-fill $itk_option(-weekdaybackground)
@@ -331,7 +354,7 @@ configbody iwidgets::Calendar::weekdaybackground {
 # Specifies the background for the weekdays which allows it to
 # be visually distinguished from the weekdays.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::weekendbackground {
+itcl::configbody iwidgets::Calendar::weekendbackground {
     if {$_initialized} {
 	$itk_component(page) itemconfigure weekend \
 		-fill $itk_option(-weekendbackground)
@@ -344,7 +367,7 @@ configbody iwidgets::Calendar::weekendbackground {
 # Specifies the foreground color for the textual items, buttons,
 # and divider on the calendar.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::foreground {
+itcl::configbody iwidgets::Calendar::foreground {
     if {$_initialized} {
 	$itk_component(page) itemconfigure text \
 		-fill $itk_option(-foreground)
@@ -358,7 +381,7 @@ configbody iwidgets::Calendar::foreground {
 #
 # Specifies the outline color used to surround the date text.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::outline {
+itcl::configbody iwidgets::Calendar::outline {
     if {$_initialized} {
 	$itk_component(page) itemconfigure square \
 		-outline $itk_option(-outline)
@@ -370,7 +393,7 @@ configbody iwidgets::Calendar::outline {
 #
 # Specifies the foreground color of the forward and backward buttons.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::buttonforeground {
+itcl::configbody iwidgets::Calendar::buttonforeground {
     if {$_initialized} {
 	if {$itk_option(-forwardimage) == {}} {
 	    if {[lsearch [image names] $this-forward] != -1} {
@@ -378,7 +401,7 @@ configbody iwidgets::Calendar::buttonforeground {
 		    -foreground $itk_option(-buttonforeground)
 	    }
 	} else {
-	    $itk_option(-forwardimage) configure \
+	    $itk_component(forward) configure \
 		    -foreground $itk_option(-buttonforeground)
 	}
 	
@@ -388,7 +411,7 @@ configbody iwidgets::Calendar::buttonforeground {
 		    -foreground $itk_option(-buttonforeground)
 	    }
 	} else {
-	    $itk_option(-backwardimage) configure \
+	    $itk_component(-backward) configure \
 		    -foreground $itk_option(-buttonforeground)
 	}
     }
@@ -400,7 +423,7 @@ configbody iwidgets::Calendar::buttonforeground {
 # Specifies the color of the ring displayed that distinguishes the 
 # currently selected date.  
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::selectcolor {
+itcl::configbody iwidgets::Calendar::selectcolor {
     if {$_initialized} {
 	$itk_component(page) itemconfigure $_selected-sensor \
 		-outline $itk_option(-selectcolor) 
@@ -413,7 +436,7 @@ configbody iwidgets::Calendar::selectcolor {
 # Specifies the thickness of the ring displayed that distinguishes 
 # the currently selected date.  
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::selectthickness {
+itcl::configbody iwidgets::Calendar::selectthickness {
     if {$_initialized} {
 	$itk_component(page) itemconfigure $_selected-sensor \
 		-width $itk_option(-selectthickness) 
@@ -426,7 +449,7 @@ configbody iwidgets::Calendar::selectthickness {
 # Specifies the font used for the title text that consists of the 
 # month and year.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::titlefont {
+itcl::configbody iwidgets::Calendar::titlefont {
     if {$_initialized} {
 	$itk_component(page) itemconfigure title \
 		-font $itk_option(-titlefont)
@@ -439,7 +462,7 @@ configbody iwidgets::Calendar::titlefont {
 # Specifies the font used for the date text that consists of the 
 # day of the month.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::datefont {
+itcl::configbody iwidgets::Calendar::datefont {
     if {$_initialized} {
 	$itk_component(page) itemconfigure date \
 		-font $itk_option(-datefont)
@@ -451,7 +474,7 @@ configbody iwidgets::Calendar::datefont {
 #
 # Specifies the font used for the current date text.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::currentdatefont {
+itcl::configbody iwidgets::Calendar::currentdatefont {
     if {$_initialized} {
 	$itk_component(page) itemconfigure now \
 		-font $itk_option(-currentdatefont)
@@ -463,7 +486,7 @@ configbody iwidgets::Calendar::currentdatefont {
 #
 # Specifies the font used for the day of the week text.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::dayfont {
+itcl::configbody iwidgets::Calendar::dayfont {
     if {$_initialized} {
 	$itk_component(page) itemconfigure days \
 		-font $itk_option(-dayfont)
@@ -477,7 +500,7 @@ configbody iwidgets::Calendar::dayfont {
 # week: sunday, monday, tuesday, wednesday, thursday, friday, or
 # saturday.  The default is sunday.
 # ------------------------------------------------------------------
-configbody iwidgets::Calendar::startday {
+itcl::configbody iwidgets::Calendar::startday {
     set day [string tolower $itk_option(-startday)]
 
     switch $day {
@@ -514,7 +537,7 @@ configbody iwidgets::Calendar::startday {
 # clock command for more information on obtaining dates and their 
 # formats.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::get {{format "-string"}} {
+itcl::body iwidgets::Calendar::get {{format "-string"}} {
     switch -- $format {
 	"-string" {
 	    return $_selected
@@ -534,7 +557,7 @@ body iwidgets::Calendar::get {{format "-string"}} {
 #
 # Changes the currently selected date to the value specified.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::select {{date_ "now"}} {
+itcl::body iwidgets::Calendar::select {{date_ "now"}} {
     if {$date_ == "now"} {
 	set time [clock seconds]
     } else {
@@ -544,8 +567,11 @@ body iwidgets::Calendar::select {{date_ "now"}} {
 	    error "bad date: \"$date_\", must be a valid date string, clock clicks value or the keyword now"
 	}
     }
-
-    _select [clock format $time -format "%m/%d/%Y"]
+    switch $itk_option(-int) {
+	yes { set _format "%Y-%m-%d" }
+	no { set _format "%m/%d/%Y" }
+    }
+    _select [clock format $time -format "$_format"]
 }
 
 # ------------------------------------------------------------------
@@ -554,7 +580,7 @@ body iwidgets::Calendar::select {{date_ "now"}} {
 # Changes the currently display month to be that of the specified 
 # date.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::show {{date_ "now"}} {
+itcl::body iwidgets::Calendar::show {{date_ "now"}} {
     if {$date_ == "now"} {
 	set _time [clock seconds]
     } else {
@@ -578,10 +604,10 @@ body iwidgets::Calendar::show {{date_ "now"}} {
 # own unique text.  The method receives the day to draw along with
 # the coordinates of the square.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_drawtext {canvas_ day_ date_ now_ x0_ y0_ x1_ y1_} {
+itcl::body iwidgets::Calendar::_drawtext {canvas_ day_ date_ now_ x0_ y0_ x1_ y1_} {
     set item [$canvas_ create text \
-		  [expr (($x1_ - $x0_) / 2) + $x0_] \
-		  [expr (($y1_ -$y0_) / 2) + $y0_ + 1] \
+		  [expr {(($x1_ - $x0_) / 2) + $x0_}] \
+		  [expr {(($y1_ -$y0_) / 2) + $y0_ + 1}] \
 		  -anchor center -text "$day_" \
 		  -fill $itk_option(-foreground)]
 
@@ -602,7 +628,7 @@ body iwidgets::Calendar::_drawtext {canvas_ day_ date_ now_ x0_ y0_ x1_ y1_} {
 # Processes a configure event received on the canvas.  The method
 # deletes all the current canvas items and forces a redraw.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_configureHandler {} {
+itcl::body iwidgets::Calendar::_configureHandler {} {
     set _initialized 1
 
     $itk_component(page) delete all
@@ -616,8 +642,8 @@ body iwidgets::Calendar::_configureHandler {} {
 # forward or backward by <delta_> months where <delta_> is +/-
 # some number.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_change {delta_} {
-    set dir [expr ($delta_ > 0) ? 1 : -1]
+itcl::body iwidgets::Calendar::_change {delta_} {
+    set dir [expr {($delta_ > 0) ? 1 : -1}]
     set month [clock format $_time -format "%m"]
     set month [string trimleft $month 0]
     set year [clock format $_time -format "%Y"]
@@ -646,7 +672,14 @@ body iwidgets::Calendar::_change {delta_} {
 # calendar changes size or we need to effect a change such as draw
 # it with a new month.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_redraw {} {
+itcl::body iwidgets::Calendar::_redraw {} {
+    #
+    # Set the format based on the option -int
+    #
+    switch $itk_option(-int) {
+	yes { set _format "%Y-%m-%d" }
+	no { set _format "%m/%d/%Y" }
+    }
     #
     # Remove all the items that typically change per redraw request
     # such as the title and dates.  Also, get the maximum width and
@@ -664,7 +697,7 @@ body iwidgets::Calendar::_redraw {} {
     if {[$itk_component(page) find withtag button] == {}} {
 	$itk_component(page) create window 3 3 -anchor nw \
 		-window $itk_component(backward) -tags button
-	$itk_component(page) create window [expr $wmax-3] 3 -anchor ne \
+	$itk_component(page) create window [expr {$wmax-3}] 3 -anchor ne \
 		-window $itk_component(forward) -tags button
     }
 
@@ -672,8 +705,8 @@ body iwidgets::Calendar::_redraw {} {
     # Create the title centered between the buttons.
     #
     foreach {x0 y0 x1 y1} [$itk_component(page) bbox button] {
-	set x [expr (($x1-$x0)/2)+$x0]
-	set y [expr (($y1-$y0)/2)+$y0]
+	set x [expr {(($x1-$x0)/2)+$x0}]
+	set y [expr {(($y1-$y0)/2)+$y0}]
     }
 
     set title [clock format $_time -format "%B %Y"]
@@ -692,7 +725,7 @@ body iwidgets::Calendar::_redraw {} {
     #
     # Add a line between the calendar header and the dates if needed.
     #
-    set bottom [expr [lindex [$itk_component(page) bbox all] 3] + 3]
+    set bottom [expr {[lindex [$itk_component(page) bbox all] 3] + 3}]
 
     if {[$itk_component(page) find withtag line] == {}} {
 	$itk_component(page) create line 0 $bottom $wmax $bottom \
@@ -707,16 +740,16 @@ body iwidgets::Calendar::_redraw {} {
     # and the sensor.  Bind selection to the sensor.
     #
     set current ""
-    set now [clock format [clock seconds] -format "%m/%d/%Y"]
+    set now [clock format [clock seconds] -format "$_format"]
 
     set layout [_layout $_time]
-    set weeks [expr [lindex $layout end] + 1]
+    set weeks [expr {[lindex $layout end] + 1}]
 
     foreach {day date kind dcol wrow} $layout {
-        set x0 [expr $dcol*($wmax-7)/7+3]
-        set y0 [expr $wrow*($hmax-$bottom-4)/$weeks+$bottom]
-        set x1 [expr ($dcol+1)*($wmax-7)/7+3]
-        set y1 [expr ($wrow+1)*($hmax-$bottom-4)/$weeks+$bottom]
+        set x0 [expr {$dcol*($wmax-7)/7+3}]
+        set y0 [expr {$wrow*($hmax-$bottom-4)/$weeks+$bottom}]
+        set x1 [expr {($dcol+1)*($wmax-7)/7+3}]
+        set y1 [expr {($wrow+1)*($hmax-$bottom-4)/$weeks+$bottom}]
 
         if {$date == $_selected} {
             set current $date
@@ -755,7 +788,7 @@ body iwidgets::Calendar::_redraw {} {
             -tags [list $date-sensor all-sensor all-page]
 
         $itk_component(page) bind $date-sensor <ButtonPress-1> \
-            [code $this _selectEvent $date]
+            [itcl::code $this _selectEvent $date]
     }
 
     #
@@ -769,7 +802,7 @@ body iwidgets::Calendar::_redraw {} {
         $itk_component(page) raise $current-sensor
 
     } elseif {$_selected == ""} {
-        set date [clock format $_time -format "%m/%d/%Y"]
+        set date [clock format $_time -format "$_format"]
         _select $date
     }
 }
@@ -780,20 +813,20 @@ body iwidgets::Calendar::_redraw {} {
 # Used to rewite the days of the week label just below the month 
 # title string.  The days are given in the -days option.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_days {{wmax {}}} {
+itcl::body iwidgets::Calendar::_days {{wmax {}}} {
     if {$wmax == {}} {
 	set wmax [winfo width $itk_component(page)]
     }
 
     set col 0
-    set bottom [expr [lindex [$itk_component(page) bbox title buttons] 3] + 7]
+    set bottom [expr {[lindex [$itk_component(page) bbox title buttons] 3] + 7}]
 
     foreach dayoweek $itk_option(-days) {
-	set x0 [expr $col*($wmax/7)]
-	set x1 [expr ($col+1)*($wmax/7)]
+	set x0 [expr {$col*($wmax/7)}]
+	set x1 [expr {($col+1)*($wmax/7)}]
 
 	$itk_component(page) create text \
-	    [expr (($x1 - $x0) / 2) + $x0] $bottom \
+	    [expr {(($x1 - $x0) / 2) + $x0}] $bottom \
 	    -anchor n -text "$dayoweek" \
 	    -fill $itk_option(-foreground) \
 	    -font $itk_option(-dayfont) \
@@ -816,7 +849,13 @@ body iwidgets::Calendar::_days {{wmax {}}} {
 # dayN, kindN is the day type of weekday or weekend, and cN,rN 
 # are the column/row indices for the square containing that date.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_layout {time_} {
+itcl::body iwidgets::Calendar::_layout {time_} {
+
+    switch $itk_option(-int) {
+	yes { set _format "%Y-%m-%d" }
+	no { set _format "%m/%d/%Y" }
+    }
+
     set month [clock format $time_ -format "%m"]
     set year  [clock format $time_ -format "%Y"]
 
@@ -828,12 +867,12 @@ body iwidgets::Calendar::_layout {time_} {
     set seconds [clock scan "$month/1/$year"]
     set firstday [_adjustday [clock format $seconds -format %w]]
 
-    set weeks [expr ceil(double($lastday+$firstday)/7)]
+    set weeks [expr {ceil(double($lastday+$firstday)/7)}]
 
     set rlist ""
     for {set day 1} {$day <= $lastday} {incr day} {
         set seconds [clock scan "$month/$day/$year"]
-        set date [clock format $seconds -format "%m/%d/%Y"]
+        set date [clock format $seconds -format "$_format"]
 	set dayoweek [clock format $seconds -format %w]
 
 	if {$dayoweek == 0 || $dayoweek == 6} {
@@ -844,7 +883,7 @@ body iwidgets::Calendar::_layout {time_} {
 
         set daycol [_adjustday $dayoweek]
 
-        set weekrow [expr ($firstday+$day-1)/7]
+        set weekrow [expr {($firstday+$day-1)/7}]
         lappend rlist $day $date $kind $daycol $weekrow 
     }
     return $rlist
@@ -855,11 +894,11 @@ body iwidgets::Calendar::_layout {time_} {
 #
 # Modifies the day to be in accordance with the startday option.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_adjustday {day_} {
-    set retday [expr $day_ - $_offset]
+itcl::body iwidgets::Calendar::_adjustday {day_} {
+    set retday [expr {$day_ - $_offset}]
 
     if {$retday < 0} {
-	set retday [expr $retday + 7]
+	set retday [expr {$retday + 7}]
     }
 
     return $retday
@@ -872,12 +911,18 @@ body iwidgets::Calendar::_adjustday {day_} {
 # on the calendar, and executes the command associated with the 
 # calendar, with the selected date substituted in place of "%d".
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_select {date_} {
+itcl::body iwidgets::Calendar::_select {date_} {
+
+    switch $itk_option(-int) {
+	yes { set _format "%Y-%m-%d" }
+	no { set _format "%m/%d/%Y" }
+    }
+
+
     set time [clock scan $date_]
-    set date [clock format $time -format "%m/%d/%Y"]
+    set date [clock format $time -format "$_format"]
 
     set _selected $date
-
     set current [clock format $_time -format "%m %Y"]
     set selected [clock format $time -format "%m %Y"]
 
@@ -902,7 +947,7 @@ body iwidgets::Calendar::_select {date_} {
 # on the calendar, and executes the command associated with the 
 # calendar, with the selected date substituted in place of "%d".
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_selectEvent {date_} {
+itcl::body iwidgets::Calendar::_selectEvent {date_} {
     _select $date_
 
     if {[string trim $itk_option(-command)] != ""} {
@@ -924,7 +969,7 @@ body iwidgets::Calendar::_selectEvent {date_} {
 # Returns <string_> with <subst_> substituted in place of each
 # <%pattern_>.
 # ------------------------------------------------------------------
-body iwidgets::Calendar::_percentSubst {pattern_ string_ subst_} {
+itcl::body iwidgets::Calendar::_percentSubst {pattern_ string_ subst_} {
     if {![string match %* $pattern_]} {
         error "bad pattern \"$pattern_\": should be %something"
     }

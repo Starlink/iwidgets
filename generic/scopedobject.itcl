@@ -69,7 +69,7 @@
 #            DSC Communications Corp  
 # -----------------------------------------------------------------------------
 
-class iwidgets::Scopedobject {
+itcl::class iwidgets::Scopedobject {
 
   #
   # OPTIONS:
@@ -113,7 +113,7 @@ proc ::iwidgets::scopedobject {pathName args} {
 #--------------------------------------------------------------------------------
 # CONSTRUCTOR
 #--------------------------------------------------------------------------------
-body iwidgets::Scopedobject::constructor {args} {
+itcl::body iwidgets::Scopedobject::constructor {args} {
 
   # Create a local variable in the procedure which this instance was created,
   # and then register out instance deletion command (i.e. _traceCommand)
@@ -126,7 +126,7 @@ body iwidgets::Scopedobject::constructor {args} {
   set depth [llength [$this info heritage]]
   set _level "#[uplevel $depth info level]"
   uplevel $_level set _localVar($this) $this
-  uplevel $_level trace variable _localVar($this) u \"[code $this _traceCommand]\"
+  uplevel $_level trace variable _localVar($this) u \"[itcl::code $this _traceCommand]\"
 
   eval configure $args
 
@@ -138,9 +138,9 @@ body iwidgets::Scopedobject::constructor {args} {
 #--------------------------------------------------------------------------------
 # DESTRUCTOR
 #--------------------------------------------------------------------------------
-body iwidgets::Scopedobject::destructor {} {
+itcl::body iwidgets::Scopedobject::destructor {} {
 
-  uplevel $_level trace vdelete _localVar($this) u \"[code $this _traceCommand]\"
+  uplevel $_level trace vdelete _localVar($this) u \"[itcl::code $this _traceCommand]\"
 
   if {$exitscopecommand != {}} {
     eval $exitscopecommand
@@ -155,7 +155,7 @@ body iwidgets::Scopedobject::destructor {} {
 # Callback used to destroy instances when their locally created variable
 # goes out of scope.
 #
-body iwidgets::Scopedobject::_traceCommand {varName varValue op} {
+itcl::body iwidgets::Scopedobject::_traceCommand {varName varValue op} {
   delete object $this
 }
 
@@ -166,7 +166,7 @@ body iwidgets::Scopedobject::_traceCommand {varName varValue op} {
 # PURPOSE:
 # Specifies a Tcl command to invoke when a object enters scope.
 #
-configbody iwidgets::Scopedobject::enterscopecommand {
+itcl::configbody iwidgets::Scopedobject::enterscopecommand {
 }
 
 #------------------------------------------------------------------------------
@@ -176,6 +176,6 @@ configbody iwidgets::Scopedobject::enterscopecommand {
 # PURPOSE:
 # Specifies a Tcl command to invoke when an object exits scope.
 #
-configbody iwidgets::Scopedobject::exitscopecommand {
+itcl::configbody iwidgets::Scopedobject::exitscopecommand {
 }
 

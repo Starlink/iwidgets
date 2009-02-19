@@ -1,8 +1,8 @@
 #!/bin/sh
 # \
-	exec itkwish -f "$0" ${1+"$@"} 
+	exec wish8.4 -f $0 $*
 
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
 #
 # Demo script for the Scopedobject class
@@ -14,5 +14,3 @@ proc scopedobject_demo {} {
 }
 
 scopedobject_demo
-
-

@@ -7,15 +7,15 @@
 '\" @(#) spindate.n
 '\"
 .so man.macros
-.HS spindate iwid
+.HS iwidgets::spindate iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-spindate \- Create and manipulate time spinner widgets
+iwidgets::spindate \- Create and manipulate time spinner widgets
 .SH SYNOPSIS
-\fBspindate\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::spindate\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Spindate
+itk::Widget <- iwidgets::Spindate
 
 .SH "STANDARD OPTIONS"
 .LP
@@ -181,12 +181,12 @@ Specifies the width of the year spinner in any of the forms acceptable to
 .SH DESCRIPTION
 .PP
 
-The \fBspindate\fR command creates a set of spinners for use in date value
+The \fBiwidgets::spindate\fR command creates a set of spinners for use in date value
 entry.  The set includes an month, day, and year spinner widget.
 
 .SH "METHODS"
 .PP
-The \fBspindate\fR command creates a new Tcl command whose
+The \fBiwidgets::spindate\fR command creates a new Tcl command whose
 name is \fIpathName\fR. This
 command may be used to invoke various
 operations on the widget. It has the following general form:
@@ -202,7 +202,7 @@ commands are possible for spindate widgets:
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBspindate\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::spindate\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -216,7 +216,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBspindate\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::spindate\fR
 command.
 .TP
 \fIpathName \fBget\fR ?\fBformat\fR?
@@ -262,7 +262,8 @@ See the SpinInt widget manual entry for	details on the year component item.
 
 .SH EXAMPLE
 .DS
-spindate .sd
+package require Iwidgets 4.0
+iwidgets::spindate .sd
 pack .sd -padx 10 -pady 10
 .DE
 .SH AUTHOR

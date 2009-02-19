@@ -11,9 +11,22 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: timeentry.test,v 1.1 1996/01/02 15:21:45 mulferts Exp $
+# @(#) $Id: timeentry.test,v 1.4 2001/08/22 19:09:16 smithc Exp $
 
-package require Iwidgets 3.0
+package require tcltest
+namespace import -force ::tcltest::*
+
+if [catch {package require Iwidgets 4.0}] {
+  # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
+  # env var is initialized in the Makefile when doing a 'make test'.
+  # If sourcing this file independently, this variable must be set manually.
+  if ![info exists env(IWIDGETS_LIBRARY)] {
+    error "Unable to locate Iwidgets package.  Set your IWIDGETS_LIBRARY\
+      environment\nvariable to the directory that contains iwidgets.tcl"
+  }
+  lappend auto_path $env(IWIDGETS_LIBRARY)
+  package require Iwidgets 4.0
+}
 
 if {[string compare test [info procs test]] == 1} {
     source defs
@@ -42,7 +55,7 @@ incr c
 #
 test Timeentry-2.$o {configuration option} {
     llength [.te configure]
-} {43}
+} {46}
 
 incr o
 
@@ -88,6 +101,15 @@ foreach test {
     {-secondcolor red red}
     {-clockcolor brown brown}
     {-clockstipple error error}
+    {-sticky w w}
+    {-sticky nw nw}
+    {-sticky n n}
+    {-sticky ne ne}
+    {-sticky e e}
+    {-sticky se se}
+    {-sticky s s}
+    {-sticky sw sw}
+    {-sticky news news}
     {-tickcolor purple purple}
     {-textbackground GhostWhite GhostWhite} 
     {-textbackground #d9d9d9 #d9d9d9}} {
@@ -176,3 +198,6 @@ test Timeentry-1.$c {Timeentry destruction} {
     destroy .te
     update 
 } {}
+
+::tcltest::cleanupTests
+exit

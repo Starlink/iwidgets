@@ -4,25 +4,26 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
-'\" @(#) ScrolledListBox.n 1.21 94/12/17 16:04:44
-'/" 
+'\" @(#) scrolledframe.n 1.21 94/12/17 16:04:44
+'\" 
 .so man.macros
-.HS scrolledframe iwid
+.HS iwidgets::scrolledframe iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-scrolledframe \- Create and manipulate scrolled frame widgets
+iwidgets::scrolledframe \- Create and manipulate scrolled frame widgets
 .SH SYNOPSIS
-\fBscrolledframe\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::scrolledframe\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <-Scrolledwidget <- Scrolledframe
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Scrolledwidget <- iwidgets::Scrolledframe
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR
-\fBfont\fR	\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR
-\fBrelief\fR	\fBselectBackground\fR	\fBselectBorderWidth\fR	\fBselectForeground\fR	
+\fB
+activeBackground  background        borderWidth        cursor
+font              foreground        highlightColor     highlightThickness
+relief            selectBackground  selectBorderWidth  selectForeground\fR	
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -39,7 +40,7 @@ See the "scrollbar" manual entry for details on the associated options.
 .nf
 .ta 4c 8c 12c
 \fBLabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR	\fBlabelMargin\fR
-\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
+\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR	\fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" class manual entry for details on the inherited options.
@@ -118,7 +119,7 @@ method and then filled with other widget combinations.
 
 .SH "METHODS"
 .PP
-The \fBscrolledframe\fR command creates a new Tcl command whose
+The \fBiwidgets::scrolledframe\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -142,7 +143,7 @@ See the "canvas" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBscrolledframe\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::scrolledframe\fR
 command.
 .TP
 \fIpathName \fBchildsite\fR
@@ -159,7 +160,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBscrolledframe\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::scrolledframe\fR
 command.
 .TP
 \fIpathName \fBjustify \fIdirection\fR
@@ -187,7 +188,9 @@ manual entry for details on the vertsb component item.
 
 .SH EXAMPLE
 .DS
-scrolledframe .sf -width 150 -height 180 -labelon yes -labeltext scrolledframe
+package require Iwidgets 4.0
+iwidgets::scrolledframe .sf -width 150 -height 180 \\
+  -labelon yes -labeltext scrolledframe
 
 set cs [.sf childsite]
 pack [button $cs.b1 -text Hello] -pady 10

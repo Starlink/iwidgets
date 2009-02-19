@@ -1,12 +1,8 @@
-#!/bin/sh
 # ----------------------------------------------------------------------
 #  DEMO: calendar in [incr Widgets]
 # ----------------------------------------------------------------------
-#\
-exec itkwish "$0" ${1+"$@"}
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
-# ----------------------------------------------------------------------
 option add *Calendar.buttonForeground black
 option add *Calendar.outline black
 option add *Calendar.weekdayBackground white

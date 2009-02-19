@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts               EMAIL: mulferts@spd.dsccc.com
 #
-#  @(#) $Id: fileselectionbox.itk,v 1.2 1996/06/26 19:31:26 mulferts Exp $
+#  @(#) $Id: fileselectionbox.itk,v 1.3 2001/08/07 19:56:48 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -48,7 +48,7 @@ itk::usual Fileselectionbox {
 # ------------------------------------------------------------------
 #                          FILESELECTIONBOX
 # ------------------------------------------------------------------
-class iwidgets::Fileselectionbox {
+itcl::class iwidgets::Fileselectionbox {
     inherit itk::Widget
 
     constructor {args} {}
@@ -61,6 +61,7 @@ class iwidgets::Fileselectionbox {
     itk_option define -filteron filterOn FilterOn true
     itk_option define -mask mask Mask {*}
     itk_option define -directory directory Directory {}
+    itk_option define -automount automount Automount {}
     itk_option define -nomatchstring noMatchString NoMatchString {}
     itk_option define -dirsearchcommand dirSearchCommand Command {}
     itk_option define -filesearchcommand fileSearchCommand Command {}
@@ -136,7 +137,7 @@ option add *Fileselectionbox.height 300 widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::constructor {args} {
+itcl::body iwidgets::Fileselectionbox::constructor {args} {
     #
     # Add back to the hull width and height options and make the
     # borderwidth zero since we don't need it.
@@ -151,7 +152,7 @@ body iwidgets::Fileselectionbox::constructor {args} {
     #
     itk_component add filter {
         iwidgets::Entryfield $itk_interior.filter -labelpos nw \
-	    -command [code $this _selectFilter] -exportselection 0
+	    -command [itcl::code $this _selectFilter] -exportselection 0
     } {
 	usual
 
@@ -163,11 +164,11 @@ body iwidgets::Fileselectionbox::constructor {args} {
     #
     itk_component add dirs {
         iwidgets::Scrolledlistbox $itk_interior.dirs \
-	    -selectioncommand [code $this _selectDir] \
+	    -selectioncommand [itcl::code $this _selectDir] \
 	    -selectmode single -exportselection 0 \
 	    -visibleitems 1x1 -labelpos nw \
 	    -hscrollmode static -vscrollmode static \
-	    -dblclickcommand [code $this _dblSelectDir]
+	    -dblclickcommand [itcl::code $this _dblSelectDir]
     } {
 	usual
 
@@ -179,7 +180,7 @@ body iwidgets::Fileselectionbox::constructor {args} {
     #
     itk_component add files {
         iwidgets::Scrolledlistbox $itk_interior.files \
-	    -selectioncommand [code $this _selectFile] \
+	    -selectioncommand [itcl::code $this _selectFile] \
 	    -selectmode single -exportselection 0 \
 	    -visibleitems 1x1 -labelpos nw \
 	    -hscrollmode static -vscrollmode static
@@ -194,7 +195,7 @@ body iwidgets::Fileselectionbox::constructor {args} {
     #
     itk_component add selection {
       iwidgets::Entryfield $itk_interior.selection -labelpos nw \
-	  -command [code $this _selectSelection] -exportselection 0
+	  -command [itcl::code $this _selectSelection] -exportselection 0
     } {
 	usual
 
@@ -228,7 +229,7 @@ body iwidgets::Fileselectionbox::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::destructor {} {
+itcl::body iwidgets::Fileselectionbox::destructor {} {
     if {$_packToken != ""} {after cancel $_packToken}
     if {$_updateToken != ""} {after cancel $_updateToken}
 }
@@ -242,7 +243,7 @@ body iwidgets::Fileselectionbox::destructor {} {
 #
 # Specifies the position of the child site in the selection box.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::childsitepos {
+itcl::configbody iwidgets::Fileselectionbox::childsitepos {
     _packComponents
 }
 
@@ -251,7 +252,7 @@ configbody iwidgets::Fileselectionbox::childsitepos {
 #
 # Specifies whether or not to display the files list.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::fileson {
+itcl::configbody iwidgets::Fileselectionbox::fileson {
     _packComponents
 }
 
@@ -260,7 +261,7 @@ configbody iwidgets::Fileselectionbox::fileson {
 #
 # Specifies whether or not to display the dirs list.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::dirson {
+itcl::configbody iwidgets::Fileselectionbox::dirson {
     _packComponents
 }
 
@@ -269,7 +270,7 @@ configbody iwidgets::Fileselectionbox::dirson {
 #
 # Specifies whether or not to display the selection entry widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::selectionon {
+itcl::configbody iwidgets::Fileselectionbox::selectionon {
     _packComponents
 }
 
@@ -278,7 +279,7 @@ configbody iwidgets::Fileselectionbox::selectionon {
 #
 # Specifies whether or not to display the filter entry widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::filteron {
+itcl::configbody iwidgets::Fileselectionbox::filteron {
     _packComponents
 }
 
@@ -287,7 +288,7 @@ configbody iwidgets::Fileselectionbox::filteron {
 #
 # Specifies the initial file mask string.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::mask {
+itcl::configbody iwidgets::Fileselectionbox::mask {
     global tcl_platform
     set prefix $_pwd
 
@@ -295,7 +296,17 @@ configbody iwidgets::Fileselectionbox::mask {
     # Remove automounter paths.
     #
     if {$tcl_platform(platform) == "unix"} {
-	    regsub {^/(tmp_mnt|export)} $prefix {} prefix;
+        if {$itk_option(-automount) != {}} {
+            foreach autoDir $itk_option(-automount) {
+                # Use catch because we can't be sure exactly what strings
+                # were passed into the -automount option
+                catch {
+                    if {[regsub ^/$autoDir $prefix {} prefix] != 0} {
+                        break
+                    }
+                }
+            }
+        }
     }
 
     set curFilter $itk_option(-mask);
@@ -313,7 +324,7 @@ configbody iwidgets::Fileselectionbox::mask {
 #
 # Specifies the initial default directory.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::directory {
+itcl::configbody iwidgets::Fileselectionbox::directory {
     if {$itk_option(-directory) != {}} {
         if {! [file exists $itk_option(-directory)]} {
             error "bad directory option \"$itk_option(-directory)\":\
@@ -331,12 +342,22 @@ configbody iwidgets::Fileselectionbox::directory {
 }
 
 # ------------------------------------------------------------------
+# OPTION: -automount
+#
+# Specifies list of directory prefixes to ignore. Typically, this
+# option would be used with values such as:
+#   -automount {export tmp_mnt}
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Fileselectionbox::automount {
+}
+
+# ------------------------------------------------------------------
 # OPTION: -nomatchstring
 #
 # Specifies the string to be displayed in the files list should
 # not regular files exist in the directory.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::nomatchstring {
+itcl::configbody iwidgets::Fileselectionbox::nomatchstring {
 }
 
 # ------------------------------------------------------------------
@@ -347,7 +368,7 @@ configbody iwidgets::Fileselectionbox::nomatchstring {
 # mask as arguments.  The command should return a list of files which
 # will be placed into the directory list.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::dirsearchcommand {
+itcl::configbody iwidgets::Fileselectionbox::dirsearchcommand {
 }
 
 # ------------------------------------------------------------------
@@ -358,7 +379,7 @@ configbody iwidgets::Fileselectionbox::dirsearchcommand {
 # mask as arguments.  The command should return a list of files which
 # will be placed into the file list.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::filesearchcommand {
+itcl::configbody iwidgets::Fileselectionbox::filesearchcommand {
 }
 
 # ------------------------------------------------------------------
@@ -367,7 +388,7 @@ configbody iwidgets::Fileselectionbox::filesearchcommand {
 # Specifies a command to be executed upon pressing return in the
 # selection entry widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::selectioncommand {
+itcl::configbody iwidgets::Fileselectionbox::selectioncommand {
 }
 
 # ------------------------------------------------------------------
@@ -376,7 +397,7 @@ configbody iwidgets::Fileselectionbox::selectioncommand {
 # Specifies a command to be executed upon pressing return in the
 # filter entry widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::filtercommand {
+itcl::configbody iwidgets::Fileselectionbox::filtercommand {
 }
 
 # ------------------------------------------------------------------
@@ -385,7 +406,7 @@ configbody iwidgets::Fileselectionbox::filtercommand {
 # Specifies a command to be executed following selection of a
 # directory in the directory list.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::selectdircommand {
+itcl::configbody iwidgets::Fileselectionbox::selectdircommand {
 }
 
 # ------------------------------------------------------------------
@@ -394,7 +415,7 @@ configbody iwidgets::Fileselectionbox::selectdircommand {
 # Specifies a command to be executed following selection of a
 # file in the files list.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::selectfilecommand {
+itcl::configbody iwidgets::Fileselectionbox::selectfilecommand {
 }
 
 # ------------------------------------------------------------------
@@ -403,7 +424,7 @@ configbody iwidgets::Fileselectionbox::selectfilecommand {
 # Specify a command to executed should the filter contents be
 # proven invalid.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::invalid {
+itcl::configbody iwidgets::Fileselectionbox::invalid {
 }
 
 # ------------------------------------------------------------------
@@ -411,7 +432,7 @@ configbody iwidgets::Fileselectionbox::invalid {
 #
 # Specify the type of files which may appear in the file list.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::filetype {
+itcl::configbody iwidgets::Fileselectionbox::filetype {
     switch $itk_option(-filetype) {
         regular -
         directory -
@@ -432,7 +453,7 @@ configbody iwidgets::Fileselectionbox::filetype {
 # Specifies the width of the file selection box.  The value may be
 # specified in any of the forms acceptable to Tk_GetPixels.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::width {
+itcl::configbody iwidgets::Fileselectionbox::width {
     #
     # The width option was added to the hull in the constructor.
     # So, any width value given is passed automatically to the
@@ -460,7 +481,7 @@ configbody iwidgets::Fileselectionbox::width {
 # Specifies the height of the file selection box.  The value may be
 # specified in any of the forms acceptable to Tk_GetPixels.
 # ------------------------------------------------------------------
-configbody iwidgets::Fileselectionbox::height {
+itcl::configbody iwidgets::Fileselectionbox::height {
     #
     # The height option was added to the hull in the constructor.
     # So, any height value given is passed automatically to the
@@ -491,7 +512,7 @@ configbody iwidgets::Fileselectionbox::height {
 #
 # Returns the path name of the child site widget.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::childsite {} {
+itcl::body iwidgets::Fileselectionbox::childsite {} {
     return $itk_component(childsite)
 }
 
@@ -500,7 +521,7 @@ body iwidgets::Fileselectionbox::childsite {} {
 #
 # Returns the current selection.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::get {} {
+itcl::body iwidgets::Fileselectionbox::get {} {
     return [$itk_component(selection) get]
 }
 
@@ -511,7 +532,7 @@ body iwidgets::Fileselectionbox::get {} {
 # contain a valid directory before setting default to directory.
 # Use the invalid option to warn the user of any problems.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::filter {} {
+itcl::body iwidgets::Fileselectionbox::filter {} {
     set newdir [file dirname [$itk_component(filter) get]]
 
     if {! [file exists $newdir]} {
@@ -531,11 +552,11 @@ body iwidgets::Fileselectionbox::filter {} {
 # Updates the contents of both the file and directory lists, as well
 # resets the positions of the filter, and lists.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_updateLists {{when "later"}} {
+itcl::body iwidgets::Fileselectionbox::_updateLists {{when "later"}} {
     switch -- $when {
         later {
             if {$_updateToken == ""} {
-                set _updateToken [after idle [code $this _updateLists now]]
+                set _updateToken [after idle [itcl::code $this _updateLists now]]
             }
         }
         now {
@@ -569,7 +590,7 @@ body iwidgets::Fileselectionbox::_updateLists {{when "later"}} {
 # any existing mask in the filter.  Translate the two special cases
 # of '.', and '..' directory names to full path names..
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_setFilter {} {
+itcl::body iwidgets::Fileselectionbox::_setFilter {} {
     global tcl_platform
     set prefix [$itk_component(dirs) getcurselection]
     set curFilter [file tail [$itk_component(filter) get]]
@@ -610,7 +631,17 @@ body iwidgets::Fileselectionbox::_setFilter {} {
     # Remove automounter paths.
     #
     if {$tcl_platform(platform) == "unix"} {
-	    regsub {^/(tmp_mnt|export)} $prefix {} prefix
+        if {$itk_option(-automount) != {}} {
+            foreach autoDir $itk_option(-automount) {
+                # Use catch because we can't be sure exactly what strings
+                # were passed into the -automount option
+                catch {
+                    if {[regsub ^/$autoDir $prefix {} prefix] != 0} {
+                        break
+                    }
+                }
+            }
+        }
     }
 
     $itk_component(filter) delete 0 end
@@ -635,7 +666,7 @@ body iwidgets::Fileselectionbox::_setFilter {} {
 # are currently mapped.  For the file list, avoid seleciton of the
 # no match string.  As for the directory list, translate file names.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_setSelection {} {
+itcl::body iwidgets::Fileselectionbox::_setSelection {} {
     global tcl_platform
     $itk_component(selection) delete 0 end
 
@@ -650,9 +681,19 @@ body iwidgets::Fileselectionbox::_setSelection {} {
 	    #
 	    # Remove automounter paths.
 	    #
-	    if {$tcl_platform(platform) == "unix"} {
-		regsub {^/(tmp_mnt|export)} $selection {} selection;
-	    }
+        if {$tcl_platform(platform) == "unix"} {
+            if {$itk_option(-automount) != {}} {
+                foreach autoDir $itk_option(-automount) {
+                    # Use catch because we can't be sure exactly what strings
+                    # were passed into the -automount option
+                    catch {
+                        if {[regsub ^/$autoDir $selection {} selection] != 0} {
+                            break
+                        }
+                    }
+                }
+            }
+        }
 
 	    $itk_component(selection) insert 0 $selection
         } else {
@@ -674,15 +715,28 @@ body iwidgets::Fileselectionbox::_setSelection {} {
 	    } else {
 		set selection [file join $_pwd ..]
 	    }
+	} else {
+	    set selection [file join $_pwd $selection]
 	}
 
 	#
-        # Remove automounter paths.
+    # Remove automounter paths.
 	#
-        if {$tcl_platform(platform) == "unix"} {
-            regsub {^/(tmp_mnt|export)} $selection {} selection;
+    if {$tcl_platform(platform) == "unix"} {
+        if {$itk_option(-automount) != {}} {
+            foreach autoDir $itk_option(-automount) {
+                # Use catch because we can't be sure exactly what strings
+                # were passed into the -automount option
+                catch {
+                    if {[regsub ^/$autoDir $selection {} selection] != 0} {
+                        break
+                    }
+                }
+            }
         }
+    }
 
+	$itk_component(selection) delete 0 end
         $itk_component(selection) insert 0 $selection
     }
 
@@ -701,7 +755,7 @@ body iwidgets::Fileselectionbox::_setSelection {} {
 # defined their own search procedure or not fill the list with their
 # results or those of a glob.  Select the first element if it exists.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_setDirList {} {
+itcl::body iwidgets::Fileselectionbox::_setDirList {} {
     $itk_component(dirs) clear
 
     if {$itk_option(-dirsearchcommand) == {}} {
@@ -734,7 +788,7 @@ body iwidgets::Fileselectionbox::_setDirList {} {
 # or those of a 'glob'.  If the files list has no contents, then set
 # the files list to the 'nomatchstring'.  Clear all selections.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_setFileList {} {
+itcl::body iwidgets::Fileselectionbox::_setFileList {} {
     $itk_component(files) clear
     set mask [file tail [$itk_component(filter) get]]
 
@@ -777,7 +831,7 @@ body iwidgets::Fileselectionbox::_setFileList {} {
 # For a selection in the directory list, set the filter and possibly
 # the selection entry based on the fileson option.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_selectDir {} {
+itcl::body iwidgets::Fileselectionbox::_selectDir {} {
     _setFilter
 
     if {$itk_option(-fileson)} {} {
@@ -796,7 +850,7 @@ body iwidgets::Fileselectionbox::_selectDir {} {
 # directory, set the default to the selection, and update both the
 # file and directory lists.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_dblSelectDir {} {
+itcl::body iwidgets::Fileselectionbox::_dblSelectDir {} {
     filter
 }
 
@@ -806,7 +860,7 @@ body iwidgets::Fileselectionbox::_dblSelectDir {} {
 # The user has selected a file.  Put the current selection in the
 # file list in the selection entry widget.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_selectFile {} {
+itcl::body iwidgets::Fileselectionbox::_selectFile {} {
     _setSelection
 
     if {$itk_option(-selectfilecommand) != {}} {
@@ -820,7 +874,7 @@ body iwidgets::Fileselectionbox::_selectFile {} {
 # The user has pressed Return in the selection entry widget.  Call
 # the defined selection command if it exists.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_selectSelection {} {
+itcl::body iwidgets::Fileselectionbox::_selectSelection {} {
     if {$itk_option(-selectioncommand) != {}} {
         uplevel #0 $itk_option(-selectioncommand)
     }
@@ -832,7 +886,7 @@ body iwidgets::Fileselectionbox::_selectSelection {} {
 # The user has pressed Return in the filter entry widget.  Call the
 # defined selection command if it exists, otherwise just filter.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_selectFilter {} {
+itcl::body iwidgets::Fileselectionbox::_selectFilter {} {
     if {$itk_option(-filtercommand) != {}} {
         uplevel #0 $itk_option(-filtercommand)
     } else {
@@ -848,10 +902,10 @@ body iwidgets::Fileselectionbox::_selectFilter {} {
 # in the hull for n, s, e, and w positions.  Make sure and raise 
 # the child site since using the 'in' option may obscure the site.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_packComponents {{when "later"}} {
+itcl::body iwidgets::Fileselectionbox::_packComponents {{when "later"}} {
     if {$when == "later"} {
         if {$_packToken == ""} {
-            set _packToken [after idle [code $this _packComponents now]]
+            set _packToken [after idle [itcl::code $this _packComponents now]]
         }
         return
     } elseif {$when != "now"} {
@@ -909,7 +963,7 @@ body iwidgets::Fileselectionbox::_packComponents {{when "later"}} {
 # Position the childsite to the north and all the other components
 # appropriately based on the individual "on" options.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_nPos {} {
+itcl::body iwidgets::Fileselectionbox::_nPos {} {
     grid $itk_component(childsite) -row 0 -column 0 \
 	-columnspan 3 -rowspan 1 -sticky nsew
 
@@ -957,7 +1011,7 @@ body iwidgets::Fileselectionbox::_nPos {} {
 # Position the childsite to the south and all the other components
 # appropriately based on the individual "on" options.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_sPos {} {
+itcl::body iwidgets::Fileselectionbox::_sPos {} {
     if {$itk_option(-filteron)} {
 	grid $itk_component(filter) -row 0 -column 0 \
 	    -columnspan 3 -sticky ew
@@ -1004,7 +1058,7 @@ body iwidgets::Fileselectionbox::_sPos {} {
 # Position the childsite to the east and all the other components
 # appropriately based on the individual "on" options.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_ePos {} {
+itcl::body iwidgets::Fileselectionbox::_ePos {} {
     if {$itk_option(-filteron)} {
 	grid $itk_component(filter) -row 0 -column 0 \
 	    -columnspan 3 -sticky ew
@@ -1051,7 +1105,7 @@ body iwidgets::Fileselectionbox::_ePos {} {
 # Position the childsite to the west and all the other components
 # appropriately based on the individual "on" options.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_wPos {} {
+itcl::body iwidgets::Fileselectionbox::_wPos {} {
     grid $itk_component(childsite) -row 0 -column 0 \
 	-rowspan 5 -columnspan 1 -sticky nsew
 
@@ -1100,7 +1154,7 @@ body iwidgets::Fileselectionbox::_wPos {} {
 # all the other components appropriately based on the individual 
 # "on" options.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_topPos {} {
+itcl::body iwidgets::Fileselectionbox::_topPos {} {
     if {$itk_option(-filteron)} {
 	grid $itk_component(filter) -row 0 -column 0 \
 	    -columnspan 3 -sticky ew
@@ -1145,7 +1199,7 @@ body iwidgets::Fileselectionbox::_topPos {} {
 # Position the childsite between the lists and all the other 
 # components appropriately based on the individual "on" options.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_centerPos {} {
+itcl::body iwidgets::Fileselectionbox::_centerPos {} {
     if {$itk_option(-filteron)} {
 	grid $itk_component(filter) -row 0 -column 0 \
 	    -columnspan 3 -sticky ew
@@ -1203,7 +1257,7 @@ body iwidgets::Fileselectionbox::_centerPos {} {
 # and all the other components appropriately based on the individual 
 # "on" options.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectionbox::_bottomPos {} {
+itcl::body iwidgets::Fileselectionbox::_bottomPos {} {
     if {$itk_option(-filteron)} {
 	grid $itk_component(filter) -row 0 -column 0 \
 	    -columnspan 3 -sticky ew

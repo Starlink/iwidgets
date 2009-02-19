@@ -4,26 +4,27 @@
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
-'\" @(#) scrolledtext.n 1.21 94/12/17 16:04:44
-'/" 
+'\" @(#) messagebox.n 1.21 94/12/17 16:04:44
+'\" 
 .so man.macros
-.HS messagebox iwid
+.HS iwidgets::messagebox iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-messagebox \- Create and manipulate a messagebox text widget
+iwidgets::messagebox \- Create and manipulate a messagebox text widget
 .SH SYNOPSIS
-\fBmessagebox\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::messagebox\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- Scrolledwidget <- Messagebox
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Scrolledwidget <- iwidgets::Messagebox
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBactiveForeground\fR	\fBbackground\fR	\fBborderWidth\fR
-\fBcursor\fR	\fBexportSelection\fR	\fBfont\fR	\fBforeground\fR
-\fBhighlightColor\fR	\fBhighlightThickness\fR	\fBpadX\fR	\fBpadY\fR
-\fBrelief\fR	\fBsetGrid\fR
+\fB
+activeBackground  activeForeground    background  borderWidth
+cursor            exportSelection     font        foreground
+highlightColor    highlightThickness  padX        padY
+relief            setGrid\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -99,7 +100,7 @@ are displayed.
 
 .SH DESCRIPTION
 .PP
-The \fBmessagebox\fR command creates 
+The \fBiwidgets::messagebox\fR command creates 
 a scrolled information messages area widget.
 Message types can be user defined and configured.  Their options
 include foreground, background, font, bell, and their display
@@ -151,7 +152,7 @@ Specifies whether of not to display this message type when issued.
 
 .SH "METHODS"
 .PP
-The \fBmessagebox\fR command creates a new Tcl command whose
+The \fBiwidgets::messagebox\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -167,7 +168,7 @@ commands are possible for messagebox widgets:
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBmessagebox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::messagebox\fR
 command.
 .TP
 \fIpathName \fBclear\fR
@@ -188,7 +189,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBmessagebox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::messagebox\fR
 command.
 .TP
 \fIpathName \fBtype\fR \fIoption\fR \fImsgtype\fR ?\fIarg arg ...\fR?
@@ -251,8 +252,10 @@ manual entry for details on the text component item.
 
 .SH EXAMPLE
 .DS
- messagebox .mb -hscrollmode dynamic -labeltext "Messages" -labelpos n \\
-	-height 120 -width 550 -savedir "/tmp" -textbackground #d9d9d9
+ package require Iwidgets 4.0
+ iwidgets::messagebox .mb -hscrollmode dynamic \\
+    -labeltext "Messages" -labelpos n \\
+    -height 120 -width 550 -savedir "/tmp" -textbackground #d9d9d9
 
  pack .mb -padx 5 -pady 5 -fill both -expand yes
 

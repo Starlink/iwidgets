@@ -5,26 +5,27 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) entryfield.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS entryfield iwid
+.HS iwidgets::entryfield iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-entryfield \- Create and manipulate a entry field widget
+iwidgets::entryfield \- Create and manipulate a entry field widget
 .SH SYNOPSIS
-\fBentryfield\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::entryfield\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- LabeledWidget <- entryfield
+itk::Widget <- iwidgets::LabeledWidget <- iwidgets::Entryfield
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR	\fBexportSelection\fR
-\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR	\fBinsertBackground\fR
-\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR	\fBinsertWidth\fR
-\fBjustify\fR	\fBrelief\fR	\fBselectBackground\fR	\fBselectBorderWidth\fR
-\fBselectForeground\fR	\fBtextVariable\fR	\fBwidth\fR
+\fB
+background         borderWidth     cursor              exportSelection
+foreground         highlightColor  highlightThickness  insertBackground
+insertBorderWidth  insertOffTime   insertOnTime        insertWidth
+justify            relief          selectBackground    selectBorderWidth
+selectForeground   textVariable    width\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -42,7 +43,7 @@ See the "entry" manual entry for details on the associated options.
 .ta 4c 8c 12c
 \fBdisabledForeground\fR	\fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR
 \fBlabelMargin\fR	\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
-\fBstate\fR
+\fBstate\fR	\fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" class manual entry for details on the 
@@ -115,6 +116,16 @@ Name of font to use for display of text in entryfield.  The value
 may be given in any of the forms acceptable to \fBTk_GetFont\fR.
 .LP
 .nf
+Name:	\fBpasting\fR
+Class:	\fBBehavior\fR
+Command-Line Switch:	\fB-pasting\fR
+.fi
+.IP
+Option to enable/disable pasting into the entry component of the
+entryfield.  Valid values are 0 (disabled) or 1 (enabled).
+Defaults to 1.
+.LP
+.nf
 Name:	\fBvalidate\fR
 Class:	\fBCommand\fR
 Command-Line Switch:	\fB-validate\fR
@@ -155,7 +166,7 @@ Replaced with the entryfield widget pathname.
 
 .SH DESCRIPTION
 .PP
-The \fBentryfield\fR command creates an enhanced text entry widget with an
+The \fBiwidgets::entryfield\fR command creates an enhanced text entry widget with an
 optional associated label.  Addtional options support validation and 
 establishing a upper limit on the number of characters which may be
 entered in the field.
@@ -163,7 +174,7 @@ entered in the field.
 
 .SH "METHODS"
 .PP
-The \fBentryfield\fR command creates a new Tcl command whose
+The \fBiwidgets::entryfield\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -187,7 +198,7 @@ See the "entry" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBentryfield\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::entryfield\fR
 command.
 .TP
 \fIpathName \fBchildsite\fR
@@ -207,7 +218,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBentryfield\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::entryfield\fR
 command.
 
 .SH "COMPONENTS"
@@ -231,6 +242,7 @@ See the "entry" widget manual entry for details on the entry component item.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  option add *textBackground white
  
  proc returnCmd {} {
@@ -241,19 +253,19 @@ See the "entry" widget manual entry for details on the entry component item.
      puts stdout "Alphabetic contents invalid"
  }
  
- entryfield .ef -command returnCmd
+ iwidgets::entryfield .ef -command returnCmd
  
- entryfield .fef -labeltext "Fixed:" -fixed 10 -width 12
+ iwidgets::entryfield .fef -labeltext "Fixed:" -fixed 10 -width 12
  
- entryfield .nef -labeltext "Numeric:" -validate numeric -width 12
+ iwidgets::entryfield .nef -labeltext "Numeric:" -validate numeric -width 12
  
- entryfield .aef -labeltext "Alphabetic:" \\
+ iwidgets::entryfield .aef -labeltext "Alphabetic:" \\
     -validate alphabetic -width 12 -invalid invalidCmd
  
- entryfield .pef -labeltext "Password:" \\
+ iwidgets::entryfield .pef -labeltext "Password:" \\
     -show \267 -width 12 -command returnCmd
  
- Labeledwidget::alignlabels .ef .fef .nef .aef .pef
+ iwidgets::Labeledwidget::alignlabels .ef .fef .nef .aef .pef
 
  pack .ef -fill x -expand yes -padx 10 -pady 5
  pack .fef -fill x -expand yes -padx 10 -pady 5

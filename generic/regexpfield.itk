@@ -46,7 +46,7 @@ itk::usual Regexpfield {
 # ------------------------------------------------------------------
 #                            ENTRYFIELD
 # ------------------------------------------------------------------
-class iwidgets::Regexpfield {
+itcl::class iwidgets::Regexpfield {
     inherit iwidgets::Labeledwidget 
     
     constructor {args} {}
@@ -92,7 +92,7 @@ proc ::iwidgets::regexpfield {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::constructor {args} {
+itcl::body iwidgets::Regexpfield::constructor {args} {
     component hull configure -borderwidth 0
     
     itk_component add entry {
@@ -121,8 +121,8 @@ body iwidgets::Regexpfield::constructor {args} {
     #
     # Regexpfield instance bindings.
     #
-    bind $itk_component(entry) <KeyPress> [code $this _keyPress %A %K %s]
-    bind $itk_component(entry) <FocusIn> [code $this _focusCommand]
+    bind $itk_component(entry) <KeyPress> [itcl::code $this _keyPress %A %K %s]
+    bind $itk_component(entry) <FocusIn> [itcl::code $this _focusCommand]
     
     #
     # Initialize the widget based on the command line options.
@@ -139,14 +139,14 @@ body iwidgets::Regexpfield::constructor {args} {
 #
 # Command associated upon detection of Return key press event
 # ------------------------------------------------------------------
-configbody iwidgets::Regexpfield::command {}
+itcl::configbody iwidgets::Regexpfield::command {}
 
 # ------------------------------------------------------------------
 # OPTION: -focuscommand
 #
 # Command associated upon detection of focus.
 # ------------------------------------------------------------------
-configbody iwidgets::Regexpfield::focuscommand {}
+itcl::configbody iwidgets::Regexpfield::focuscommand {}
 
 # ------------------------------------------------------------------
 # OPTION: -regexp
@@ -154,7 +154,7 @@ configbody iwidgets::Regexpfield::focuscommand {}
 # Specify a regular expression to use in performing validation
 # of the content of the entry widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Regexpfield::regexp {
+itcl::configbody iwidgets::Regexpfield::regexp {
 }
 
 # ------------------------------------------------------------------
@@ -163,7 +163,7 @@ configbody iwidgets::Regexpfield::regexp {
 # Specify a command to executed should the current Regexpfield contents
 # be proven invalid.
 # ------------------------------------------------------------------
-configbody iwidgets::Regexpfield::invalid {}
+itcl::configbody iwidgets::Regexpfield::invalid {}
 
 # ------------------------------------------------------------------
 # OPTION: -fixed
@@ -174,7 +174,7 @@ configbody iwidgets::Regexpfield::invalid {}
 # only be able to type -fixed number of characters into it (or 
 # unlimited if -fixed = 0).
 # ------------------------------------------------------------------
-configbody iwidgets::Regexpfield::fixed {
+itcl::configbody iwidgets::Regexpfield::fixed {
     if {[regexp {[^0-9]} $itk_option(-fixed)] || \
 	    ($itk_option(-fixed) < 0)} {
 	error "bad fixed option \"$itk_option(-fixed)\",\
@@ -187,7 +187,7 @@ configbody iwidgets::Regexpfield::fixed {
 #
 # Specifies the position of the child site in the widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Regexpfield::childsitepos {
+itcl::configbody iwidgets::Regexpfield::childsitepos {
     set parent [winfo parent $itk_component(entry)]
 
     switch $itk_option(-childsitepos) {
@@ -244,7 +244,7 @@ configbody iwidgets::Regexpfield::childsitepos {
 # Specifies whether or not lowercase characters can match either
 # lowercase or uppercase letters in string.
 # ------------------------------------------------------------------
-configbody iwidgets::Regexpfield::nocase {
+itcl::configbody iwidgets::Regexpfield::nocase {
 
     switch $itk_option(-nocase) {
 	0 - 1 {
@@ -267,7 +267,7 @@ configbody iwidgets::Regexpfield::nocase {
 #
 # Returns the path name of the child site widget.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::childsite {} {
+itcl::body iwidgets::Regexpfield::childsite {} {
     return $itk_component(efchildsite)
 }
 
@@ -276,7 +276,7 @@ body iwidgets::Regexpfield::childsite {} {
 #
 # Thin wrap of the standard entry widget get method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::get {} {
+itcl::body iwidgets::Regexpfield::get {} {
     return [$itk_component(entry) get]
 }
 
@@ -285,7 +285,7 @@ body iwidgets::Regexpfield::get {} {
 #
 # Thin wrap of the standard entry widget delete method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::delete {args} {
+itcl::body iwidgets::Regexpfield::delete {args} {
     return [eval $itk_component(entry) delete $args]
 }
 
@@ -294,7 +294,7 @@ body iwidgets::Regexpfield::delete {args} {
 #
 # Thin wrap of the standard entry widget icursor method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::icursor {args} {
+itcl::body iwidgets::Regexpfield::icursor {args} {
     return [eval $itk_component(entry) icursor $args]
 }
 
@@ -303,7 +303,7 @@ body iwidgets::Regexpfield::icursor {args} {
 #
 # Thin wrap of the standard entry widget index method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::index {args} {
+itcl::body iwidgets::Regexpfield::index {args} {
     return [eval $itk_component(entry) index $args]
 }
 
@@ -312,7 +312,7 @@ body iwidgets::Regexpfield::index {args} {
 #
 # Thin wrap of the standard entry widget index method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::insert {args} {
+itcl::body iwidgets::Regexpfield::insert {args} {
     return [eval $itk_component(entry) insert $args]
 }
 
@@ -321,7 +321,7 @@ body iwidgets::Regexpfield::insert {args} {
 #
 # Thin wrap of the standard entry widget scan method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::scan {args} {
+itcl::body iwidgets::Regexpfield::scan {args} {
     return [eval $itk_component(entry) scan $args]
 }
 
@@ -330,7 +330,7 @@ body iwidgets::Regexpfield::scan {args} {
 #
 # Thin wrap of the standard entry widget selection method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::selection {args} {
+itcl::body iwidgets::Regexpfield::selection {args} {
     return [eval $itk_component(entry) selection $args]
 }
 
@@ -339,7 +339,7 @@ body iwidgets::Regexpfield::selection {args} {
 #
 # Thin wrap of the standard entry widget xview method.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::xview {args} {
+itcl::body iwidgets::Regexpfield::xview {args} {
     return [eval $itk_component(entry) xview $args]
 }
 
@@ -348,7 +348,7 @@ body iwidgets::Regexpfield::xview {args} {
 #
 # Delete the current entry contents.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::clear {} {
+itcl::body iwidgets::Regexpfield::clear {} {
     $itk_component(entry) delete 0 end
     icursor 0
 }
@@ -359,11 +359,11 @@ body iwidgets::Regexpfield::clear {} {
 # The peek procedure returns the value of the Regexpfield with the
 # char inserted at the insert position.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::_peek {char} {
+itcl::body iwidgets::Regexpfield::_peek {char} {
     set str [get]
 
     set insertPos [index insert] 
-    set firstPart [string range $str 0 [expr $insertPos - 1]]
+    set firstPart [string range $str 0 [expr {$insertPos - 1}]]
     set lastPart [string range $str $insertPos end]
 
     append rtnVal $firstPart $char $lastPart
@@ -376,7 +376,7 @@ body iwidgets::Regexpfield::_peek {char} {
 # Method bound to focus event which evaluates the current command
 # specified in the focuscommand option
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::_focusCommand {} {
+itcl::body iwidgets::Regexpfield::_focusCommand {} {
     uplevel #0 $itk_option(-focuscommand)
 }
 
@@ -386,7 +386,7 @@ body iwidgets::Regexpfield::_focusCommand {} {
 # Monitor the key press event checking for return keys, fixed width
 # specification, and optional validation procedures.
 # ------------------------------------------------------------------
-body iwidgets::Regexpfield::_keyPress {char sym state} {
+itcl::body iwidgets::Regexpfield::_keyPress {char sym state} {
     #
     # A Return key invokes the optionally specified command option.
     #

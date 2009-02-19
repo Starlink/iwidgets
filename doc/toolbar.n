@@ -5,25 +5,27 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" toolbar.n 
-'/" 
+'\" 
 .so man.macros
-.HS toolbar iwid
+.HS iwidgets::toolbar iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-\fBtoolbar\fR \- Create and manipulate a tool bar
+\fBiwidgets::toolbar\fR \- Create and manipulate a tool bar
 .SH SYNOPSIS
-\fBtoolbar\fR \fIpathName\fR ?\fIoptions\fR?
+\fBiwidgets::toolbar\fR \fIpathName\fR ?\fIoptions\fR?
+.SH "INHERITANCE"
+itk::Widget <- iwidgets::Toolbar
 .SH STANDARD OPTIONS
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBfont\fR	\fBinsertForeground\fR	\fBselectForeground\fR
-\fBactiveForeground\fR	\fBforeground\fR	\fBorient\fR	\fBstate\fR
-\fBbackground\fR	\fBhighlightBackground\fR	\fBrelief\fR	\fBtroughColor\fR
-\fBborderWidth\fR	\fBhighlightColor\fR	\fBselectBackground\fR	\fBcursor\fR
-\fBhighlightThickness\fR	\fBselectBorderWidth\fR	\fBdisabledForeground\fR	\fBinsertBackground\fR
-\fBselectColor\fR
+\fB
+activeBackground     activeForeground    background  borderWidth
+cursor               disabledForeground  font        foreground
+highlightBackground  highlightColor      highlightThickness
+insertBackground     insertForeground    orient      selectBackground
+selectBorderWidth    selectForeground    state       troughColor\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options. For widgets
@@ -109,11 +111,11 @@ Specifies the orientation of the toolbar. Must be either horizontal or
 vertical. 
 .BE 
 .SH DESCRIPTION
-The \fBtoolbar\fR command creates a new window (given by the pathName 
+The \fBiwidgets::toolbar\fR command creates a new window (given by the pathName 
 argument) and makes it into a \fBtoolbar\fR widget. Additional options, 
 described above may be specified on the command line or in the option 
 database to configure aspects of the toolbar such as its colors, font, 
-and orientation. The \fBtoolbar\fR command returns its pathName argument. At 
+and orientation. The \fBiwidgets::toolbar\fR command returns its pathName argument. At 
 the time this command is invoked, there must not exist a window named 
 pathName, but pathName's parent must exist. 
 .PP
@@ -130,7 +132,7 @@ discussion for the widget command add below.
 
 .SH "WIDGET-SPECIFIC METHODS"
 .PP
-The toolbar command creates a new Tcl command whose name is pathName. This
+The iwidgets::toolbar command creates a new Tcl command whose name is pathName. This
 command may be used to invoke various operations on the widget. It has the
 following general form:
 .DS C
@@ -260,7 +262,8 @@ available options. The set of available options is the same as specified
 in the \fBad\fR command.
 .SH EXAMPLE
 .DS
- toolbar .tb -helpvariable statusVar
+ package require Iwidgets 4.0
+ iwidgets::toolbar .tb -helpvariable statusVar
 
  .tb add button item1 \\
     -helpstr "Save It" -bitmap @./icons/Tool_32_box.xbm \\

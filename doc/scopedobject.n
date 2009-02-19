@@ -5,7 +5,7 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) scopedobject.n 1.21 97/1/30 16:04:44
-'/" 
+'\" 
 .so man.macros
 .HS scopedobject iwid
 .BS
@@ -86,7 +86,7 @@ following is an example of usage without inheritance:
 .LP
 .DS
   proc scopedobject_demo {} {
-    scopedobject #auto \
+    iwidgets::scopedobject #auto \
         -exitscopecommand {puts "enter scopedobject_demo"} \
         -exitscopecommand {puts "exit scopedobject_demo"}
   }

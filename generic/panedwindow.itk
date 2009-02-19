@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts              EMAIL: mulferts@austin.dsccc.com
 #
-#  @(#) $Id: panedwindow.itk,v 1.3 1996/08/28 20:28:22 mulferts Exp $
+#  @(#) $Id: panedwindow.itk,v 1.7 2001/09/06 15:12:46 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -45,7 +45,7 @@ itk::usual Panedwindow {
 # ------------------------------------------------------------------
 #                            PANEDWINDOW
 # ------------------------------------------------------------------
-class iwidgets::Panedwindow {
+itcl::class iwidgets::Panedwindow {
     inherit itk::Widget
 
     constructor {args} {}
@@ -57,10 +57,11 @@ class iwidgets::Panedwindow {
     itk_option define -sashheight sashHeight SashHeight 10
     itk_option define -thickness thickness Thickness 3
     itk_option define -sashindent sashIndent SashIndent -10
+    itk_option define -showhandle showHandle ShowHandle 1
 
     public method index {index} 
     public method childsite {args} 
-    public method fraction {percentage1 percentage2 args} 
+    public method fraction {args}
     public method add {tag args} 
     public method insert {index tag args} 
     public method delete {index} 
@@ -104,6 +105,8 @@ class iwidgets::Panedwindow {
     private variable _width 0          ;# hull's width.
     private variable _height 0         ;# hull's height.
     private variable _unique -1         ;# Unique number for pane names.
+
+    private variable _relief          ;# relief for -showhandle
 }
 
 #
@@ -122,7 +125,7 @@ option add *Panedwindow.height 10 widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::constructor {args} {
+itcl::body iwidgets::Panedwindow::constructor {args} {
     itk_option add hull.width hull.height
 
     pack propagate $itk_component(hull) no
@@ -130,10 +133,12 @@ body iwidgets::Panedwindow::constructor {args} {
     #
     # Add binding for the configure event.
     #
-    bind pw-config-$this <Configure> [code $this _pwConfigureEventHandler %w %h]
+    bind pw-config-$this <Configure> [itcl::code $this _pwConfigureEventHandler %w %h]
     bindtags $itk_component(hull) \
 	    [linsert [bindtags $itk_component(hull)] 0 pw-config-$this]
     
+    array set _relief {0 sunken 1 raised}
+
     eval itk_initialize $args
 }
 
@@ -147,19 +152,19 @@ body iwidgets::Panedwindow::constructor {args} {
 # Specifies the orientation of the sashes.  Once the paned window
 # has been mapped, set the sash bindings and place the panes.
 # ------------------------------------------------------------------
-configbody iwidgets::Panedwindow::orient {
+itcl::configbody iwidgets::Panedwindow::orient {
     if {$_initialized} {
 	switch $itk_option(-orient) {
 	    vertical {
-		for {set i 1} {$i < [llength $_panes]} {incr i} {
+		for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 		    bind $itk_component(sash$i) <Button-1> \
-			    [code $this _startGrip %x $i]
+			    [itcl::code $this _startGrip %x $i]
 		    bind $itk_component(sash$i) <B1-Motion> \
-			    [code $this _handleGrip %x $i]
+			    [itcl::code $this _handleGrip %x $i]
 		    bind $itk_component(sash$i) <B1-ButtonRelease-1> \
-			    [code $this _endGrip %x $i]
+			    [itcl::code $this _endGrip %x $i]
 		    bind $itk_component(sash$i) <Configure> \
-			    [code $this _configGrip %x $i]
+			    [itcl::code $this _configGrip %x $i]
 		}
 		
 		_setFracArray
@@ -168,15 +173,15 @@ configbody iwidgets::Panedwindow::orient {
 	    }
 	    
 	    horizontal {
-		for {set i 1} {$i < [llength $_panes]} {incr i} {
+		for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 		    bind $itk_component(sash$i) <Button-1> \
-			    [code $this _startGrip %y $i]
+			    [itcl::code $this _startGrip %y $i]
 		    bind $itk_component(sash$i) <B1-Motion> \
-			    [code $this _handleGrip %y $i]
+			    [itcl::code $this _handleGrip %y $i]
 		    bind $itk_component(sash$i) <B1-ButtonRelease-1> \
-			    [code $this _endGrip %y $i]
+			    [itcl::code $this _endGrip %y $i]
 		    bind $itk_component(sash$i) <Configure> \
-			    [code $this _configGrip %y $i]
+			    [itcl::code $this _configGrip %y $i]
 		}
 		
 		_setFracArray
@@ -198,13 +203,13 @@ configbody iwidgets::Panedwindow::orient {
 # Specifies a non-negative value indicating the width of the 3-D
 # border to draw around the outside of the sash.
 # ------------------------------------------------------------------
-configbody iwidgets::Panedwindow::sashborderwidth {
+itcl::configbody iwidgets::Panedwindow::sashborderwidth {
     set pixels [winfo pixels $itk_component(hull) \
 	    $itk_option(-sashborderwidth)]
     set itk_option(-sashborderwidth) $pixels
     
     if {$_initialized} {
-	for {set i 1} {$i < [llength $_panes]} {incr i} {
+	for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 	    $itk_component(sash$i) configure \
 		    -borderwidth $itk_option(-sashborderwidth)
 	}
@@ -216,11 +221,10 @@ configbody iwidgets::Panedwindow::sashborderwidth {
 #
 # Specifies the type of cursor to be used when over the sash.
 # ------------------------------------------------------------------
-configbody iwidgets::Panedwindow::sashcursor {
+itcl::configbody iwidgets::Panedwindow::sashcursor {
     if {$_initialized} {
-	for {set i 1} {$i < [llength $_panes]} {incr i} {
-	    $itk_component(sash$i) configure \
-		    -cursor $itk_option(-sashcursor)
+	for {set i 1} {$i < [llength $_activePanes]} {incr i} {
+	    $itk_component(sash$i) configure -cursor $itk_option(-sashcursor)
 	}
     }
 }
@@ -230,13 +234,13 @@ configbody iwidgets::Panedwindow::sashcursor {
 #
 # Specifies the width of the sash.
 # ------------------------------------------------------------------
-configbody iwidgets::Panedwindow::sashwidth {
+itcl::configbody iwidgets::Panedwindow::sashwidth {
     set pixels [winfo pixels $itk_component(hull) \
 	    $itk_option(-sashwidth)]
     set itk_option(-sashwidth) $pixels
     
     if {$_initialized} {
-	for {set i 1} {$i < [llength $_panes]} {incr i} {
+	for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 	    $itk_component(sash$i) configure \
 		    -width $itk_option(-sashwidth)
 	}
@@ -248,18 +252,39 @@ configbody iwidgets::Panedwindow::sashwidth {
 #
 # Specifies the height of the sash,
 # ------------------------------------------------------------------
-configbody iwidgets::Panedwindow::sashheight {
+itcl::configbody iwidgets::Panedwindow::sashheight {
     set pixels [winfo pixels $itk_component(hull) \
 	    $itk_option(-sashheight)]
     set itk_option(-sashheight) $pixels
     
     if {$_initialized} {
-	for {set i 1} {$i < [llength $_panes]} {incr i} {
+	for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 	    $itk_component(sash$i) configure \
 		    -height $itk_option(-sashheight)
 	}
     }
 }
+
+# ------------------------------------------------------------------
+# OPTION: -showhandle
+#
+# Specifies whether or not to show the sash handle. If not, then the
+# whole separator becomes the handle.  Valid values are 0 or 1.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Panedwindow::showhandle {
+  switch $itk_option(-showhandle) {
+    0 - 1 {
+      # Update the sashes.
+      _makeSashes
+      _placePanes
+    }
+    default {
+      error "Invalid option for -showhandle: $itk_option(-showhandle).\
+        Must be 1 or 0."
+    }
+  }
+}
+
 
 # ------------------------------------------------------------------
 # OPTION: -thickness
@@ -268,22 +293,22 @@ configbody iwidgets::Panedwindow::sashheight {
 # height of the separator to the thickness value and the borderwidth
 # to half the thickness.
 # ------------------------------------------------------------------
-configbody iwidgets::Panedwindow::thickness {
+itcl::configbody iwidgets::Panedwindow::thickness {
     set pixels [winfo pixels $itk_component(hull) \
 	    $itk_option(-thickness)]
     set itk_option(-thickness) $pixels
     
     if {$_initialized} {
-	for {set i 1} {$i < [llength $_panes]} {incr i} {
+	for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 	    $itk_component(separator$i) configure \
 		    -height $itk_option(-thickness)
 	    $itk_component(separator$i) configure \
 		    -width $itk_option(-thickness)
 	    $itk_component(separator$i) configure \
-		    -borderwidth [expr $itk_option(-thickness) / 2]
+		    -borderwidth [expr {$itk_option(-thickness) / 2}]
 	}
 	
-	for {set i 1} {$i < [llength $_panes]} {incr i} {
+	for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 	    _placeSash $i
 	}
     }
@@ -298,13 +323,13 @@ configbody iwidgets::Panedwindow::thickness {
 # the far (right/bottom) side.  If the offset is greater than the 
 # width, then the sash is placed flush against the side.  
 # ------------------------------------------------------------------
-configbody iwidgets::Panedwindow::sashindent {
+itcl::configbody iwidgets::Panedwindow::sashindent {
     set pixels [winfo pixels $itk_component(hull) \
 	    $itk_option(-sashindent)]
     set itk_option(-sashindent) $pixels
     
     if {$_initialized} {
-	for {set i 1} {$i < [llength $_panes]} {incr i} {
+	for {set i 1} {$i < [llength $_activePanes]} {incr i} {
 	    _placeSash $i
 	}
     }
@@ -321,7 +346,7 @@ configbody iwidgets::Panedwindow::sashindent {
 # requested tag, numerical index, or keyword "end".  Returns the pane's 
 # numerical index if found, otherwise error.
 # ------------------------------------------------------------------    
-body iwidgets::Panedwindow::index {index} {
+itcl::body iwidgets::Panedwindow::index {index} {
     if {[llength $_panes] > 0} {
 	if {[regexp {(^[0-9]+$)} $index]} {
 	    if {$index < [llength $_panes]} {
@@ -331,7 +356,7 @@ body iwidgets::Panedwindow::index {index} {
 	    }
 	    
 	} elseif {$index == "end"} {
-	    return [expr [llength $_panes] - 1]
+	    return [expr {[llength $_panes] - 1}]
 	    
 	} else {
 	    if {[set idx [lsearch $_panes $index]] != -1} {
@@ -354,7 +379,7 @@ body iwidgets::Panedwindow::index {index} {
 # without an index return a list of all the child site panes.  The 
 # list is ordered from the near side (left/top).
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::childsite {args} {
+itcl::body iwidgets::Panedwindow::childsite {args} {
     if {! $_initialized} {
 	set _initialized 1
 	reset
@@ -383,14 +408,15 @@ body iwidgets::Panedwindow::childsite {args} {
 # the near side (left/top).  The number of percentages must be equal 
 # to the current number of visible (mapped) panes and add up to 100.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::fraction {percentage1 percentage2 args} {
-    set args [linsert $args 0 $percentage1 $percentage2]
+itcl::body iwidgets::Panedwindow::fraction {args} {
+    #set args [linsert $args 0 $percentage1 $percentage2]
+
     
     if {[llength $args] == [llength $_activePanes]} {
 	set sum 0
 	
 	for {set i 0} {$i < [llength $args]} {incr i} {
-	    set sum [expr $sum + [lindex $args $i]]
+	    set sum [expr {$sum + [lindex $args $i]}]
 	}
 	
 	if {$sum == 100} {
@@ -398,7 +424,7 @@ body iwidgets::Panedwindow::fraction {percentage1 percentage2 args} {
 	    
 	    for {set i 0} {$i < [llength $_activePanes]} {incr i} {
 		set _frac($i) $perc
-		set perc [expr $perc + [expr [lindex $args $i] / 100.0]]
+		set perc [expr {$perc + [expr {[lindex $args $i] / 100.0}]}]
 	    }
 	    
 	    set _frac($i) 1.0
@@ -412,11 +438,21 @@ body iwidgets::Panedwindow::fraction {percentage1 percentage2 args} {
 		    up to 100"
 	}
 	
+    } elseif {[llength $args] == 0} {
+
+        for {set i 0; set j 1} {$j < [llength $_activePanes]} {incr i; incr j} {
+            lappend _ret [expr {round(($_frac($j) - $_frac($i))*100)}]
+        }
+	lappend _ret [eval expr {100 - ([join $_ret +])}]
+
+        return $_ret
     } else {
 	error "wrong # args: should be \"$itk_component(hull)\
 		fraction percentage percentage ?percentage ...?\",\
 		where the number of percentages is\
-		[llength $_activePanes] and equal 100"
+		[llength $_activePanes] and equal 100
+		or \"$itk_component(hull) fraction\"
+		which will return a list of the current percentages"
     }
 }
 
@@ -428,7 +464,7 @@ body iwidgets::Panedwindow::fraction {percentage1 percentage2 args} {
 # pane constructor.  These include -margin, and -minimum.  The path 
 # of the pane is returned.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::add {tag args} {
+itcl::body iwidgets::Panedwindow::add {tag args} {
     #
     # Create panes.
     #
@@ -454,7 +490,7 @@ body iwidgets::Panedwindow::add {tag args} {
 # pane constructor.  These include -margin, -minimum.  The path of 
 # the pane is returned.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::insert {index tag args} {
+itcl::body iwidgets::Panedwindow::insert {index tag args} {
     #
     # Create panes.
     #
@@ -478,7 +514,7 @@ body iwidgets::Panedwindow::insert {index tag args} {
 #
 # Delete the specified pane.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::delete {index} {
+itcl::body iwidgets::Panedwindow::delete {index} {
     set index [index $index]
     set tag [lindex $_panes $index]
     
@@ -494,7 +530,7 @@ body iwidgets::Panedwindow::delete {index} {
 #
 # Remove the specified pane from the paned window. 
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::hide {index} {
+itcl::body iwidgets::Panedwindow::hide {index} {
     set index [index $index]
     set tag [lindex $_panes $index]
     
@@ -510,7 +546,7 @@ body iwidgets::Panedwindow::hide {index} {
 #
 # Display the specified pane in the paned window.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::show {index} {
+itcl::body iwidgets::Panedwindow::show {index} {
     set index [index $index]
     set tag [lindex $_panes $index]
     
@@ -528,7 +564,7 @@ body iwidgets::Panedwindow::show {index} {
 # panes from the Panedwindow level.  The options may have any of the 
 # values accepted by the add method.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::paneconfigure {index args} {
+itcl::body iwidgets::Panedwindow::paneconfigure {index args} {
     set index [index $index]
     set tag [lindex $_panes $index]
     
@@ -540,7 +576,7 @@ body iwidgets::Panedwindow::paneconfigure {index args} {
 #
 # Redisplay the panes based on the default percentages of the panes.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::reset {} {
+itcl::body iwidgets::Panedwindow::reset {} {
     if {$_initialized && [llength $_panes]} {
 	_setActivePanes
 	_setFracArray
@@ -556,7 +592,7 @@ body iwidgets::Panedwindow::reset {} {
 # Performs operations necessary following a configure event.  This
 # includes placing the panes.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_pwConfigureEventHandler {width height} {
+itcl::body iwidgets::Panedwindow::_pwConfigureEventHandler {width height} {
     set _width $width
     set _height $height
     if {$_initialized} {
@@ -576,7 +612,7 @@ body iwidgets::Panedwindow::_pwConfigureEventHandler {width height} {
 # stored in protected variables for later access during the drag
 # handling routines.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_startGrip {where num} {
+itcl::body iwidgets::Panedwindow::_startGrip {where num} {
     if {$itk_option(-orient) == "horizontal"} {
       set _dimension $_height
     } else {
@@ -588,15 +624,15 @@ body iwidgets::Panedwindow::_startGrip {where num} {
     set totMinHeight 0
     set cnt [llength $_activePanes]
     set _sashloc(0) 0
-    set _pixels($cnt) [expr int($_dimension)]
+    set _pixels($cnt) [expr {int($_dimension)}]
     for {set i 0} {$i < $cnt} {incr i} {
-      set _pixels($i) [expr int($_frac($i) * $_dimension)]
+      set _pixels($i) [expr {int($_frac($i) * $_dimension)}]
       set margaft [$itk_component([lindex $_activePanes $i]) cget -margin]
       set minaft [$itk_component([lindex $_activePanes $i]) cget -minimum]
-      set _minheight($i) [expr $minaft + (2 * $margaft)]
+      set _minheight($i) [expr {$minaft + (2 * $margaft)}]
       incr totMinHeight $_minheight($i)
     }
-    set _dragging [expr $_dimension > $totMinHeight]
+    set _dragging [expr {$_dimension > $totMinHeight}]
 
     grab  $itk_component(sash$num)
     raise $itk_component(separator$num)
@@ -610,12 +646,12 @@ body iwidgets::Panedwindow::_startGrip {where num} {
 #
 # Ends the sash drag and drop operation.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_endGrip {where num} {
-    $itk_component(sash$num) configure -relief raised
+itcl::body iwidgets::Panedwindow::_endGrip {where num} {
+    $itk_component(sash$num) configure -relief $_relief($itk_option(-showhandle))
     grab release $itk_component(sash$num)
     if {$_dragging} {
-      _calcFraction [expr $_sashloc($num) + $where] $num
-      _placePanes [expr $_minsashmoved - 1] $_maxsashmoved
+      _calcFraction [expr {$_sashloc($num) + $where}] $num
+      _placePanes [expr {$_minsashmoved - 1}] $_maxsashmoved
       set _dragging 0
     }
 }
@@ -625,7 +661,7 @@ body iwidgets::Panedwindow::_endGrip {where num} {
 #
 # Configure  action for sash.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_configGrip {where num} {
+itcl::body iwidgets::Panedwindow::_configGrip {where num} {
    set _sashloc($num) $where
 }
 
@@ -634,9 +670,9 @@ body iwidgets::Panedwindow::_configGrip {where num} {
 #
 # Motion action for sash.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_handleGrip {where num} {
+itcl::body iwidgets::Panedwindow::_handleGrip {where num} {
  if {$_dragging} {
-  _moveSash [expr $where + $_sashloc($num)] $num
+  _moveSash [expr {$where + $_sashloc($num)}] $num
   incr _movecount
   if {$_movecount>4} {
     set _movecount 0
@@ -650,9 +686,9 @@ body iwidgets::Panedwindow::_handleGrip {where num} {
 #
 # Move the sash to the absolute pixel location
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_moveSash {where num} {
-  set _minsashmoved [expr ($_minsashmoved<$num)?$_minsashmoved:$num]
-  set _maxsashmoved [expr ($_maxsashmoved>$num)?$_maxsashmoved:$num]
+itcl::body iwidgets::Panedwindow::_moveSash {where num} {
+  set _minsashmoved [expr {($_minsashmoved<$num)?$_minsashmoved:$num}]
+  set _maxsashmoved [expr {($_maxsashmoved>$num)?$_maxsashmoved:$num}]
   set oldfrac $_frac($num)
   _calcFraction $where $num
   if {$_frac($num)!=$oldfrac} { _placeSash $num }
@@ -664,15 +700,15 @@ body iwidgets::Panedwindow::_moveSash {where num} {
 # Calculates the percentages for the fraction array which lists the
 # percentages for each pane.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_setFracArray {} {
+itcl::body iwidgets::Panedwindow::_setFracArray {} {
     set perc 0.0
     if {[llength $_activePanes] != 0} {
-	set percIncr [expr 1.0 / [llength $_activePanes]]
+	set percIncr [expr {1.0 / [llength $_activePanes]}]
     }
     
     for {set i 0} {$i < [llength $_activePanes]} {incr i} {
 	set _frac($i) $perc
-	set perc [expr $perc + $percIncr]
+	set perc [expr {$perc + $percIncr}]
     }
     
     set _frac($i) 1.0
@@ -683,7 +719,7 @@ body iwidgets::Panedwindow::_setFracArray {} {
 #
 # Resets the active pane list.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_setActivePanes {} {
+itcl::body iwidgets::Panedwindow::_setActivePanes {} {
     set _prevActivePanes $_activePanes
 
     set _activePanes {}
@@ -701,30 +737,30 @@ body iwidgets::Panedwindow::_setActivePanes {} {
 # Determines the fraction for the sash.  Make sure the fraction does
 # not go past the minimum for the pane on each side of the separator.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_calcFraction {where num} {
+itcl::body iwidgets::Panedwindow::_calcFraction {where num} {
     
-    set _lowerlimit \
-	    [expr $_pixels([expr $num - 1]) + $_minheight([expr $num - 1])]
-    set _upperlimit \
-	    [expr $_pixels([expr $num + 1]) - $_minheight($num)]
-    
-    set dir [expr $where - $_pixels($num)]
+    set numi [expr {$num + 1}]
+    set numd [expr {$num - 1}]
+
+    set _lowerlimit [expr {$_pixels($numd) + $_minheight($numd)}]
+    set _upperlimit [expr {$_pixels($numi) - $_minheight($num)}]
+
+    set dir [expr {$where - $_pixels($num)}]
 
     if {$where < $_lowerlimit && $dir <= 0} {
      if {$num == 1} {
       set _pixels($num) $_lowerlimit
      } {
-      _moveSash [expr $where - $_minheight([expr $num - 1])] [expr $num -1]
-      set _pixels($num) \
-	     [expr $_pixels([expr $num - 1]) + $_minheight([expr $num - 1])]
+      _moveSash [expr {$where - $_minheight($numd)}] $numd
+      set _pixels($num) [expr {$_pixels($numd) + $_minheight($numd)}]
      }
     } elseif {$where > $_upperlimit && $dir >= 0} {
-     if {[expr $num + 1] == [llength $_activePanes]} {
+     if {$numi == [llength $_activePanes]} {
       set _pixels($num) $_upperlimit
      } {
-      _moveSash [expr $where + $_minheight($num)] [expr $num +1]
+      _moveSash [expr {$where + $_minheight($num)}] $numi
       set _pixels($num) \
-	     [expr $_pixels([expr $num + 1]) - $_minheight($num)]
+	     [expr {$_pixels($numi) - $_minheight($num)}]
      }
     } else {
       set _pixels($num) $where
@@ -737,7 +773,7 @@ body iwidgets::Panedwindow::_calcFraction {where num} {
 #
 # Removes any previous sashes and separators and creates new one.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_makeSashes {} {
+itcl::body iwidgets::Panedwindow::_makeSashes {} {
     #
     # Remove any existing sashes and separators.
     #
@@ -757,7 +793,7 @@ body iwidgets::Panedwindow::_makeSashes {} {
     #
     for {set id 1} {$id < [llength $_activePanes]} {incr id} {
 	itk_component add sash$id {
-	    frame $itk_interior.sash$id -relief raised \
+	    frame $itk_interior.sash$id -relief $_relief($itk_option(-showhandle)) \
 		    -borderwidth $itk_option(-sashborderwidth) \
 		    -cursor $itk_option(-sashcursor) \
 		    -width $itk_option(-sashwidth) \
@@ -765,30 +801,30 @@ body iwidgets::Panedwindow::_makeSashes {} {
 	} {
 	    keep -background
 	}
-	
+   
 	lappend _sashes sash$id
 	
 	switch $itk_option(-orient) {
 	    vertical {
 		bind $itk_component(sash$id) <Button-1> \
-			[code $this _startGrip %x $id]
+			[itcl::code $this _startGrip %x $id]
 		bind $itk_component(sash$id) <B1-Motion> \
-			[code $this _handleGrip %x $id]
+			[itcl::code $this _handleGrip %x $id]
 		bind $itk_component(sash$id) <B1-ButtonRelease-1> \
-			[code $this _endGrip %x $id]
+			[itcl::code $this _endGrip %x $id]
 		bind $itk_component(sash$id) <Configure> \
-			    [code $this _configGrip %x $id]
+			    [itcl::code $this _configGrip %x $id]
 	    }
 	    
 	    horizontal {
 		bind $itk_component(sash$id) <Button-1> \
-			[code $this _startGrip %y $id]
+			[itcl::code $this _startGrip %y $id]
 		bind $itk_component(sash$id) <B1-Motion> \
-			[code $this _handleGrip %y $id]
+			[itcl::code $this _handleGrip %y $id]
 		bind $itk_component(sash$id) <B1-ButtonRelease-1> \
-			[code $this _endGrip %y $id]
+			[itcl::code $this _endGrip %y $id]
 		bind $itk_component(sash$id) <Configure> \
-			    [code $this _configGrip %y $id]
+			    [itcl::code $this _configGrip %y $id]
 	    }
 	}
 	
@@ -796,7 +832,7 @@ body iwidgets::Panedwindow::_makeSashes {} {
 	    frame $itk_interior.separator$id -relief sunken \
 		    -height $itk_option(-thickness) \
 		    -width $itk_option(-thickness) \
-		    -borderwidth [expr $itk_option(-thickness) / 2]
+		    -borderwidth [expr {$itk_option(-thickness) / 2}]
 	} {
 	    keep -background -cursor
 	}
@@ -810,38 +846,51 @@ body iwidgets::Panedwindow::_makeSashes {} {
 #
 # Places the position of the sash and separator.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_placeSash {i} {
+itcl::body iwidgets::Panedwindow::_placeSash {i} {
     if {$itk_option(-orient) == "horizontal"} {
 	place $itk_component(separator$i) -in $itk_component(hull) \
 		-x 0 -relwidth 1 -rely $_frac($i) -anchor w \
 		-height $itk_option(-thickness)
 	
 	if {$itk_option(-sashindent) < 0} {
-	    set sashPos [expr $_width + $itk_option(-sashindent)]
+	    set sashPos [expr {$_width + $itk_option(-sashindent)}]
 	    set sashAnchor e
 	} else {
 	    set sashPos $itk_option(-sashindent)
 	    set sashAnchor w
 	}
 	
-	place $itk_component(sash$i) -in $itk_component(hull) \
-		-x $sashPos -rely $_frac($i) -anchor $sashAnchor
-	
+	if {$itk_option(-showhandle)} {
+		place $itk_component(sash$i) -in $itk_component(hull) \
+			-x $sashPos -rely $_frac($i) -anchor $sashAnchor
+	} else {
+		place $itk_component(sash$i) -in $itk_component(hull) \
+			-x 0 -relwidth 1 -rely $_frac($i) -anchor w \
+			-height $itk_option(-thickness)
+	}
+
     } else {
 	place $itk_component(separator$i) -in $itk_component(hull) \
 		-y 0 -relheight 1 -relx $_frac($i) -anchor n \
 		-width $itk_option(-thickness)
 	
 	if {$itk_option(-sashindent) < 0} {
-	    set sashPos [expr $_height + $itk_option(-sashindent)]
+	    set sashPos [expr {$_height + $itk_option(-sashindent)}]
 	    set sashAnchor s
 	} else {
 	    set sashPos $itk_option(-sashindent)
 	    set sashAnchor n
 	}
 	
-	place $itk_component(sash$i) -in $itk_component(hull) \
-		-y $sashPos -relx $_frac($i) -anchor $sashAnchor
+	if {$itk_option(-showhandle)} {
+
+		place $itk_component(sash$i) -in $itk_component(hull) \
+			-y $sashPos -relx $_frac($i) -anchor $sashAnchor
+	} else {
+		place $itk_component(sash$i) -in $itk_component(hull) \
+			-y 0 -relheight 1 -relx $_frac($i) -anchor n \
+			-width $itk_option(-thickness)
+	}
     }
 }
 
@@ -850,8 +899,8 @@ body iwidgets::Panedwindow::_placeSash {i} {
 #
 # Resets the panes of the window following movement of the sash.
 # ------------------------------------------------------------------
-body iwidgets::Panedwindow::_placePanes {{start 0} {end end}} {
-     if {$end=="end"} { set end [expr [llength $_activePanes] - 1] }
+itcl::body iwidgets::Panedwindow::_placePanes {{start 0} {end end}} {
+     if {$end=="end"} { set end [expr {[llength $_activePanes] - 1}] }
      set _updatePanes [lrange $_activePanes $start $end]
      if {$_updatePanes == $_activePanes} {
        set _forgetPanes $_panes
@@ -868,7 +917,7 @@ body iwidgets::Panedwindow::_placePanes {{start 0} {end end}} {
 	foreach pane $_updatePanes {
 	    place $itk_component($pane) -in $itk_component(hull) \
 		    -x 0 -rely $_frac($i) -relwidth 1 \
-		    -relheight [expr $_frac([expr $i + 1]) - $_frac($i)]
+		    -relheight [expr {$_frac([expr {$i + 1}]) - $_frac($i)}]
 	    incr i
 	}
 	
@@ -877,13 +926,13 @@ body iwidgets::Panedwindow::_placePanes {{start 0} {end end}} {
 	foreach pane $_updatePanes {
 	    place $itk_component($pane) -in $itk_component(hull) \
 		    -y 0 -relx $_frac($i) -relheight 1 \
-		    -relwidth [expr $_frac([expr $i + 1]) - $_frac($i)]
+		    -relwidth [expr {$_frac([expr {$i + 1}]) - $_frac($i)}]
 	    incr i
 	}
 	
     }
 
-    for {set i [expr $start+1]} {$i <= $end} {incr i} {
+    for {set i [expr {$start+1}]} {$i <= $end} {incr i} {
 	if {[array names itk_component separator$i] != ""} {
 	    _placeSash $i
 	    raise $itk_component(separator$i)

@@ -5,17 +5,17 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) labeledwidget.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS labeledwidget iwid
+.HS iwidgets::labeledwidget iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-labeledwidget \- Create and manipulate a labeled widget
+iwidgets::labeledwidget \- Create and manipulate a labeled widget
 .SH SYNOPSIS
-\fBlabeledwidget\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::labeledwidget\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- labeledwidget
+itk::Widget <- iwidgets::Labeledwidget
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -107,11 +107,21 @@ Specifies one of two states for the label: \fBnormal\fR or \fBdisabled\fR.
 If the label is disabled then it is displayed in a disabled foreground
 color.  The default is normal.
 .LP
+.nf
+Name:	\fBsticky\fR
+Class:	\fBSticky\fR
+Command-Line Switch:	\fB-sticky\fR
+.fi
+.IP
+Specifies the "sticky-ness" of the childsite.  The default value is nsew,
+which is the the same behavior of the labeledwidget before this option was
+added.
+.LP
 .BE
 
 .SH DESCRIPTION
 .PP
-The \fBlabeledwidget\fR command creates a labeled widget which contains 
+The \fBiwidgets::labeledwidget\fR command creates a labeled widget which contains 
 a label and child site.  The child site is a frame 
 which can filled with any widget via a derived class or though the use 
 of the childsite method.  This class
@@ -122,7 +132,7 @@ font and margin, and control the display of the labels.
 
 .SH "METHODS"
 .PP
-The \fBlabeledwidget\fR command creates a new Tcl command whose
+The \fBiwidgets::labeledwidget\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -140,7 +150,7 @@ Return the path name of the child site.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBlabeledwidget\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::labeledwidget\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -154,12 +164,12 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBlabeledwidget\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::labeledwidget\fR
 command.
 
 .SH "STATIC METHODS"
 .TP
-\fBLabeledwidget::alignlabels\fR \fIwidget\fR ?\fIwidget ...\fR?
+\fBiwidgets::Labeledwidget::alignlabels\fR \fIwidget\fR ?\fIwidget ...\fR?
 The alignlabels procedure takes a list of widgets derived from
 the Labeledwidget class and uses the label margin to make each widget
 have the same total space for the combination of label and margin.  The
@@ -194,7 +204,8 @@ support for composite classes, the 'childsite' methods also exists.
 The following is an example of 'childsite' method usage.
 .LP
 .DS
- labeledwidget .lw -labeltext "Canvas Widget" -labelpos s
+ package require Iwidgets 4.0
+ iwidgets::labeledwidget .lw -labeltext "Canvas Widget" -labelpos s
  pack .lw -fill both -expand yes -padx 10 -pady 10
 
  set cw [canvas [.lw childsite].c -relief raised -width 200 -height 200]

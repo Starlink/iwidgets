@@ -5,17 +5,17 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) dialogshell.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS dialogshell iwid
+.HS iwidgets::dialogshell iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-dialogshell \- Create and manipulate a dialog shell widget
+iwidgets::dialogshell \- Create and manipulate a dialog shell widget
 .SH SYNOPSIS
-\fBdialogshell\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::dialogshell\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Toplevel <- Shell <- Dialogshell
+itk::Toplevel <- iwidgets::Shell <- iwidgets::Dialogshell
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -113,13 +113,13 @@ to \fBTk_GetPixels\fR.  The default is 3 pixels.
 
 .SH DESCRIPTION
 .PP
-The \fBdialogshell\fR command creates a dialog shell which is a top 
+The \fBiwidgets::dialogshell\fR command creates a dialog shell which is a top 
 level widget composed of a button box, separator, and child site area.
 The class also has methods to control button construction.
 
 .SH "METHODS"
 .PP
-The \fBdialogshell\fR command create a new Tcl command whose
+The \fBiwidgets::dialogshell\fR command create a new Tcl command whose
 name is \fIpathName\fR.  This command may be used to invoke various
 operations on the widget.  It has the following general form:
 .DS C
@@ -151,7 +151,7 @@ See the "buttonbox" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBdialogshell\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::dialogshell\fR
 command.
 .TP
 \fIpathName \fBchildsite\fR
@@ -168,7 +168,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBdialogshell\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::dialogshell\fR
 command.
 
 .SH "COMPONENTS"
@@ -202,7 +202,8 @@ bbox component item.
 
 .SH EXAMPLE
 .DS
- dialogshell .ds -modality none
+ package require Iwidgets 4.0
+ iwidgets::dialogshell .ds -modality none
  
  .ds add OK -text "OK" 
  .ds add Cancel -text "Cancel"

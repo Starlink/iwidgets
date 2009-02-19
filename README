@@ -1,11 +1,11 @@
 ------------------------------------------------------------------------------
-                    [incr Widgets] - version 3.0.0
+                    [incr Widgets] - version 4.0.1
 ------------------------------------------------------------------------------
- This version is compatible with itcl3.0
+Please send general comments, suggestions, and questions to chad_smith@adc.com
+or itclguy@yahoo.com.  Much of this file was written by Mark Ulferts, the
+original [incr Widgets] guy, several years ago when the Iwidgets were first
+released.  Chad has assumed responsibilities for updates and maintenance.
 
- Please send general comments or suggestions to mulferts@spd.dsccc.com.
- Should you have an enhancement or comment regarding a specific mega-widget,
- please send email to the author listed in the source header.
 ==============================================================================
            Copyright (c) 1995   DSC Technologies Corporation
 ==============================================================================
@@ -83,171 +83,102 @@
 
  Distribution
 ------------------------------------------------------------------------------
- The [incr Widgets] distribution is included with [incr Tcl] version 2.0
- and greater. It is available via ftp at ftp.neosoft.com/tcl. Consult the 
- included release documentation for installation notes.  For the latest 
- in distribution information, this web site should be consulted.
+ The [incr Widgets] distribution may be downloaded at SourceForge:
+ www.sourceforge.net/projects/incrtcl.  The current distribution is
+ version 4.0.1.
 
- The [incr Tcl] distribution will always include the most current release 
- of [incr Widgets] which was possible at the time of its release. It is
- anticipated that [incr Widgets] will change more rapidly than [incr Tcl]. 
- This being the case, in between [incr Tcl] releases, the latest version 
- of [incr Widgets] is also separately available via ftp at the same
- location list above as well as the web site. 
-
- The version number of [incr Widgets] tracks the release of [incr Tcl] 
- for which it is compatible. The version numbering system for [incr Widgets]
- includes an extra number. For example version 2.1.1 of [incr Widgets] is 
- compatible with [incr Tcl] 2.1. As the minor number of [incr Tcl] increases
- the second digit of the [incr Widgets] version varies. This makes for
- easy release identification.
 
  Web site
 ------------------------------------------------------------------------------
  For the most current news regarding [incr Widgets] please consult the web
- set - http://www.tcltk.com/iwidgets.  The site contains a lot of good
- information such as tutotials, man pages, and examples.  Plus, I'm real
- proud of our new logo.  Also, catch our picture under the development
- team link.  Many thanks to the good people at Webnet Technologies for
- the excellent web production work.  Joe Bob says "Check it out !"
+ site - http://incrtcl.sourceforge.net/iwidgets.  Many thanks to Brett Schwarz
+ who has done an incredible job overhauling this site.  Take a look!
   
 
  Getting started
 ------------------------------------------------------------------------------
  The "doc" directory contains man pages and a technical paper. The man
- pages are installed under the man directory off your --prefix.  In
- addition, the makefile includes an install-html target for creating 
- a HTML version of the man pages.  They are placed under your prefixed
- doc directory.
+ pages are installed under the man directory off your --prefix, and as of
+ version 4.0.1 are prepended with the text "iwidgets_" to easily differentiate
+ [incr Widgets] man pages from those of other extensions.
 
    doc/iwidgets.ps ... Updated paper presented at Tcl Workshop 95.
 
    doc/*.n ........... Man pages
 
- The "demos" directory contains demo scripts for each mega-widget.  The
+ The "demos" directory contains demo scripts for each mega-widget as
+ well as html versions of all the [incr Widgets] man pages.  The
  demos are also installed under the lib directory off your --prefix.
 
    demos/catalog ..... Comprehensive demo package which illustrates
                        [incr Widgets] usage additionally displaying the 
                        source.
 
+   demos/html    ..... HTML version of the [incr Widgets] man pages.
+
  The "tests" directory contains a set of test scripts for [incr Widgets].
  They also make for a great demo of the flexiblity of the mega-widgets.
- Once you've built your itkwish, try firing it up and sourcing "all" in
- the tests directory.
 
 
  Installation
 ------------------------------------------------------------------------------
-  [incr Tcl] with [incr Widgets]
+  NOTE: Having the itcl distribution is a prerequsite to using iwidgets.
+  Thus, if you don't have itcl you need to visit Source Forge to download
+  and install it first.  Once you have downloaded and installed [incr Tcl]
+  and [incr Tk], you can proceed with [incr Widgets] installation as follows:
 
-  As previously stated, the latest version of itcl contains the latest
-  version of iwidgets.  Having the itcl distribution is a prerequsite
-  to using iwidgets.  Thus, if you don't have itcl follow the these steps
-  to acquire itcl and iwidgets.
+  1)  Copy the iwidgets4.0.1.tar.gz file to your toplevel [incr Tcl]
+      directory.  For example, if you have the itcl3.2.1 distribution in
+      a directory named /usr/local/tcl/itcl3.2.1, then you should copy
+      the iwidgets file to this directory.
 
-  1)  Read the distribution section notes above.
+      Note, if you don't copy the iwidgets archive to this directory,
+      then you will need to specify the --with-itcl flag when you run
+      the configure script.
 
-  2)  Obtain the [incr Tcl] 3.x distribution from the archive site like this:
+  2)  Untar/unzip the archive:
 
-	ftp ftp.neosoft.com
-        cd /pub/tcl/sorted/devel/
-        binary
-        get itcl3.0.tar.gz
-        get itcl3.0.README
-        quit
+	gunzip -c iwidgets4.0.1.tar.gz |tar xvf -
 
-  3)  Follow the directions in the itcl README file.
+  3)  Run the configuration script:
 
-  If you've already got itcl and have found a newer version of iwidgets
-  at neosoft, then follow the following steps.
-
-  1)  Read the distribtion scetion notes above.
-
-  2)  Obtain the [incr Widgets] 3.x.y distribution from the archive site 
-      like this:
-
-	ftp ftp.neosoft.com
-        cd /pub/tcl/sorted/devel/
-        binary
-        get iwidgets3.0.1.tar.gz
-        quit
- 
-  3)  cd to your compatable itcl source directory.  For example:
-
-        cd /usr/local/src/itcl3.0
-
-  4)  Uncompress and untar the iwidgets distribution:
-
-        gunzip iwidgets3.0.1.tar.gz
-        tar xvf iwidgets3.0.1.tar
-
-  5)  Run the configuration script:
-
-        cd iwidgets3.0.1
+        cd iwidgets4.0.0
         ./configure
 
-      or, for systems that don't recognize "#!" in shell scripts:
-
-        cd itcl3.0
-        /bin/sh ./configure
-
-      By default, the configuration script will set things up
-      to be installed in "/usr/local".  You can change this
-      by specifying a different "prefix" in the "configure" command.
-      You'll want to use the same value you used for the prefix in 
-      the configuration of your itcl3.0 distribution.
+      By default, the configuration script will set things up to be
+      installed in "/usr/local".  You can change this by specifying a
+      different "prefix" in the "configure" command.  You'll want to
+      use the same value you used for the prefix in the configuration
+      of your [incr Tcl/Tk] distribution.
 
         ./configure --prefix=/your/install/path
 
-      You can also add options for a particular "cc" compiler and
-      compiler flags:
+      The "configure" script generates a Makefile from the Makefile.in
+      template.
 
-        ./configure --with-cc=gcc --with-cflags=-g
+      Also, as mentioned eariler, you may need to tell the [incr Widgets]
+      where the [incr Tcl] source is located.  For example, if your toplevel
+      [incr Tcl] directory is located in /opt/tools/tcl/itcl3.2.1 and you
+      are building the [incr Widgets] in a directory other than this, then
+      you will need to use the following:
 
-      The "configure" script generates new Makefiles from their
-      respective templates (Makefile.in).
+	./configure --prefix=/your/install/path \
+	  --with-itcl=/opt/tools/tcl/itcl3.2.1
 
-  6)  Build the iwidgets library:
+  4)  Run the test suite:
 
-        make all
+        make test
 
-  7)  Install the iwidgets library, man pages and script files.
+  7)  Install the [incr Widgets] man pages, demos, and script files.
 
         make install
-
-  8)  Optionally, you can install the html'ed version of the iwidgets
-      man pages:
-
-        make install-html
-
-
- Contributions
-------------------------------------------------------------------------------
- I feel that [incr Widgets] is a good start in the direction of establishing 
- a strong set of object-oriented mega-widgets, but I swear that everytime I 
- go back and look at the source I see an even better more simplier way 
- something could have been accomplished.  Should anybody within the Tcl/Tk 
- community come upon an even better way, a great enhancement, or an awesome 
- new mega-widget altogether, please don't hesitate to send it to the author 
- listed in the header or myself, mulferts@spd.dsccc.com, as moderator. I or 
- any of the development team members are always available via email for a 
- technical interchange of ideas.
-
- [incr Widgets] is a continuing effort. We have many new mega-widgets 
- currently under development and are actively looking for volunteers willing
- to contribute their own [incr Tk] based mega-widgets for inclusion into 
- the [incr Widgets] set. The distribution is moderated. Contributed 
- mega-widgets should be of good quality and complete with documentation, 
- tests, and demonstrations. Please follow the coding style found in the 
- distribution source. This includes man page and test script formats as well.
- The languages and extensions on which [incr Widgets] is based are of high 
- standards. [incr Widgets] strives to attain this same level.  Be fore
- warned, the moderator is a facist.
 
 
  Acknowledgements
 ------------------------------------------------------------------------------
+ Thanks to Brett Schwarz for a ton of work done on the new [incr Widgets]
+ web site, http://incrtcl.sourceforge.net/iwidgets.
+
  Thanks to the original develment team, comprised of Mark Ulferts, Sue 
  Yockey, Bret Schuhmacher, Alfredo Jahn, John Sigler, and Bill Scott.  Also 
  thanks to Mark Harrison for his influence, confidence, and ideas.
@@ -279,4 +210,3 @@
    _/ _/ _/ _/    _/        _/    _/    ulferts@swbell.net
   _/  _/_/ _/    _/        _/    _/     mulferts@austin.dsccc.com 
  _/   _/  _/ _/ _/_/_/ _/ _/_/_/_/ _/   DSC Communications Corp, Austin Texas
- ____________________________________________________________________________

@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 #   AUTHOR:  Mark L. Ulferts          E-mail: mulferts@austin.dsccc.com
 #
-#   @(#) $Id: dateentry.itk,v 1.0 1997/04/28 12:00:20 mulferts Exp $
+#   @(#) $Id: dateentry.itk,v 1.6 2002/09/05 19:33:58 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -32,7 +32,17 @@
 # ARISING OUT OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS 
 # SOFTWARE.
 # ======================================================================
-
+#
+# ----------------------------------------------------------------------
+#
+# Modified 2001-10-23 by Mark Alston to pass options to the datefield 
+# constructor.  Needed to allow use of new option -int which lets the 
+# user use dates in YYYY-MM-DD format as well as MM/DD/YYYY format.
+#
+# option -int yes sets dates to YYYY-MM-DD format
+#        -int no sets dates to MM/DD/YYYY format.
+#
+# ----------------------------------------------------------------------
 #
 # Usual options.
 #
@@ -40,16 +50,18 @@ itk::usual Dateentry {
     keep -background -borderwidth -currentdatefont -cursor \
 	-datefont -dayfont -foreground -highlightcolor \
 	-highlightthickness -labelfont -textbackground -textfont \
-	-titlefont
+	-titlefont -int
 }
 
 # ------------------------------------------------------------------
 #                              DATEENTRY
 # ------------------------------------------------------------------
-class iwidgets::Dateentry {
+itcl::class iwidgets::Dateentry {
     inherit iwidgets::Datefield
-    
-    constructor {args} {}
+
+    constructor {args} {
+	eval Datefield::constructor $args
+    } {}
 
     itk_option define -grab grab Grab "global"
     itk_option define -icon icon Icon {}
@@ -104,7 +116,7 @@ proc ::iwidgets::dateentry {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Dateentry::constructor {args} {
+itcl::body iwidgets::Dateentry::constructor {args} {
     #
     # Create an icon label to act as a button to bring up the 
     # calendar popup.
@@ -133,7 +145,7 @@ body iwidgets::Dateentry::constructor {args} {
 # Should one not be provided, then a default pixmap will be used
 # if possible, bitmap otherwise.
 # ------------------------------------------------------------------
-configbody iwidgets::Dateentry::icon {
+itcl::configbody iwidgets::Dateentry::icon {
     if {$itk_option(-icon) == {}} {
 	$itk_component(iconbutton) configure -image [_getDefaultIcon]
     } else {
@@ -152,7 +164,7 @@ configbody iwidgets::Dateentry::icon {
 # Specifies the grab level, local or global, to be obtained when 
 # bringing up the popup calendar.  The default is global.
 # ------------------------------------------------------------------
-configbody iwidgets::Dateentry::grab {
+itcl::configbody iwidgets::Dateentry::grab {
     switch -- $itk_option(-grab) {
 	"local" - "global" {}
 	default {
@@ -169,10 +181,10 @@ configbody iwidgets::Dateentry::grab {
 # normal.  A disabled state prevents selection of the date field
 # or date icon button.
 # ------------------------------------------------------------------
-configbody iwidgets::Dateentry::state {
+itcl::configbody iwidgets::Dateentry::state {
     switch -- $itk_option(-state) {
 	normal {
-	    bind $itk_component(iconbutton) <Button-1> [code $this _popup]
+	    bind $itk_component(iconbutton) <Button-1> [itcl::code $this _popup]
 	}
 	disabled {
 	    bind $itk_component(iconbutton) <Button-1> {}
@@ -190,7 +202,7 @@ configbody iwidgets::Dateentry::state {
 # This method is invoked uto retrieve the name of the default icon
 # image displayed in the icon button.
 # ------------------------------------------------------------------
-body iwidgets::Dateentry::_getDefaultIcon {} {
+itcl::body iwidgets::Dateentry::_getDefaultIcon {} {
     if {[lsearch [image types] pixmap] != -1} {
       set _defaultIcon [image create pixmap -data {
 	  /* XPM */
@@ -248,7 +260,7 @@ body iwidgets::Dateentry::_getDefaultIcon {} {
     # Since this image will only need to be created once, we redefine
     # this method to just return the image name for subsequent calls.
     #
-    body ::iwidgets::Dateentry::_getDefaultIcon {} {
+    itcl::body ::iwidgets::Dateentry::_getDefaultIcon {} {
 	return $_defaultIcon
     }
 
@@ -263,7 +275,7 @@ body iwidgets::Dateentry::_getDefaultIcon {} {
 # the position at which to display the calendar, performs a grab
 # and displays the calendar.
 # ------------------------------------------------------------------
-body iwidgets::Dateentry::_popup {} {
+itcl::body iwidgets::Dateentry::_popup {} {
     #
     # First, let's nullify the icon binding so that any another 
     # selections are ignored until were done with this one.  Next,
@@ -288,15 +300,16 @@ body iwidgets::Dateentry::_popup {} {
     # clicks off the calendar in which case we'll release the grab.
     # Also add a binding for Escape to always release.
     #
-    bind $itk_component(popup) <1> [code $this _releaseGrabCheck %X %Y]
-    bind $itk_component(popup) <KeyPress-Escape> [code $this _releaseGrab]
+    bind $itk_component(popup) <1> [itcl::code $this _releaseGrabCheck %X %Y]
+    bind $itk_component(popup) <KeyPress-Escape> [itcl::code $this _releaseGrab]
 
     #
     # Create the calendar widget and set its cursor properly.
     #
     itk_component add calendar {
 	iwidgets::Calendar $itk_component(popup).calendar \
-	    -command [code $this _getPopupDate %d]
+	    -command [itcl::code $this _getPopupDate %d] \
+	    -int $itk_option(-int)
     } {
 	usual
 	keep -days -forwardimage -backwardimage -weekdaybackground \
@@ -318,24 +331,28 @@ body iwidgets::Dateentry::_popup {} {
     set popupwidth [winfo reqwidth $itk_component(popup)]
     set popupheight [winfo reqheight $itk_component(popup)]
 
-    set popupx [expr $rootx + 3 + \
-		    [winfo width $itk_component(iconbutton)]]
-    set popupy [expr $rooty + 3 + \
-		    [winfo height $itk_component(iconbutton)]]
+    set popupx [expr {$rootx + 3 + \
+		    [winfo width $itk_component(iconbutton)]}]
+    set popupy [expr {$rooty + 3 + \
+		    [winfo height $itk_component(iconbutton)]}]
 
-    if {([expr $popupx + $popupwidth] > [winfo screenwidth .]) || \
-	    ([expr $popupy + $popupheight] > [winfo screenheight .])} {
-	set popupx [expr $rootx - 3 - $popupwidth]
-	set popupy [expr $rooty - 3 - $popupheight]
+    if {(($popupx + $popupwidth) > [winfo screenwidth .]) || \
+	    (($popupy + $popupheight) > [winfo screenheight .])} {
+	set popupx [expr {$rootx - 3 - $popupwidth}]
+	set popupy [expr {$rooty - 3 - $popupheight}]
     }
     
     #
     # Get the current date from the datefield widget and both
     # show and select it on the calendar.
     #
-    $itk_component(calendar) show [get]
-    $itk_component(calendar) select [get]
-
+    # Added catch for bad dates. Calendar then shows current date.
+    if [catch "$itk_component(calendar) show [get]" err] {
+	$itk_component(calendar) show now
+	$itk_component(calendar) select now
+    } else {
+	$itk_component(calendar) select [get]
+    }
     #
     # Display the popup at the calculated position.
     #
@@ -366,7 +383,7 @@ body iwidgets::Dateentry::_popup {} {
 # calendar.  It releases the grab and sets the date in the
 # datefield widget.
 # ------------------------------------------------------------------
-body iwidgets::Dateentry::_getPopupDate {date} {
+itcl::body iwidgets::Dateentry::_getPopupDate {date} {
     _releaseGrab 
     show $date
 }
@@ -379,14 +396,14 @@ body iwidgets::Dateentry::_getPopupDate {date} {
 # and let the calendar handle the event.  Otherwise, we'll drop
 # the calendar and release the grab.
 # ------------------------------------------------------------------
-body iwidgets::Dateentry::_releaseGrabCheck {rootx rooty} {
+itcl::body iwidgets::Dateentry::_releaseGrabCheck {rootx rooty} {
     set calx [winfo rootx $itk_component(calendar)]
     set caly [winfo rooty $itk_component(calendar)]
     set calwidth [winfo reqwidth $itk_component(calendar)]
     set calheight [winfo reqheight $itk_component(calendar)]
 
-    if {($rootx < $calx) || ($rootx > [expr $calx + $calwidth]) || \
-	    ($rooty < $caly) || ($rooty > [expr $caly + $calheight])} {
+    if {($rootx < $calx) || ($rootx > ($calx + $calwidth)) || \
+	    ($rooty < $caly) || ($rooty > ($caly + $calheight))} {
 	_releaseGrab
 	return -code break
     }
@@ -399,10 +416,9 @@ body iwidgets::Dateentry::_releaseGrabCheck {rootx rooty} {
 # relief of the button back to raised and reapplies the binding
 # to the icon button that engages the popup action.
 # ------------------------------------------------------------------
-body iwidgets::Dateentry::_releaseGrab {} {
+itcl::body iwidgets::Dateentry::_releaseGrab {} {
     grab release $itk_component(popup)
     $itk_component(iconbutton) configure -relief raised
     destroy $itk_component(popup) 
-    unset itk_component(popup)
-    bind $itk_component(iconbutton) <Button-1> [code $this _popup]
+    bind $itk_component(iconbutton) <Button-1> [itcl::code $this _popup]
 }

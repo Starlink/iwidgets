@@ -5,25 +5,26 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) selectiondialog.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS selectiondialog iwid
+.HS iwidgets::selectiondialog iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-selectiondialog \- Create and manipulate a selection dialog widget
+iwidgets::selectiondialog \- Create and manipulate a selection dialog widget
 .SH SYNOPSIS
-\fBselectiondialog\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::selectiondialog\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Toplevel <- Shell <- Dialogshell <- Dialog <- Selectiondialog
+itk::Toplevel <- iwidgets::Shell <- iwidgets::Dialogshell <- iwidgets::Dialog <- iwidgets::Selectiondialog
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR
-\fBexportSelection\fR	\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR
-\fBinsertBackground\fR	\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR
-\fBinsertWidth\fR	\fBselectBackground\fR	\fBselectBorderWidth\fR	\fBselectForeground\fR
+\fB
+activeBackground  background         borderWidth        cursor
+exportSelection   foreground         highlightColor     highlightThickness
+insertBackground  insertBorderWidth  insertOffTime      insertOnTime
+insertWidth       selectBackground   selectBorderWidth  selectForeground\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -96,7 +97,7 @@ inherited options.
 
 .SH DESCRIPTION
 .PP
-The \fBselectiondialog\fR command creates a selection box similar to 
+The \fBiwidgets::selectiondialog\fR command creates a selection box similar to 
 the OSF/Motif standard selection
 dialog composite widget.  The selectiondialog is derived from the 
 Dialog class and is composed of a selectionbox with commands 
@@ -104,7 +105,7 @@ to manipulate the dialog buttons.
 
 .SH "METHODS"
 .PP
-The \fBselectiondialog\fR command creates a new Tcl command whose
+The \fBiwidgets::selectiondialog\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -156,7 +157,7 @@ inherited methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBselectiondialog\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::selectiondialog\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -170,7 +171,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBselectiondialog\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::selectiondialog\fR
 command.
 
 .SH "COMPONENTS"
@@ -187,7 +188,8 @@ selectionbox component item.
 
 .SH EXAMPLE
 .DS
- selectiondialog .sd 
+ package require Iwidgets 4.0
+ iwidgets::selectiondialog .sd 
  .sd activate
 .DE
 .SH AUTHOR

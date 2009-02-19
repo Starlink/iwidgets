@@ -1,4 +1,92 @@
-[incr Widgets] CHANGE LOG
+[incr Widgets] CHANGES
+----------------------
+
+==========================================================================
+CURRENT VERSION:  4.0.1
+PREVIOUS VERSION: 4.0.0
+DATE: 9/16/02
+CONTACT: Chad Smith (itclguy@attbi.com)
+
+  This is primarily a bug-fix release of the [incr Widgets].  Please see
+the ChangeLog for a detailed explanation of the changes made to the various
+widgets and the SourceForge tickets to which each change is associated.
+
+  Check out the incoming/demos directory.  I've added a couple new widgets
+that were submitted to SourceForge.  Let me know if you think they are
+useful or not.  If so, they can be added to the distribution in a future
+release.
+
+  Many thanks to Marty Backe for his tireless efforts closing out numerous
+SF tickets for this release!
+
+==========================================================================
+
+
+
+==========================================================================
+ -------------------------- iwidgets-4.0.0 ------------------------------
+ -------------------- CHANGES FROM iwidgets-3.1.0 -----------------------
+==========================================================================
+DATE: 8/07/01
+CONTACT: Chad Smith (itclguy@yahoo.com)
+
+--------
+CHANGES:
+--------
+  This release of the [incr Widgets] marks the first time they are
+released independently of the [incr Tcl] distribution.  The Iwidgets
+package is now separate from Itcl and can be optionally downloaded
+and built as a true extension to Itcl (well actually Itk).
+
+  Along with the Makefile/configuration-type changes necessary for
+removing the Iwidgets from Itcl, there are many other changes you
+should note in this release.  I'll try to list each of these:
+
+o - The most important change is that doing a 'package require Iwidgets'
+    no longer pulls the itcl namespace commands into the global namespace.
+    Previously, this was done because none of the itcl-specific commands
+    such as class, configbody, etc. were properly resolved in the [incr
+    Widgets] classes.  Now, all references to itcl commands use proper
+    namespace resolution.  For example, "class iwidgets::Checkbox" is now
+    replaced with "itcl::class iwidgets::Checkbox".
+
+    Here is a list of itcl commands that are now properly scoped:
+	class
+	body
+	configbody
+	scope
+	code
+
+    There are likely many folks in the community that have come to rely
+    on the exporting of itcl commands into the global namespace, so if you're
+    one of these folks you have two choices if you want to use this version
+    of the [incr Widgets]: (1) You can add a "namespace import -force itcl::*"
+    at the beginning of your application (this is what 'package require
+    Iwidgets' used to do); or (2) you can add "itcl::" in front of each of the
+    itcl-specific commands in your code.
+
+o - A new mega-widget, extbutton, was added to the distribution.  Note that
+    this new widget will only work with Tk 8.4 or later.  A man page and
+    test case is available in the distribution.
+
+o - "readonly" was added as a new value for the combobox's -state option.
+
+o - A new option, -gmt, was added to the datefield.  It accepts boolean values.
+
+o - A new option, -state, was added to the radiobox.
+
+o - A new method, bbox, was added to tabset to return the bounding box that
+    will completely enclose all tabs.
+
+o - A new option, -automount, was added to extfileselectionbox and
+    fileselectionbox.
+
+o - Error checking was added to hierarchy's -alwaysquery option to enforce
+    boolean values, and some memory leaks were plugged in the 'clear' method.
+
+==========================================================================
+
+
 
 ==========================================================================
  -------------------------- iwidgets-3.0.0 ------------------------------
@@ -116,6 +204,14 @@ ______________________________________________________________________________
    entryfield is disabled.
 
 >> Changed component option basis to be that of the "usuals".
+
+>> Added a -pasting configuration option to allow user to enable/disable
+   pasting into the entry component of the entryfield. csmith@adc.com
+   (Chad Smith)
+
+>> Removed hardcoded state comparisons in the _keyPress method and replaced
+   with code to mask out <Ctrl> and <Alt> keypress events. csmith@adc.com
+   (Chad Smith)
 
 
 Pushbutton

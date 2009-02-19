@@ -1,17 +1,12 @@
-#!/bin/sh
 # ----------------------------------------------------------------------
 #  DEMO: datefield in [incr Widgets]
 # ----------------------------------------------------------------------
-#\
-exec itkwish "$0" ${1+"$@"}
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
-#
-# Demo script for Datefield class
-# 
 proc returnCmd {} {
   puts [.df get]
 }
 
-iwidgets::datefield .df -labeltext "Date:" -command returnCmd
+iwidgets::datefield .df -labeltext "Date (International Format):" \
+  -command returnCmd -int 1
 pack .df -fill x -expand yes -padx 10 -pady 10

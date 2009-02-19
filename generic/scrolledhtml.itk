@@ -42,7 +42,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Kris Raney                    EMAIL: kraney@spd.dsccc.com
 #
-#  @(#) $Id: scrolledhtml.itk,v 2.12 1998/06/24 18:48:01 kraney Exp $
+#  @(#) $Id: scrolledhtml.itk,v 1.7 2002/02/16 05:11:08 mgbacke Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1996 DSC Technologies Corporation
 # ======================================================================
@@ -124,7 +124,7 @@ itk::usual Scrolledhtml {
 # ------------------------------------------------------------------
 #                           SCROLLEDHTML
 # ------------------------------------------------------------------
-class iwidgets::Scrolledhtml {
+itcl::class iwidgets::Scrolledhtml {
   inherit iwidgets::Scrolledtext
 
   constructor {args} {}
@@ -141,6 +141,7 @@ class iwidgets::Scrolledhtml {
   itk_option define -unknownimage unknownimage File {}
   itk_option define -textbackground textBackground Background {}
   itk_option define -update update Update 1
+  itk_option define -debug debug Debug 0
 
   public method import {args}
   public method clear {}
@@ -304,7 +305,7 @@ class iwidgets::Scrolledhtml {
 
   private variable _initialized 0
 
-  private variable _defUnknownImg [image create photo -data {
+  private variable _defUnknownImg [::image create photo -data {
 R0lGODdhHwAgAPQAAP///wAAAMzMzC9PT76+vvnTogCR/1WRVaoAVf//qvT09OKdcWlcx19f
 X9/f339/f8vN/J2d/aq2qoKCggAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA
 ACwAAAAAHwAgAAAF/iAgjqRDnmiKmqOkqsTaToDjvudTttLjOITJbTQhGI+iQE0xMvZqQIDw
@@ -327,7 +328,7 @@ proc ::iwidgets::scrolledhtml {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::constructor {args} {
+itcl::body iwidgets::Scrolledhtml::constructor {args} {
   # define the fonts we're going to use
   set _fontnames ""
   _definefont helvetica adobe helvetica "medium bold" "r o" iso8859
@@ -339,7 +340,7 @@ body iwidgets::Scrolledhtml::constructor {args} {
 
   eval itk_initialize $args
   if {[lsearch -exact $args -linkcommand] == -1} {
-    configure -linkcommand [code $this import -link]
+    configure -linkcommand [itcl::code $this import -link]
   }
   set _initialized 1
 }
@@ -347,12 +348,12 @@ body iwidgets::Scrolledhtml::constructor {args} {
 # ------------------------------------------------------------------
 #                        DESTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::destructor {} {
+itcl::body iwidgets::Scrolledhtml::destructor {} {
     foreach x $_images {
-      image delete $x
+      ::image delete $x
     }
     if {$_unknownimg != $_defUnknownImg} {
-      image delete $_unknownimg
+      ::image delete $_unknownimg
     }
 }
 
@@ -365,7 +366,7 @@ body iwidgets::Scrolledhtml::destructor {} {
 #
 # Set the general size of the font.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledhtml::fontsize {
+itcl::configbody iwidgets::Scrolledhtml::fontsize {
     switch $itk_option(-fontsize) {
         small { }
         medium { }
@@ -385,7 +386,7 @@ configbody iwidgets::Scrolledhtml::fontsize {
 #
 # Set the fixed font name
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledhtml::fixedfont {
+itcl::configbody iwidgets::Scrolledhtml::fixedfont {
    if {[lsearch -exact $_fontnames $itk_option(-fixedfont)] == -1} {
      error "Invalid font name \"$itk_option(-fixedfont)\". Must be one of \
          $_fontnames"
@@ -397,7 +398,7 @@ configbody iwidgets::Scrolledhtml::fixedfont {
 #
 # Set the default font name
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledhtml::fontname {
+itcl::configbody iwidgets::Scrolledhtml::fontname {
    if {[lsearch -exact $_fontnames $itk_option(-fontname)] == -1} {
      error "Invalid font name \"$itk_option(-fontname)\". Must be one of \
          $_fontnames"
@@ -409,7 +410,7 @@ configbody iwidgets::Scrolledhtml::fontname {
 #
 # Set the default text background
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledhtml::textbackground {
+itcl::configbody iwidgets::Scrolledhtml::textbackground {
   set _defaulttextbackground $itk_option(-textbackground)
 }
 
@@ -418,7 +419,7 @@ configbody iwidgets::Scrolledhtml::textbackground {
 #
 # same as alink
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledhtml::linkhighlight {
+itcl::configbody iwidgets::Scrolledhtml::linkhighlight {
   configure -alink $itk_option(-linkhighlight)
 }
 
@@ -427,18 +428,18 @@ configbody iwidgets::Scrolledhtml::linkhighlight {
 #
 # set image to use as substitute for images that aren't found
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledhtml::unknownimage {
+itcl::configbody iwidgets::Scrolledhtml::unknownimage {
    set oldimage $_unknownimg
    if {$itk_option(-unknownimage) != {}} {
       set uki $itk_option(-unknownimage)
-      if [catch { set _unknownimg [image create photo -file $uki] } err] {
+      if [catch { set _unknownimg [::image create photo -file $uki] } err] {
          error "Couldn't create image $uki:\n$err\nUnknown image not found"
       }
    } else {
       set _unknownimg $_defUnknownImg
    }
    if {$oldimage != {} && $oldimage != $_defUnknownImg} {
-      image delete $oldimage
+      ::image delete $oldimage
    }
 }
 
@@ -447,7 +448,7 @@ configbody iwidgets::Scrolledhtml::unknownimage {
 #
 # boolean indicating whether to update during rendering
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledhtml::update {
+itcl::configbody iwidgets::Scrolledhtml::update {
    switch -- $itk_option(-update) {
      0 {}
      1 {}
@@ -478,11 +479,11 @@ configbody iwidgets::Scrolledhtml::update {
 #
 # Clears the text out
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::clear {} {
+itcl::body iwidgets::Scrolledhtml::clear {} {
     $itk_component(text) config -state normal
     $itk_component(text) delete 1.0 end
     foreach x $_images {
-      image delete $x
+      ::image delete $x
     }
     set _images {}
     _setup
@@ -501,13 +502,16 @@ body iwidgets::Scrolledhtml::clear {} {
 # at the anchor named 'anchorname' If an anchor is specified without a filename,
 # the current page is assumed.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::import {args} {
+itcl::body iwidgets::Scrolledhtml::import {args} {
+
+  update idletasks
+
   set len [llength $args]
   if {$len != 1 && $len != 2} {
       error "wrong # args: should be \
               \"$itk_component(hull) import ?-link? filename\""
   }
-  set linkname [lindex $args [expr $len - 1]]
+  set linkname [lindex $args [expr {$len - 1}]]
 
   #
   # Seperate filename#anchorname
@@ -544,7 +548,7 @@ body iwidgets::Scrolledhtml::import {args} {
                   append _cwd [file dirname $filename]
                 } else {
                   set f [open $filename r]
-g                  set _cwd [file dirname $filename]
+                  set _cwd [file dirname $filename]
                 }
               }
           }
@@ -582,7 +586,10 @@ g                  set _cwd [file dirname $filename]
 # Clear the text, then render html formatted text. Optional wd argument 
 # sets the base directory for any links or images. 
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::render {html {wd .}} {
+itcl::body iwidgets::Scrolledhtml::render {html {wd .}} {
+
+    update idletasks
+
     #
     # blank text and reset all state variables
     #
@@ -603,7 +610,7 @@ body iwidgets::Scrolledhtml::render {html {wd .}} {
 		set text [string range $html 0 [lindex $match 1]]
 		_append_text "$text"
 		set html \
-		    [string range $html [expr [lindex $match 1]+1] end]
+		    [string range $html [expr {[lindex $match 1]+1}] end]
 	    }
 	    # we're either at a <>, or at the eot
 	    if [regexp -indices "^<((\[^>\"\]+|(\"\[^\"\]*\"))*)>" $html match entity] {
@@ -611,10 +618,15 @@ body iwidgets::Scrolledhtml::render {html {wd .}} {
 			    [lindex $entity 1]] "" entity
 		set cmd [string tolower [lindex $entity 0]]
 		if {[info command _entity_$cmd]!=""} {
-		    catch {eval _entity_$cmd [lrange $entity 1 end]}
+		  if {[catch {eval _entity_$cmd [lrange $entity 1 end]} bad]} {
+		    if {$itk_option(-debug)} {
+		      global errorInfo
+		      puts stderr "render: _entity_$cmd [lrange $entity 1 end] = Error:$bad\n$errorInfo"
+		    }
+		  }
 		}
 		set html \
-		    [string range $html [expr [lindex $match 1]+1] end]
+		    [string range $html [expr {[lindex $match 1]+1}] end]
 	    }
 	    if {$itk_option(-feedback) != {} } {
 	      eval $itk_option(-feedback) $len
@@ -626,8 +638,8 @@ body iwidgets::Scrolledhtml::render {html {wd .}} {
 	# _verbatim must be 1
 	# append text until next tag is reached
 	if [regexp -indices "<.*>" $html match] {
-	    set text [string range $html 0 [expr [lindex $match 0]-1]]
-	    set html [string range $html [expr [lindex $match 0]] end]
+	    set text [string range $html 0 [expr {[lindex $match 0]-1}]]
+	    set html [string range $html [expr {[lindex $match 0]}] end]
 	} else {
 	    set text $html
 	    set html ""
@@ -642,7 +654,7 @@ body iwidgets::Scrolledhtml::render {html {wd .}} {
 #
 # Reset all state variables to prepare for a new page.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_setup {} {
+itcl::body iwidgets::Scrolledhtml::_setup {} {
     set _font $itk_option(-fontname)
     set _left 0
     set _left2 0
@@ -698,7 +710,7 @@ body iwidgets::Scrolledhtml::_setup {} {
 #
 # define font information used to generate font value from font name
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_definefont \
+itcl::body iwidgets::Scrolledhtml::_definefont \
             {name foundry family weight slant registry} {
     if {[lsearch -exact $_fontnames $name] == -1 } {
       lappend _fontnames $name
@@ -712,7 +724,7 @@ body iwidgets::Scrolledhtml::_definefont \
 #
 # append text in the format described by the state variables
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_append_text {text} {
+itcl::body iwidgets::Scrolledhtml::_append_text {text} {
     if {!$_intable && $itk_option(-update)} {update}
     if {[string first "&" $text] != -1} {
        regsub -nocase -all "&amp;" $text {\&} text
@@ -728,16 +740,24 @@ body iwidgets::Scrolledhtml::_append_text {text} {
 	if ![string length $text] return
     }
     if {!$_pre && !$_intitle} {
-	set p [$_hottext get "end - 2c"]
+     	if {[catch {$_hottext get "end - 2c"} p]} {
+     	    set p ""
+     	}
 	set n [string index $text 0]
         if {$n == " " && $p == " "} {
           set text [string range $text 1 end]
         }
-	$_hottext insert end $text $_tag
+ 	if {[catch {$_hottext insert end $text $_tag}]} {
+ 	    set pht [winfo parent $_hottext]
+ 	    catch {$pht insert end $text $_tag}
+ 	}
 	return
     }
     if {$_pre && !$_intitle} {
-	$_hottext insert end $text $_tag
+ 	if {[catch {$_hottext insert end $text $_tag}]} {
+ 	    set pht [winfo parent $_hottext]
+ 	    catch {$pht insert end $text $_tag}
+ 	}
 	return
     }
     append _title $text
@@ -749,7 +769,7 @@ body iwidgets::Scrolledhtml::_append_text {text} {
 # generate a tag
 # ------------------------------------------------------------------
 # a tag is constructed as: font?B?I?U?Points-LeftLeft2RightColorJustify
-body iwidgets::Scrolledhtml::_set_tag {} {
+itcl::body iwidgets::Scrolledhtml::_set_tag {} {
     set i -1
     foreach var {foundry family weight slant registry} {
 	set $var [lindex $_fontinfo($_font) \
@@ -807,7 +827,7 @@ body iwidgets::Scrolledhtml::_set_tag {} {
     if {![info exists _tagl($_tag)]} {
 	set _tagfont($_tag) 1
 	eval $_hottext tag configure $_tag \
-	    -foreground $_color \
+	    -foreground ${_color} \
 	    -lmargin1 ${_left}m \
 	    -lmargin2 ${_left2}m $args
 	if [catch {eval $_hottext tag configure $_tag \
@@ -829,7 +849,7 @@ body iwidgets::Scrolledhtml::_set_tag {} {
 #
 # reconfigure tags following a configuration change
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_reconfig_tags {} {
+itcl::body iwidgets::Scrolledhtml::_reconfig_tags {} {
   if $_initialized {
     foreach tag [$itk_component(text) tag names] {
 	foreach efont $_fontnames {
@@ -866,7 +886,7 @@ body iwidgets::Scrolledhtml::_reconfig_tags {} {
 #
 # push value onto stack(instack)
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_push {instack value} {
+itcl::body iwidgets::Scrolledhtml::_push {instack value} {
     set _stack($instack) [linsert $_stack($instack) 0 $value]
 }
 
@@ -875,7 +895,7 @@ body iwidgets::Scrolledhtml::_push {instack value} {
 #
 # pop value from stack(instack)
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_pop {instack} {
+itcl::body iwidgets::Scrolledhtml::_pop {instack} {
     if {$_stack($instack) == ""} {
 	error "popping empty _stack $instack"
     }
@@ -889,7 +909,7 @@ body iwidgets::Scrolledhtml::_pop {instack} {
 #
 # peek at top value on stack(instack)
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_peek {instack} {
+itcl::body iwidgets::Scrolledhtml::_peek {instack} {
     return [lindex $_stack($instack) 0]
 }
 
@@ -899,7 +919,7 @@ body iwidgets::Scrolledhtml::_peek {instack} {
 # parse fields from a href or image tag. At the moment, doesn't support
 # spaces in field values. (e.g. alt="not avaliable")
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_parse_fields {array_var string} {
+itcl::body iwidgets::Scrolledhtml::_parse_fields {array_var string} {
   upvar $array_var array
   if {$string != "{}" } {
     regsub -all "( *)=( *)" $string = string
@@ -927,7 +947,7 @@ body iwidgets::Scrolledhtml::_parse_fields {array_var string} {
 #
 # process a click on an href
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_href_click {cmd href} {
+itcl::body iwidgets::Scrolledhtml::_href_click {cmd href} {
   uplevel #0 $cmd $href
 }
 
@@ -936,7 +956,7 @@ body iwidgets::Scrolledhtml::_href_click {cmd href} {
 #
 # set text alignment
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_set_align {align} {
+itcl::body iwidgets::Scrolledhtml::_set_align {align} {
       switch [string tolower $align] {
         center {
           set _justify C
@@ -959,14 +979,14 @@ body iwidgets::Scrolledhtml::_set_align {align} {
 # the inner table, but the idle tasks get queued up in the opposite order, 
 # so process later idle tasks before sizing yourself.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_fixtablewidth {hottext table multiplier} {
+itcl::body iwidgets::Scrolledhtml::_fixtablewidth {hottext table multiplier} {
   update idletasks
   $hottext see $_anchor($table)
   update idletasks
   $table configure  \
-           -width [expr $multiplier * [winfo width $hottext] - \
+           -width [expr {$multiplier * [winfo width $hottext] - \
                        	2* [$hottext cget -padx] - \
-			2* [$hottext cget -borderwidth] ] \
+			2* [$hottext cget -borderwidth]} ] \
            -height [winfo height $table]
   grid propagate $table 0
 }
@@ -978,7 +998,7 @@ body iwidgets::Scrolledhtml::_fixtablewidth {hottext table multiplier} {
 # generic entity to set state for <hn> tag
 # Accepts argument of the form ?align=[left,right,center]? ?src=<image pname>?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_header {level args} {
+itcl::body iwidgets::Scrolledhtml::_header {level args} {
     eval _parse_fields ar $args
     _push justify $_justify
     if [info exists ar(align)] {
@@ -990,7 +1010,7 @@ body iwidgets::Scrolledhtml::_header {level args} {
         _entity_img src=$ar(src)
     }
     _push pointsndx $_pointsndx
-    set _pointsndx [expr 7-$level]
+    set _pointsndx [expr {7-$level}]
     incr _textweight
     _set_tag
 }
@@ -1000,7 +1020,7 @@ body iwidgets::Scrolledhtml::_header {level args} {
 #
 # generic entity to set state for </hn> tag
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_/header {level} {
+itcl::body iwidgets::Scrolledhtml::_/header {level} {
     set _justify [_pop justify]
     set _pointsndx [_pop pointsndx]
     incr _textweight -1
@@ -1014,7 +1034,7 @@ body iwidgets::Scrolledhtml::_/header {level} {
 # add an anchor. Accepts arguments of the form ?href=filename#anchorpoint?
 # ?name=anchorname?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_a {args} {
+itcl::body iwidgets::Scrolledhtml::_entity_a {args} {
     _parse_fields ar $args
     _push color $_color
     if [info exists ar(href)] {
@@ -1038,7 +1058,7 @@ body iwidgets::Scrolledhtml::_entity_a {args} {
 #
 # End anchor
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/a {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/a {} {
   set href [_pop href]
   if {$href != {}} {
     incr _anchorcount -1
@@ -1052,7 +1072,7 @@ body iwidgets::Scrolledhtml::_entity_/a {} {
 #
 # display an address
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_address {} {
+itcl::body iwidgets::Scrolledhtml::_entity_address {} {
     _entity_br
     _entity_i
 }
@@ -1062,7 +1082,7 @@ body iwidgets::Scrolledhtml::_entity_address {} {
 #
 # change state back from address display
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/address {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/address {} {
   _entity_/i
   _entity_br
 }
@@ -1072,7 +1092,7 @@ body iwidgets::Scrolledhtml::_entity_/address {} {
 #
 # Change current font to bold
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_b {} { 
+itcl::body iwidgets::Scrolledhtml::_entity_b {} { 
     incr _textweight
     _set_tag 
 }
@@ -1082,7 +1102,7 @@ body iwidgets::Scrolledhtml::_entity_b {} {
 #
 # change current font back from bold
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/b {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/b {} {
     incr _textweight -1
     _set_tag
 }
@@ -1092,7 +1112,7 @@ body iwidgets::Scrolledhtml::_entity_/b {} {
 #
 # set the cwd of the document
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_base {{args {}}} { 
+itcl::body iwidgets::Scrolledhtml::_entity_base {{args {}}} { 
     _parse_fields ar $args
     if [info exists ar(href)] {
       set _cwd [file dirname $ar(href)]
@@ -1104,7 +1124,7 @@ body iwidgets::Scrolledhtml::_entity_base {{args {}}} {
 #
 # set base font size
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_basefont {{args {}}} { 
+itcl::body iwidgets::Scrolledhtml::_entity_basefont {{args {}}} { 
     _parse_fields ar $args
     if {[info exists ar(size)]} {
       set _basefontsize $ar(size)
@@ -1116,7 +1136,7 @@ body iwidgets::Scrolledhtml::_entity_basefont {{args {}}} {
 #
 # Change current font to a bigger size
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_big {} { 
+itcl::body iwidgets::Scrolledhtml::_entity_big {} { 
     _push pointsndx $_pointsndx
     if {[incr _pointsndx 2] > 6} {
        set _pointsndx 6
@@ -1129,7 +1149,7 @@ body iwidgets::Scrolledhtml::_entity_big {} {
 #
 # change current font back from bigger size
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/big {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/big {} {
     set _pointsndx [_pop pointsndx]
     _set_tag
 }
@@ -1139,7 +1159,7 @@ body iwidgets::Scrolledhtml::_entity_/big {} {
 #
 # display a block quote
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_blockquote {} { 
+itcl::body iwidgets::Scrolledhtml::_entity_blockquote {} { 
     _entity_p
     _push left $_left
     incr _left $_indentincr
@@ -1153,7 +1173,7 @@ body iwidgets::Scrolledhtml::_entity_blockquote {} {
 #
 # change back from blockquote
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/blockquote {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/blockquote {} {
     _entity_p
     set _left [_pop left]
     set _left2 [_pop left2]
@@ -1166,7 +1186,7 @@ body iwidgets::Scrolledhtml::_entity_/blockquote {} {
 # begin body text. Takes argument of the form ?bgcolor=<color>? ?text=<color>?
 # ?link=<color>?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_body {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_body {{args {}}} {
     _parse_fields ar $args
     if [info exists ar(bgcolor)] {
        set _bgcolor $ar(bgcolor)
@@ -1190,7 +1210,7 @@ body iwidgets::Scrolledhtml::_entity_body {{args {}}} {
 #
 # end body text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/body {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/body {} {
 }
 
 # ------------------------------------------------------------------
@@ -1198,7 +1218,7 @@ body iwidgets::Scrolledhtml::_entity_/body {} {
 #
 # line break
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_br {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_br {{args {}}} {
     $_hottext insert end "\n"
 }
 
@@ -1207,7 +1227,7 @@ body iwidgets::Scrolledhtml::_entity_br {{args {}}} {
 #
 # change justification to center
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_center {} {
+itcl::body iwidgets::Scrolledhtml::_entity_center {} {
     _push justify $_justify
     set _justify C
     _set_tag
@@ -1218,7 +1238,7 @@ body iwidgets::Scrolledhtml::_entity_center {} {
 #
 # change state back from center
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/center {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/center {} {
   set _justify [_pop justify]
   _set_tag
 }
@@ -1228,7 +1248,7 @@ body iwidgets::Scrolledhtml::_entity_/center {} {
 #
 # display citation
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_cite {} {
+itcl::body iwidgets::Scrolledhtml::_entity_cite {} {
     _entity_i
 }
 
@@ -1237,7 +1257,7 @@ body iwidgets::Scrolledhtml::_entity_cite {} {
 #
 # change state back from citation
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/cite {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/cite {} {
     _entity_/i
 }
 
@@ -1246,7 +1266,7 @@ body iwidgets::Scrolledhtml::_entity_/cite {} {
 #
 # display code listing
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_code {} {
+itcl::body iwidgets::Scrolledhtml::_entity_code {} {
     _entity_pre
 }
 
@@ -1255,7 +1275,7 @@ body iwidgets::Scrolledhtml::_entity_code {} {
 #
 # end code listing
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/code {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/code {} {
     _entity_/pre
 }
 
@@ -1264,7 +1284,7 @@ body iwidgets::Scrolledhtml::_entity_/code {} {
 #
 # display dir list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_dir {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_dir {{args {}}} {
     _entity_ul plain $args
 }
 
@@ -1273,7 +1293,7 @@ body iwidgets::Scrolledhtml::_entity_dir {{args {}}} {
 #
 # end dir list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/dir {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/dir {} {
     _entity_/ul
 }
 
@@ -1282,7 +1302,7 @@ body iwidgets::Scrolledhtml::_entity_/dir {} {
 #
 # divide text. same as <p>
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_div {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_div {{args {}}} {
     _entity_p $args
 }
 
@@ -1291,14 +1311,14 @@ body iwidgets::Scrolledhtml::_entity_div {{args {}}} {
 #
 # begin definition list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_dl {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_dl {{args {}}} {
     if {$_left == 0} {
       _entity_p
     }
     _push left $_left
     _push left2 $_left2
     if {$_left2 == $_left } {
-      incr _left2 [expr $_indentincr+3]
+      incr _left2 [expr {$_indentincr+3}]
     } else {
       incr _left2 $_indentincr
     }
@@ -1314,7 +1334,7 @@ body iwidgets::Scrolledhtml::_entity_dl {{args {}}} {
 #
 # end definition list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/dl {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/dl {} {
     set _left [_pop left]
     set _left2 [_pop left2]
     set _listyle [_pop listyle]
@@ -1330,8 +1350,8 @@ body iwidgets::Scrolledhtml::_entity_/dl {} {
 #
 # definition term
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_dt {} {
-  set _left [expr $_left2 - 3]
+itcl::body iwidgets::Scrolledhtml::_entity_dt {} {
+  set _left [expr {$_left2 - 3}]
   _set_tag
   _entity_p
 }
@@ -1341,7 +1361,7 @@ body iwidgets::Scrolledhtml::_entity_dt {} {
 #
 # definition definition
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_dd {} {
+itcl::body iwidgets::Scrolledhtml::_entity_dd {} {
   set _left $_left2
   _set_tag
    _entity_br
@@ -1352,7 +1372,7 @@ body iwidgets::Scrolledhtml::_entity_dd {} {
 #
 # display defining instance of a term
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_dfn {} {
+itcl::body iwidgets::Scrolledhtml::_entity_dfn {} {
     _entity_i
     _entity_b
 }
@@ -1362,7 +1382,7 @@ body iwidgets::Scrolledhtml::_entity_dfn {} {
 #
 # change state back from defining instance of term
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/dfn {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/dfn {} {
     _entity_/b
     _entity_/i
 }
@@ -1372,7 +1392,7 @@ body iwidgets::Scrolledhtml::_entity_/dfn {} {
 #
 # display emphasized text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_em {} {
+itcl::body iwidgets::Scrolledhtml::_entity_em {} {
     _entity_i
 }
 
@@ -1381,7 +1401,7 @@ body iwidgets::Scrolledhtml::_entity_em {} {
 #
 # change state back from emphasized text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/em {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/em {} {
     _entity_/i
 }
 
@@ -1390,7 +1410,7 @@ body iwidgets::Scrolledhtml::_entity_/em {} {
 #
 # set font size and color
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_font {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_font {{args {}}} {
     _parse_fields ar $args
     _push pointsndx $_pointsndx
     _push color $_color
@@ -1398,7 +1418,7 @@ body iwidgets::Scrolledhtml::_entity_font {{args {}}} {
       if {![regexp {^[+-].*} $ar(size)]} {
          set _pointsndx $ar(size)
       } else {
-        set _pointsndx [expr $_basefontsize $ar(size)]
+        set _pointsndx [expr {$_basefontsize $ar(size)}]
       }
       if { $_pointsndx > 6 } {
        set _pointsndx 6
@@ -1419,7 +1439,7 @@ body iwidgets::Scrolledhtml::_entity_font {{args {}}} {
 #
 # close current font size
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/font {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/font {} {
   set _pointsndx [_pop pointsndx]
   set _color [_pop color]
   _set_tag
@@ -1431,7 +1451,7 @@ body iwidgets::Scrolledhtml::_entity_/font {} {
 # display header level 1. 
 # Accepts argument of the form ?align=[left,right,center]? ?src=<image pname>?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_h1 {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_h1 {{args {}}} {
     _header 1 $args
 }
 
@@ -1440,7 +1460,7 @@ body iwidgets::Scrolledhtml::_entity_h1 {{args {}}} {
 #
 # change state back from header 1
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/h1 {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/h1 {} {
     _/header 1
 }
 
@@ -1450,7 +1470,7 @@ body iwidgets::Scrolledhtml::_entity_/h1 {} {
 # display header level 2
 # Accepts argument of the form ?align=[left,right,center]? ?src=<image pname>?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_h2 {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_h2 {{args {}}} {
     _header 2 $args
 }
 
@@ -1459,7 +1479,7 @@ body iwidgets::Scrolledhtml::_entity_h2 {{args {}}} {
 #
 # change state back from header 2
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/h2 {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/h2 {} {
     _/header 2 
 }
 
@@ -1469,7 +1489,7 @@ body iwidgets::Scrolledhtml::_entity_/h2 {} {
 # display header level 3
 # Accepts argument of the form ?align=[left,right,center]? ?src=<image pname>?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_h3 {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_h3 {{args {}}} {
     _header 3 $args
 }
 
@@ -1478,7 +1498,7 @@ body iwidgets::Scrolledhtml::_entity_h3 {{args {}}} {
 #
 # change state back from header 3
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/h3 {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/h3 {} {
     _/header 3 
 }
 
@@ -1488,7 +1508,7 @@ body iwidgets::Scrolledhtml::_entity_/h3 {} {
 # display header level 4
 # Accepts argument of the form ?align=[left,right,center]? ?src=<image pname>?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_h4 {{args {}}} { 
+itcl::body iwidgets::Scrolledhtml::_entity_h4 {{args {}}} { 
     _header 4 $args
 }
 
@@ -1497,7 +1517,7 @@ body iwidgets::Scrolledhtml::_entity_h4 {{args {}}} {
 #
 # change state back from header 4
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/h4 {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/h4 {} {
     _/header 4
 }
 
@@ -1507,7 +1527,7 @@ body iwidgets::Scrolledhtml::_entity_/h4 {} {
 # display header level 5
 # Accepts argument of the form ?align=[left,right,center]? ?src=<image pname>?
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_h5 {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_h5 {{args {}}} {
     _header 5 $args
 }
 
@@ -1516,7 +1536,7 @@ body iwidgets::Scrolledhtml::_entity_h5 {{args {}}} {
 #
 # change state back from header 5
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/h5 {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/h5 {} {
     _/header 5
 }
 
@@ -1525,7 +1545,7 @@ body iwidgets::Scrolledhtml::_entity_/h5 {} {
 #
 # display header level 6
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_h6 {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_h6 {{args {}}} {
     _header 6 $args
 }
 
@@ -1534,7 +1554,7 @@ body iwidgets::Scrolledhtml::_entity_h6 {{args {}}} {
 #
 # change state back from header 6
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/h6 {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/h6 {} {
     _/header 6
 }
 
@@ -1543,7 +1563,7 @@ body iwidgets::Scrolledhtml::_entity_/h6 {} {
 #
 # Add a horizontal rule
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_hr {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_hr {{args {}}} {
     _parse_fields ar $args
     if [info exists ar(size)] {
        set font "-font -*-*-*-*-*-*-$ar(size)-*-*-*-*-*-*-*"
@@ -1576,7 +1596,7 @@ body iwidgets::Scrolledhtml::_entity_hr {{args {}}} {
 #
 # display italicized text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_i {} {
+itcl::body iwidgets::Scrolledhtml::_entity_i {} {
     incr _textslant
     _set_tag
 }
@@ -1586,7 +1606,7 @@ body iwidgets::Scrolledhtml::_entity_i {} {
 #
 # change state back from italicized text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/i {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/i {} {
     incr _textslant -1
     _set_tag
 }
@@ -1596,7 +1616,7 @@ body iwidgets::Scrolledhtml::_entity_/i {} {
 #
 # display an image. takes argument of the form img=<filename>
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_img {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_img {{args {}}} {
   _parse_fields ar $args
   set alttext "<image>"
 
@@ -1628,7 +1648,7 @@ body iwidgets::Scrolledhtml::_entity_img {{args {}}} {
     } else {
        set file $_cwd/$ar(src)
     }
-    if [catch {set img [image create photo -file $file]} err] {
+    if [catch {set img [::image create photo -file $file]} err] {
       if {[info exists ar(width)] && [info exists ar(height)] } {
         # suggestions exist, so make frame appropriate size and add a border
         $imgframe configure -width $ar(width) -height $ar(height) -borderwidth 2
@@ -1710,7 +1730,7 @@ body iwidgets::Scrolledhtml::_entity_img {{args {}}} {
 #
 # Display keyboard input
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_kbd {} {
+itcl::body iwidgets::Scrolledhtml::_entity_kbd {} {
     incr _textweight
     _entity_tt 
     _set_tag
@@ -1721,7 +1741,7 @@ body iwidgets::Scrolledhtml::_entity_kbd {} {
 #
 # change state back from displaying keyboard input
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/kbd {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/kbd {} {
     _entity_/tt
     incr _textweight -1
     _set_tag
@@ -1732,7 +1752,7 @@ body iwidgets::Scrolledhtml::_entity_/kbd {} {
 #
 # begin new list entry
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_li {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_li {{args {}}} {
     _parse_fields ar $args
     if [info exists ar(value)] {
        set _licount $ar(value)
@@ -1754,13 +1774,13 @@ body iwidgets::Scrolledhtml::_entity_li {{args {}}} {
       }
       A {
           _entity_b
-	  $_hottext insert end [format "%c) " [expr $_licount + 0x40]] $_tag
+	  $_hottext insert end [format "%c) " [expr {$_licount + 0x40}]] $_tag
           _entity_/b
           incr _licount
       }
       a {
           _entity_b
-	  $_hottext insert end [format "%c) " [expr $_licount + 0x60]] $_tag
+	  $_hottext insert end [format "%c) " [expr {$_licount + 0x60}]] $_tag
           _entity_/b
           incr _licount
       }
@@ -1790,7 +1810,7 @@ body iwidgets::Scrolledhtml::_entity_li {{args {}}} {
 #
 # diplay code listing
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_listing {} {
+itcl::body iwidgets::Scrolledhtml::_entity_listing {} {
     _entity_pre
 }
 
@@ -1799,7 +1819,7 @@ body iwidgets::Scrolledhtml::_entity_listing {} {
 #
 # end code listing
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/listing {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/listing {} {
     _entity_/pre
 }
 
@@ -1808,7 +1828,7 @@ body iwidgets::Scrolledhtml::_entity_/listing {} {
 #
 # diplay menu list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_menu {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_menu {{args {}}} {
     _entity_ul plain $args
 }
 
@@ -1817,7 +1837,7 @@ body iwidgets::Scrolledhtml::_entity_menu {{args {}}} {
 #
 # end menu list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/menu {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/menu {} {
     _entity_/ul
 }
 
@@ -1826,7 +1846,7 @@ body iwidgets::Scrolledhtml::_entity_/menu {} {
 #
 # begin ordered list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_ol {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_ol {{args {}}} {
     _parse_fields ar $args
     if $_left {
       _entity_br
@@ -1845,7 +1865,7 @@ body iwidgets::Scrolledhtml::_entity_ol {{args {}}} {
     _push left $_left
     _push left2 $_left2
     if {$_left2 == $_left } {
-      incr _left2 [expr $_indentincr+3]
+      incr _left2 [expr {$_indentincr+3}]
     } else {
       incr _left2 $_indentincr
     }
@@ -1860,7 +1880,7 @@ body iwidgets::Scrolledhtml::_entity_ol {{args {}}} {
 #
 # end ordered list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/ol {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/ol {} {
     set _left [_pop left]
     set _left2 [_pop left2]
     set _listyle [_pop listyle]
@@ -1874,7 +1894,7 @@ body iwidgets::Scrolledhtml::_entity_/ol {} {
 #
 # paragraph break
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_p {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_p {{args {}}} {
   _parse_fields ar $args
   if [info exists ar(align)] {
      _set_align $ar(align)
@@ -1905,7 +1925,7 @@ body iwidgets::Scrolledhtml::_entity_p {{args {}}} {
 #
 # display preformatted text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_pre {{args {}}} { 
+itcl::body iwidgets::Scrolledhtml::_entity_pre {{args {}}} { 
     _entity_tt
     _entity_br
     incr _pre
@@ -1916,7 +1936,7 @@ body iwidgets::Scrolledhtml::_entity_pre {{args {}}} {
 #
 # change state back from preformatted text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/pre {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/pre {} {
     _entity_/tt
     set _pre 0
     _entity_p
@@ -1927,7 +1947,7 @@ body iwidgets::Scrolledhtml::_entity_/pre {} {
 #
 # display sample text.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_samp {} {
+itcl::body iwidgets::Scrolledhtml::_entity_samp {} {
     _entity_kbd
 }
 
@@ -1936,7 +1956,7 @@ body iwidgets::Scrolledhtml::_entity_samp {} {
 #
 # switch back to non-sample text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/samp {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/samp {} {
    _entity_/kbd
 }
 
@@ -1945,7 +1965,7 @@ body iwidgets::Scrolledhtml::_entity_/samp {} {
 #
 # Change current font to a smaller size
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_small {} { 
+itcl::body iwidgets::Scrolledhtml::_entity_small {} { 
     _push pointsndx $_pointsndx
     if {[incr _pointsndx -2] < 0} {
        set _pointsndx 0
@@ -1958,7 +1978,7 @@ body iwidgets::Scrolledhtml::_entity_small {} {
 #
 # change current font back from smaller size
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/small {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/small {} {
     set _pointsndx [_pop pointsndx]
     _set_tag
 }
@@ -1968,7 +1988,7 @@ body iwidgets::Scrolledhtml::_entity_/small {} {
 #
 # display subscript
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_sub {} {
+itcl::body iwidgets::Scrolledhtml::_entity_sub {} {
     _push offset $_offset
     incr _offset -2
     _entity_small
@@ -1979,7 +1999,7 @@ body iwidgets::Scrolledhtml::_entity_sub {} {
 #
 # switch back to non-subscript
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/sub {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/sub {} {
    set _offset [_pop offset]
    _entity_/small
 }
@@ -1989,7 +2009,7 @@ body iwidgets::Scrolledhtml::_entity_/sub {} {
 #
 # display superscript
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_sup {} {
+itcl::body iwidgets::Scrolledhtml::_entity_sup {} {
     _push offset $_offset
     incr _offset 4
     _entity_small
@@ -2000,7 +2020,7 @@ body iwidgets::Scrolledhtml::_entity_sup {} {
 #
 # switch back to non-superscript
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/sup {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/sup {} {
    set _offset [_pop offset]
    _entity_/small
 }
@@ -2010,7 +2030,7 @@ body iwidgets::Scrolledhtml::_entity_/sup {} {
 #
 # display strong text. (i.e. make font bold)
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_strong {} {
+itcl::body iwidgets::Scrolledhtml::_entity_strong {} {
     incr _textweight
     _set_tag
 }
@@ -2020,7 +2040,7 @@ body iwidgets::Scrolledhtml::_entity_strong {} {
 #
 # switch back to non-strong text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/strong {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/strong {} {
     incr _textweight -1
     _set_tag 
 }
@@ -2030,7 +2050,7 @@ body iwidgets::Scrolledhtml::_entity_/strong {} {
 #
 # display a table.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_table {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_table {{args {}}} {
     _parse_fields ar $args
     _entity_p
     set _intable 1
@@ -2062,8 +2082,10 @@ body iwidgets::Scrolledhtml::_entity_table {{args {}}} {
     _push link $_link
     _push alink $_alink
     # push fake first row to avoid using optional /tr tag
-    _push color {}
-    _push bgcolor {}
+    # (This needs to set a real color - not the empty string
+    # becaule later code will try to use those values.)
+    _push color $_color
+    _push bgcolor $_bgcolor
     _push link {}
     _push alink {}
 
@@ -2124,8 +2146,8 @@ body iwidgets::Scrolledhtml::_entity_table {{args {}}} {
 #
 # end table
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/table {} {
-  if $_intable {
+itcl::body iwidgets::Scrolledhtml::_entity_/table {} {
+  if {$_intable} {
     _pop tableborder
     set table [[_pop table] childsite]
     _pop row
@@ -2147,19 +2169,31 @@ body iwidgets::Scrolledhtml::_entity_/table {} {
     set _bgcolor [_pop bgcolor]
     set _link [_pop link]
     set _alink [_pop alink]
-      foreach x [grid slaves $table] {
-	  if {[$x cget -height] == 1} {
-              $x configure -height [lindex [split [$x index "end - 1 chars"] "."] 0]
-          }
-      }
+    foreach x [grid slaves $table] {
+ 	set text [$x get 1.0 end]
+ 	set tl [split $text \n]
+ 	set max 0
+ 	foreach l $tl {
+ 	    set len [string length $l]
+ 	    if {$len > $max} {
+ 	        set max $len
+ 	    }
+ 	}
+ 	if {$max > [$x cget -width]} {
+ 	    $x configure -width $max
+ 	}
+	if {[$x cget -height] == 1} {
+            $x configure -height [lindex [split [$x index "end - 1 chars"] "."] 0]
+        }
+    }
     $_hottext configure -state disabled
     set _hottext [_pop hottext]
     $_hottext configure -state normal
       if {[set tablewidth [_pop tablewidth]]!="0"} {
 	if {[string index $tablewidth \
-		 [expr [string length $tablewidth] -1]] == "%"} {
-          set multiplier [expr [string trimright $tablewidth "%"] / 100.0]
-	    set idletask [after idle [code "$this _fixtablewidth $_hottext $table $multiplier"]]
+		 [expr {[string length $tablewidth] -1}]] == "%"} {
+          set multiplier [expr {[string trimright $tablewidth "%"] / 100.0}]
+	  set idletask [after idle [itcl::code "$this _fixtablewidth $_hottext $table $multiplier"]]
         } else {
           $table configure -width $tablewidth
           grid propagate $table 0
@@ -2176,7 +2210,7 @@ body iwidgets::Scrolledhtml::_entity_/table {} {
 #
 # start table data cell
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_td {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_td {{args {}}} {
   if $_intable {
     _parse_fields ar $args
     set table [[_peek table] childsite]
@@ -2217,25 +2251,37 @@ body iwidgets::Scrolledhtml::_entity_td {{args {}}} {
       set cellspacing [_peek cellspacing]
     set _hottext $table.cell[incr _counter]
     text $_hottext -relief flat -width $ar(width) -height $ar(height) \
-             -foreground $_color -background $_bgcolor -highlightthickness 0 \
+	     -highlightthickness 0 -wrap word -cursor $itk_option(-cursor) \
              -wrap word -cursor $itk_option(-cursor) \
              -padx $cellpadding -pady $cellpadding
-      if [info exists ar(nowrap)] {
-          $_hottext configure -wrap none
-      }
+    if {$_color != ""} {
+        $_hottext config -foreground $_color
+    }
+    if {$_bgcolor != ""} {
+        $_hottext config -background $_bgcolor
+    }
+    if [info exists ar(nowrap)] {
+	$_hottext configure -wrap none
+    }
     if [_peek tableborder] {
        $_hottext configure -relief sunken
     }
     set row [_peek row]
+    if {$row < 0} {
+        set row 0
+    }
     set column [_pop column]
+    if {$column < 0} {
+        set column 0
+    }
     while {[grid slaves $table -row $row -column $column] != ""} {
       incr column
     }
     grid $_hottext -sticky nsew -row $row -column $column \
             -columnspan $ar(colspan) -rowspan $ar(rowspan) \
               -padx $cellspacing -pady $cellspacing
-   grid columnconfigure $table $column -weight 1
-    _push column [expr $column + $ar(colspan)]
+    grid columnconfigure $table $column -weight 1
+    _push column [expr {$column + $ar(colspan)}]
   if [info exists ar(align)] {
      _set_align $ar(align)
   } else {
@@ -2250,7 +2296,7 @@ body iwidgets::Scrolledhtml::_entity_td {{args {}}} {
 #
 # end table data cell
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/td {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/td {} {
 }
 
 # ------------------------------------------------------------------
@@ -2258,7 +2304,7 @@ body iwidgets::Scrolledhtml::_entity_/td {} {
 #
 # start table header
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_th {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_th {{args {}}} {
     if $_intable {
       _parse_fields ar $args
       if [info exists ar(align)] {
@@ -2275,7 +2321,7 @@ body iwidgets::Scrolledhtml::_entity_th {{args {}}} {
 #
 # end table data cell
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/th {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/th {} {
   _entity_/td
 }
 
@@ -2284,7 +2330,7 @@ body iwidgets::Scrolledhtml::_entity_/th {} {
 #
 # begin title of document
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_title {} {
+itcl::body iwidgets::Scrolledhtml::_entity_title {} {
     set _intitle 1 
 }
 
@@ -2293,7 +2339,7 @@ body iwidgets::Scrolledhtml::_entity_title {} {
 #
 # end title
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/title {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/title {} {
     set _intitle 0
 }
 
@@ -2302,7 +2348,7 @@ body iwidgets::Scrolledhtml::_entity_/title {} {
 #
 # start table row
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_tr {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_tr {{args {}}} {
   if $_intable {
     _parse_fields ar $args
       _pop justify
@@ -2343,7 +2389,7 @@ body iwidgets::Scrolledhtml::_entity_tr {{args {}}} {
     _push link $_link
     _push alink $_alink
     $_hottext configure -state disabled
-    _push row [expr [_pop row] + 1]
+    _push row [expr {[_pop row] + 1}]
     _pop column
     _push column 0
   }
@@ -2354,7 +2400,7 @@ body iwidgets::Scrolledhtml::_entity_tr {{args {}}} {
 #
 # end table row
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/tr {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/tr {} {
 }
 
 # ------------------------------------------------------------------
@@ -2362,7 +2408,7 @@ body iwidgets::Scrolledhtml::_entity_/tr {} {
 #
 # Show typewriter text, using the font given by -fixedfont
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_tt {} {
+itcl::body iwidgets::Scrolledhtml::_entity_tt {} {
     _push font $_font
     set _font $itk_option(-fixedfont)
     set _verbatim 1
@@ -2374,7 +2420,7 @@ body iwidgets::Scrolledhtml::_entity_tt {} {
 #
 # Change back to non-typewriter mode to display text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/tt {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/tt {} {
     set _font [_pop font]
     set _verbatim 0
     _set_tag
@@ -2385,7 +2431,7 @@ body iwidgets::Scrolledhtml::_entity_/tt {} {
 #
 # display underlined text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_u {} { 
+itcl::body iwidgets::Scrolledhtml::_entity_u {} { 
     incr _underline
     _set_tag
 }
@@ -2395,7 +2441,7 @@ body iwidgets::Scrolledhtml::_entity_u {} {
 #
 # change back from underlined text
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/u {} { 
+itcl::body iwidgets::Scrolledhtml::_entity_/u {} { 
     incr _underline -1
     _set_tag
 }
@@ -2405,7 +2451,7 @@ body iwidgets::Scrolledhtml::_entity_/u {} {
 #
 # begin unordered list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_ul {{args {}}} {
+itcl::body iwidgets::Scrolledhtml::_entity_ul {{args {}}} {
     _parse_fields ar $args
     if $_left {
       _entity_br
@@ -2418,7 +2464,7 @@ body iwidgets::Scrolledhtml::_entity_ul {{args {}}} {
     _push left $_left
     _push left2 $_left2
     if {$_left2 == $_left } {
-      incr _left2 [expr $_indentincr+3]
+      incr _left2 [expr {$_indentincr+3}]
     } else {
       incr _left2 $_indentincr
     }
@@ -2446,7 +2492,7 @@ body iwidgets::Scrolledhtml::_entity_ul {{args {}}} {
 #
 # end unordered list
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/ul {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/ul {} {
     set _left [_pop left]
     set _left2 [_pop left2]
     set _listyle [_pop listyle]
@@ -2461,7 +2507,7 @@ body iwidgets::Scrolledhtml::_entity_/ul {} {
 #
 # Display variable
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_var {} {
+itcl::body iwidgets::Scrolledhtml::_entity_var {} {
     _entity_i
 }
 
@@ -2470,36 +2516,6 @@ body iwidgets::Scrolledhtml::_entity_var {} {
 #
 # change state back from variable display
 # ------------------------------------------------------------------
-body iwidgets::Scrolledhtml::_entity_/var {} {
+itcl::body iwidgets::Scrolledhtml::_entity_/var {} {
     _entity_/i
-}
-
-namespace eval iwidgets {
-  variable romand
-  set romand(val)   {1000 900 500 400 100 90 50 40 10  9 5  4 1}
-  set romand(upper) {   M  CM   D  CD   C XC  L XL  X IX V IV I}
-  set romand(lower) {   m  cm   d  cd   c xc  l xl  x ix v iv i}
- 
-  proc roman2 {n {case upper}} {
-      variable romand
-      set r ""
-      foreach val $romand(val) sym $romand($case) {
-          while {$n >= $val} {
-              set r "$r$sym"
-              incr n -$val
-          }
-      }
-      return $r
-  }
- 
-  proc roman {n {case upper}} {
-      variable romand
-      set r ""
-      foreach val $romand(val) sym $romand($case) {
-          for {} {$n >= $val} {incr n -$val} {
-              set r "$r$sym"
-          }
-      }
-      return $r
-  }
 }

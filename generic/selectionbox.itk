@@ -12,7 +12,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts              EMAIL: mulferts@austin.dsccc.com
 #
-#  @(#) $Id: selectionbox.itk,v 1.2 1996/07/12 16:18:04 mulferts Exp $
+#  @(#) $Id: selectionbox.itk,v 1.2 2001/08/07 19:56:48 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -51,7 +51,7 @@ itk::usual Selectionbox {
 # ------------------------------------------------------------------
 #                            SELECTIONBOX
 # ------------------------------------------------------------------
-class iwidgets::Selectionbox {
+itcl::class iwidgets::Selectionbox {
     inherit itk::Widget
 
     constructor {args} {}
@@ -100,7 +100,7 @@ option add *Selectionbox.height 320 widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::constructor {args} {
+itcl::body iwidgets::Selectionbox::constructor {args} {
     #
     # Set the borderwidth to zero and add width and height options
     # back to the hull.
@@ -129,7 +129,7 @@ body iwidgets::Selectionbox::constructor {args} {
 	rename -labeltext -itemslabel itemsLabel Text
 	rename -selectioncommand -itemscommand itemsCommand Command
     }
-    configure -itemscommand [code $this selectitem]
+    configure -itemscommand [itcl::code $this selectitem]
     
     #
     # Create the selection entry.
@@ -164,7 +164,7 @@ body iwidgets::Selectionbox::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::destructor {} {
+itcl::body iwidgets::Selectionbox::destructor {} {
     if {$_repacking != ""} {after cancel $_repacking}
 }
 
@@ -177,7 +177,7 @@ body iwidgets::Selectionbox::destructor {} {
 #
 # Specifies the position of the child site in the selection box.
 # ------------------------------------------------------------------
-configbody iwidgets::Selectionbox::childsitepos {
+itcl::configbody iwidgets::Selectionbox::childsitepos {
     _packComponents 
 }
 
@@ -186,7 +186,7 @@ configbody iwidgets::Selectionbox::childsitepos {
 #
 # Specifies distance between the items list and selection entry.
 # ------------------------------------------------------------------
-configbody iwidgets::Selectionbox::margin {
+itcl::configbody iwidgets::Selectionbox::margin {
     _packComponents 
 }
 
@@ -195,7 +195,7 @@ configbody iwidgets::Selectionbox::margin {
 #
 # Specifies whether or not to display the items list.
 # ------------------------------------------------------------------
-configbody iwidgets::Selectionbox::itemson {
+itcl::configbody iwidgets::Selectionbox::itemson {
     _packComponents 
 }
 
@@ -204,7 +204,7 @@ configbody iwidgets::Selectionbox::itemson {
 #
 # Specifies whether or not to display the selection entry widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Selectionbox::selectionon {
+itcl::configbody iwidgets::Selectionbox::selectionon {
     _packComponents
 }
 
@@ -217,7 +217,7 @@ configbody iwidgets::Selectionbox::selectionon {
 # the size requests of the components.  Otherwise, the width is 
 # fixed.
 # ------------------------------------------------------------------
-configbody iwidgets::Selectionbox::width {
+itcl::configbody iwidgets::Selectionbox::width {
     #
     # The width option was added to the hull in the constructor.
     # So, any width value given is passed automatically to the
@@ -248,7 +248,7 @@ configbody iwidgets::Selectionbox::width {
 # the size requests of the components. Otherwise, the height is 
 # fixed.
 # ------------------------------------------------------------------
-configbody iwidgets::Selectionbox::height {
+itcl::configbody iwidgets::Selectionbox::height {
     #
     # The height option was added to the hull in the constructor.
     # So, any height value given is passed automatically to the
@@ -279,7 +279,7 @@ configbody iwidgets::Selectionbox::height {
 #
 # Returns the path name of the child site widget.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::childsite {} {
+itcl::body iwidgets::Selectionbox::childsite {} {
     return $itk_component(sbchildsite)
 }
 
@@ -288,7 +288,7 @@ body iwidgets::Selectionbox::childsite {} {
 #
 # Returns the current selection.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::get {} {
+itcl::body iwidgets::Selectionbox::get {} {
     return [$itk_component(selection) get]
 }
 
@@ -297,7 +297,7 @@ body iwidgets::Selectionbox::get {} {
 #
 # Returns the current selection index.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::curselection {} {
+itcl::body iwidgets::Selectionbox::curselection {} {
     return [$itk_component(items) curselection]
 }
 
@@ -307,7 +307,7 @@ body iwidgets::Selectionbox::curselection {} {
 # Delete the contents of either the selection entry widget or items
 # list.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::clear {component} {
+itcl::body iwidgets::Selectionbox::clear {component} {
     switch $component {
 	selection {
 	    $itk_component(selection) clear
@@ -329,7 +329,7 @@ body iwidgets::Selectionbox::clear {component} {
 #
 # Insert element(s) into either the selection or items list widget.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::insert {component index args} {
+itcl::body iwidgets::Selectionbox::insert {component index args} {
     switch $component {
 	selection {
 	    eval $itk_component(selection) insert $index $args
@@ -354,7 +354,7 @@ body iwidgets::Selectionbox::insert {component index args} {
 # it must be preceeded by the keyword "item". Only index numbers can 
 # be used to delete a range of items. 
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::delete {first {last {}}} {
+itcl::body iwidgets::Selectionbox::delete {first {last {}}} {
     set first [index $first]
     
     if {$last != {}} {
@@ -376,7 +376,7 @@ body iwidgets::Selectionbox::delete {first {last {}}} {
 # Returns a decimal string indicating the total number of elements 
 # in the items list.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::size {} {
+itcl::body iwidgets::Selectionbox::size {} {
     return [$itk_component(items) size]
 }
 
@@ -385,7 +385,7 @@ body iwidgets::Selectionbox::size {} {
 #
 # Implements scanning on items list.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::scan {option args} {
+itcl::body iwidgets::Selectionbox::scan {option args} {
     eval $itk_component(items) scan $option $args
 }
 
@@ -394,7 +394,7 @@ body iwidgets::Selectionbox::scan {option args} {
 #
 # Returns the index to the nearest listbox item given a y coordinate.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::nearest {y} {
+itcl::body iwidgets::Selectionbox::nearest {y} {
     return [$itk_component(items) nearest $y]
 }
 
@@ -404,7 +404,7 @@ body iwidgets::Selectionbox::nearest {y} {
 # Returns the decimal string giving the integer index corresponding 
 # to index.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::index {index} {
+itcl::body iwidgets::Selectionbox::index {index} {
     return [$itk_component(items) index $index]
 }
 
@@ -413,7 +413,7 @@ body iwidgets::Selectionbox::index {index} {
 #
 # Adjusts the selection within the items list.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::selection {option args} {
+itcl::body iwidgets::Selectionbox::selection {option args} {
     eval $itk_component(items) selection $option $args
 
     selectitem
@@ -425,7 +425,7 @@ body iwidgets::Selectionbox::selection {option args} {
 # Replace the selection entry field contents with the currently 
 # selected items value.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::selectitem {} {
+itcl::body iwidgets::Selectionbox::selectitem {} {
     $itk_component(selection) clear
     set numSelected [$itk_component(items) selecteditemcount]
 
@@ -448,10 +448,10 @@ body iwidgets::Selectionbox::selectitem {} {
 # "later" or it is not specified, then the change is applied later, 
 # when the application is idle.
 # ------------------------------------------------------------------
-body iwidgets::Selectionbox::_packComponents {{when later}} {
+itcl::body iwidgets::Selectionbox::_packComponents {{when later}} {
     if {$when == "later"} {
 	if {$_repacking == ""} {
-	    set _repacking [after idle [code $this _packComponents now]]
+	    set _repacking [after idle [itcl::code $this _packComponents now]]
 	}
 	return
     } elseif {$when != "now"} {

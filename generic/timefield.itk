@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 #   AUTHOR:  John A. Tucker          E-mail: jatucker@austin.dsccc.com
 #
-#   @(#) $Id: timefield.itk,v 1.0 1997/04/28 12:00:20 jatucker Exp $
+#   @(#) $Id: timefield.itk,v 1.6 2001/08/17 19:05:44 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -48,7 +48,7 @@ itk::usual Timefield {
 # ------------------------------------------------------------------
 #                               TIMEFIELD
 # ------------------------------------------------------------------
-class iwidgets::Timefield {
+itcl::class iwidgets::Timefield {
 
     inherit iwidgets::Labeledwidget 
     
@@ -59,6 +59,8 @@ class iwidgets::Timefield {
     itk_option define -seconds seconds Seconds on
     itk_option define -format format Format civilian
     itk_option define -iq iq Iq high
+    itk_option define -gmt gmt GMT no
+    itk_option define -state state State normal
 
     public {
       method get {{format "-string"}}
@@ -84,11 +86,10 @@ class iwidgets::Timefield {
       variable _numFields 4
       variable _forward {}
       variable _backward {}
+      variable _timeVar ""
 
       common _militaryFields {hour minute second}
       common _civilianFields {hour minute second ampm}
-
-      common _timeVar
     }
 }
 
@@ -102,21 +103,18 @@ proc iwidgets::timefield {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Timefield::constructor {args} {
+itcl::body iwidgets::Timefield::constructor {args} {
     component hull configure -borderwidth 0
     
-    set _timeVar($this) ""
-
     #
     # Create an entry field for entering the time.
     #
     itk_component add time {
-      entry $itk_interior.time \
-            -textvariable [scope _timeVar($this)]
+      entry $itk_interior.time
     } {
       keep -borderwidth -cursor -exportselection \
           -foreground -highlightcolor -highlightthickness \
-          -insertbackground -justify -relief
+          -insertbackground -justify -relief -textvariable
       
       rename -font -textfont textFont Font
       rename -highlightbackground -background background Background
@@ -134,8 +132,9 @@ body iwidgets::Timefield::constructor {args} {
     #
     # Add timefield event bindings for focus in and keypress events.
     #
-    bind $itk_component(time) <FocusIn>   [code $this _focusIn]
-    bind $itk_component(time) <KeyPress>  [code $this _keyPress %A %K %s]
+    bind $itk_component(time) <FocusIn>   [itcl::code $this _focusIn]
+    bind $itk_component(time) <KeyPress>  [itcl::code $this _keyPress %A %K %s]
+    bind $itk_component(time) <1> "focus $itk_component(time); break"
 
     #
     # Disable some mouse button event bindings:
@@ -171,7 +170,7 @@ body iwidgets::Timefield::constructor {args} {
 # Specifies the position of the child site in the widget.  Valid
 # locations are n, s, e, and w.
 # ------------------------------------------------------------------
-configbody iwidgets::Timefield::childsitepos {
+itcl::configbody iwidgets::Timefield::childsitepos {
     set parent [winfo parent $itk_component(time)]
 
     switch $itk_option(-childsitepos) {
@@ -228,7 +227,7 @@ configbody iwidgets::Timefield::childsitepos {
 #
 # Command invoked upon detection of return key press event.
 # ------------------------------------------------------------------
-configbody iwidgets::Timefield::command {}
+itcl::configbody iwidgets::Timefield::command {}
 
 # ------------------------------------------------------------------
 # OPTION: -iq
@@ -245,7 +244,7 @@ configbody iwidgets::Timefield::command {}
 # the validity will be determined at a later time using the time's
 # isvalid command.
 # ------------------------------------------------------------------
-configbody iwidgets::Timefield::iq {
+itcl::configbody iwidgets::Timefield::iq {
 
   switch $itk_option(-iq) {
     high - low {
@@ -262,7 +261,7 @@ configbody iwidgets::Timefield::iq {
 #
 # Specifies the time format displayed in the entry widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Timefield::format {
+itcl::configbody iwidgets::Timefield::format {
 
   switch $itk_option(-format) {
     civilian {
@@ -291,8 +290,45 @@ configbody iwidgets::Timefield::format {
   # Update the current contents of the entry field to reflect
   # the configured format.
   #
-  show $_timeVar($this)
+  show $_timeVar
 }
+
+# ------------------------------------------------------------------
+# OPTION: -gmt
+#
+# This option is used for GMT time.  Must be a boolean value.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Timefield::gmt {
+  switch $itk_option(-gmt) {
+    0 - no - false - off { }
+    1 - yes - true - on { }
+    default {
+      error "bad gmt option \"$itk_option(-gmt)\": should be boolean"
+    }
+  }
+}
+
+# ------------------------------------------------------------------
+# OPTION: -state
+#
+# Disable the 
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Timefield::state {
+  switch -- $itk_option(-state) {
+    normal {
+      $itk_component(time) configure -state normal
+    }
+    disabled {
+      focus $itk_component(hull)
+      $itk_component(time) configure -state disabled
+    }
+    default {
+      error "Invalid value for -state: $itk_option(-state).  Should be\
+        \"normal\" or \"disabled\"."
+    }
+  }
+}
+
 
 # ------------------------------------------------------------------
 #                            METHODS
@@ -307,14 +343,15 @@ configbody iwidgets::Timefield::format {
 # clock command for more information on obtaining times and their 
 # formats.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::get {{format "-string"}} {
+itcl::body iwidgets::Timefield::get {{format "-string"}} {
+  set _timeVar [$itk_component(time) get]
 
   switch -- $format {
     "-string" {
-      return $_timeVar($this)
+      return $_timeVar
     }
     "-clicks" {
-      return [::clock scan $_timeVar($this)]
+      return [::clock scan $_timeVar -gmt $itk_option(-gmt)]
     }
     default {
       error "bad format option \"$format\":\
@@ -331,7 +368,8 @@ body iwidgets::Timefield::get {{format "-string"}} {
 # integer clock value.  Reference the clock command for more 
 # information on obtaining times and their formats.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::show {{time "now"}} {
+itcl::body iwidgets::Timefield::show {{time "now"}} {
+  set icursor [$itk_component(time) index insert]
 
   if {$time == {}} {
     set time "now"
@@ -344,7 +382,7 @@ body iwidgets::Timefield::show {{time "now"}} {
     }
 
     {^[0-9]+$} {
-      if { [catch {::clock format $time}] } {
+      if { [catch {::clock format $time -gmt $itk_option(-gmt)}] } {
         error "bad time: \"$time\", must be a valid time \
            string, clock clicks value or the keyword now"
       }
@@ -352,14 +390,21 @@ body iwidgets::Timefield::show {{time "now"}} {
     }
 
     default {
-      if {[catch {set seconds [::clock scan $time]}]} {
+      if {[catch {set seconds [::clock scan $time -gmt $itk_option(-gmt)]}]} {
         error "bad time: \"$time\", must be a valid time \
            string, clock clicks value or the keyword now"
       }
     }
   }
 
-  set _timeVar($this) [::clock format $seconds -format $_formatString]
+  set _timeVar [::clock format $seconds -format $_formatString \
+    -gmt $itk_option(-gmt)]
+
+  $itk_component(time) delete 0 end
+  $itk_component(time) insert end $_timeVar
+  $itk_component(time) icursor $icursor
+
+  return $_timeVar
 }
 
 # ------------------------------------------------------------------
@@ -369,9 +414,9 @@ body iwidgets::Timefield::show {{time "now"}} {
 # displayed time value.  For example, 09:59::59 is valid whereas
 # 26:59:59 is invalid.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::isvalid {} {
-
-  return [expr ([catch {::clock scan $_timeVar($this)}] == 0)]
+itcl::body iwidgets::Timefield::isvalid {} {
+  set _timeVar [$itk_component(time) get]
+  return [expr {([catch {::clock scan $_timeVar -gmt $itk_option(-gmt)}] == 0)}]
 }
 
 # ------------------------------------------------------------------
@@ -381,7 +426,7 @@ body iwidgets::Timefield::isvalid {} {
 # insert cursor and field settings to be back to their last known
 # positions.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_focusIn {} {
+itcl::body iwidgets::Timefield::_focusIn {} {
   _setField $_cfield
 }
 
@@ -391,7 +436,7 @@ body iwidgets::Timefield::_focusIn {} {
 # This method is the workhorse of the class.  It is bound to the
 # <KeyPress> event and controls the processing of all key strokes.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_keyPress {char sym state} {
+itcl::body iwidgets::Timefield::_keyPress {char sym state} {
 
   #
   #  Determine which field we are in currently.  This is needed
@@ -410,9 +455,9 @@ body iwidgets::Timefield::_keyPress {char sym state} {
   set icursor [$itk_component(time) index insert]
   set lastField [lindex $_fields end]
 
-  set prevtime $_timeVar($this)
+  set prevtime $_timeVar
   regexp {^([0-9])([0-9]):([0-9])([0-9]):([0-9])([0-9]).*$} \
-        $_timeVar($this) dummy \
+        $_timeVar dummy \
         hour1 hour2 minute1 minute2 second1 second2
   set hour	"$hour1$hour2"
   set minute	"$minute1$minute2"
@@ -424,7 +469,7 @@ body iwidgets::Timefield::_keyPress {char sym state} {
   # aren't attempting to insert more that 6 characters.  If
   # so ring the bell and break.
   #
-  if {![catch {expr int($char)}]} {
+  if {![catch {expr {int($char)}}]} {
 
     # If we are currently in the hour field then we process the
     # number entered based on the cursor position.  If we are at
@@ -592,6 +637,7 @@ body iwidgets::Timefield::_keyPress {char sym state} {
       }
     }
 
+    set _timeVar [$itk_component(time) get]
     return -code break
   }
 
@@ -621,10 +667,8 @@ body iwidgets::Timefield::_keyPress {char sym state} {
         _toggleAmPm
       } else {
         set newclicks [::clock scan "$prevtime 1 $_cfield"]
-        set newtime   [::clock format $newclicks -format $_formatString]
-        set _timeVar($this) $newtime
+        show [::clock format $newclicks -format $_formatString]
       }
-      return -code continue
     }
 
     minus - Down {
@@ -636,10 +680,8 @@ body iwidgets::Timefield::_keyPress {char sym state} {
         _toggleAmPm
       } else {
         set newclicks [::clock scan "$prevtime 1 $_cfield ago"]
-        set newtime   [::clock format $newclicks -format $_formatString]
-        set _timeVar($this) $newtime
+        show [::clock format $newclicks -format $_formatString]
       }
-      return -code continue
     }
 
     Tab {
@@ -708,11 +750,12 @@ body iwidgets::Timefield::_keyPress {char sym state} {
 # Internal method which toggles the displayed time
 # between "AM" and "PM" when format is "civilian".
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_toggleAmPm {} {
-  set firstChar  [string index $_timeVar($this) 9]
+itcl::body iwidgets::Timefield::_toggleAmPm {} {
+  set firstChar  [string index $_timeVar 9]
   $itk_component(time) delete 9 10
   $itk_component(time) insert 9 [expr {($firstChar == "A") ? "P" : "A"}]
   $itk_component(time) icursor 9
+  set _timeVar [$itk_component(time) get]
 }
 
 # ------------------------------------------------------------------
@@ -721,7 +764,7 @@ body iwidgets::Timefield::_toggleAmPm {} {
 # Adjusts the current field to be that of the argument, setting the
 # insert cursor appropriately.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_setField {field} {
+itcl::body iwidgets::Timefield::_setField {field} {
 
   # Move the position of the cursor to the first character of the
   # field given by the argument:
@@ -768,7 +811,7 @@ body iwidgets::Timefield::_setField {field} {
 #
 # Moves the cursor one field forward or backward.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_moveField {direction} {
+itcl::body iwidgets::Timefield::_moveField {direction} {
 
   # Since the value "_fields" list variable is always either value:
   #   military => {hour minute second}
@@ -783,7 +826,7 @@ body iwidgets::Timefield::_moveField {direction} {
   if {$index == $_numFields} {
     set index 0
   } elseif {$index < 0} {
-    set index [expr $_numFields-1]
+    set index [expr {$_numFields-1}]
   }
 
   _setField [lindex $_fields $index]
@@ -794,7 +837,7 @@ body iwidgets::Timefield::_moveField {direction} {
 #
 # Returns the current field that the cursor is positioned within.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_whichField {} {
+itcl::body iwidgets::Timefield::_whichField {} {
 
   # Return the current field based on the position of the cursor.
   #
@@ -830,7 +873,7 @@ body iwidgets::Timefield::_whichField {} {
 # Internal method which moves the cursor forward by one character
 # jumping over the slashes and wrapping.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_forwardCivilian {} {
+itcl::body iwidgets::Timefield::_forwardCivilian {} {
 
   #
   # If the insertion cursor is at the second digit
@@ -854,7 +897,7 @@ body iwidgets::Timefield::_forwardCivilian {} {
       _setField hour
     }
     default {
-      $itk_component(time) icursor [expr $icursor+1]
+      $itk_component(time) icursor [expr {$icursor+1}]
     }
   }
 }
@@ -865,7 +908,7 @@ body iwidgets::Timefield::_forwardCivilian {} {
 # Internal method which moves the cursor forward by one character
 # jumping over the slashes and wrapping.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_forwardMilitary {} {
+itcl::body iwidgets::Timefield::_forwardMilitary {} {
 
   #
   # If the insertion cursor is at the second digit of either
@@ -886,7 +929,7 @@ body iwidgets::Timefield::_forwardMilitary {} {
       _setField hour
     }
     default {
-      $itk_component(time) icursor [expr $icursor+1]
+      $itk_component(time) icursor [expr {$icursor+1}]
     }
   }
 }
@@ -897,7 +940,7 @@ body iwidgets::Timefield::_forwardMilitary {} {
 # Internal method which moves the cursor backward by one character
 # jumping over the ":" and wrapping.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_backwardCivilian {} {
+itcl::body iwidgets::Timefield::_backwardCivilian {} {
 
   #
   # If the insertion cursor is at the first character
@@ -930,7 +973,7 @@ body iwidgets::Timefield::_backwardCivilian {} {
       $itk_component(time) icursor 9
     }
     default {
-      $itk_component(time) icursor [expr $icursor-1]
+      $itk_component(time) icursor [expr {$icursor-1}]
     }
   }
 }
@@ -941,7 +984,7 @@ body iwidgets::Timefield::_backwardCivilian {} {
 # Internal method which moves the cursor backward by one character
 # jumping over the slashes and wrapping.
 # ------------------------------------------------------------------
-body iwidgets::Timefield::_backwardMilitary {} {
+itcl::body iwidgets::Timefield::_backwardMilitary {} {
 
   #
   # If the insertion cursor is at the first digit of either
@@ -969,7 +1012,7 @@ body iwidgets::Timefield::_backwardMilitary {} {
       $itk_component(time) icursor 7
     }
     default {
-      $itk_component(time) icursor [expr $icursor-1]
+      $itk_component(time) icursor [expr {$icursor-1}]
     }
   }
 }

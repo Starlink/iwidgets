@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts              EMAIL: mulferts@austin.dsccc.com
 #
-#  @(#) $Id: dialog.itk,v 1.3 1996/07/12 16:10:50 mulferts Exp $
+#  @(#) $Id: dialog.itk,v 1.2 2001/08/07 19:56:47 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -43,7 +43,7 @@ itk::usual Dialog {
 # ------------------------------------------------------------------
 #                            DIALOG
 # ------------------------------------------------------------------
-class iwidgets::Dialog {
+itcl::class iwidgets::Dialog {
     inherit iwidgets::Dialogshell
 
     constructor {args} {}
@@ -64,14 +64,14 @@ option add *Dialog.master "." widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Dialog::constructor {args} {
+itcl::body iwidgets::Dialog::constructor {args} {
     #
     # Add the standard buttons: OK, Apply, Cancel, and Help, making
     # OK be the default button.
     #
-    add OK -text OK -command [code $this deactivate 1]
+    add OK -text OK -command [itcl::code $this deactivate 1]
     add Apply -text Apply
-    add Cancel -text Cancel -command [code $this deactivate 0]
+    add Cancel -text Cancel -command [itcl::code $this deactivate 0]
     add Help -text Help
     
     default OK
@@ -82,7 +82,7 @@ body iwidgets::Dialog::constructor {args} {
     # execution of a similar command outside the class.
     #
     wm protocol $itk_component(hull) WM_DELETE_WINDOW \
-	[code $this invoke Cancel]
+	[itcl::code $this invoke Cancel]
     
     #
     # Initialize the widget based on the command line options.

@@ -1,14 +1,8 @@
-#!/bin/sh
 # ----------------------------------------------------------------------
-#  DEMO: buttonbox in [incr Widgets]
+#  DEMO: hierarchy in [incr Widgets]
 # ----------------------------------------------------------------------
-#\
-exec itkwish "$0" ${1+"$@"}
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
-#
-# Demo script for the Hierarchy class.
-#
 # This demo displays a users file system starting at thier HOME
 # directory.  You can change the starting directory by setting the
 # environment variable SHOWDIR.

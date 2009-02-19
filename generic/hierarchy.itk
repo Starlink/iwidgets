@@ -14,7 +14,7 @@
 #            DSC Communications
 #            mulferts@austin.dsccc.com
 #
-#      RCS:  $Id$
+#      RCS:  $Id: hierarchy.itk,v 1.9 2002/09/06 16:27:03 smithc Exp $
 # ----------------------------------------------------------------------
 #                Copyright (c) 1996  Lucent Technologies
 # ======================================================================
@@ -71,7 +71,7 @@ itk::usual Hierarchy {
 # ------------------------------------------------------------------
 #                            HIERARCHY
 # ------------------------------------------------------------------
-class iwidgets::Hierarchy {
+itcl::class iwidgets::Hierarchy {
     inherit iwidgets::Scrolledwidget
 
     constructor {args} {}
@@ -80,12 +80,17 @@ class iwidgets::Hierarchy {
 
     itk_option define -alwaysquery alwaysQuery AlwaysQuery 0
     itk_option define -closedicon closedIcon Icon {}
+    itk_option define -dblclickcommand dblClickCommand Command {}
     itk_option define -expanded expanded Expanded 0 
     itk_option define -filter filter Filter 0 
     itk_option define -font font Font \
 	-*-Courier-Medium-R-Normal--*-120-*-*-*-*-*-* 
     itk_option define -height height Height 0
     itk_option define -iconcommand iconCommand Command {}
+    itk_option define -icondblcommand iconDblCommand Command {}
+    itk_option define -imagecommand imageCommand Command {}
+    itk_option define -imagedblcommand imageDblCommand Command {}
+    itk_option define -imagemenuloadcommand imageMenuLoadCommand Command {}
     itk_option define -markbackground markBackground Foreground #a0a0a0 
     itk_option define -markforeground markForeground Background Black 
     itk_option define -nodeicon nodeIcon Icon {}
@@ -94,63 +99,79 @@ class iwidgets::Hierarchy {
     itk_option define -selectcommand selectCommand Command {}
     itk_option define -selectbackground selectBackground Foreground #c3c3c3 
     itk_option define -selectforeground selectForeground Background Black 
+    itk_option define -textmenuloadcommand textMenuLoadCommand Command {}
     itk_option define -visibleitems visibleItems VisibleItems 80x24
     itk_option define -width width Width 0
 
-    public method clear {}
-    public method collapse {node}
-    public method current {}
-    public method draw {{when -now}}
-    public method expand {node}
-    public method mark {op args}
-    public method prune {node}
-    public method refresh {node}
-    public method selection {op args}
-    public method toggle {node}
+    public {
+	method clear {}
+	method collapse {node}
+	method current {}
+	method draw {{when -now}}
+	method expand {node}
+	method expanded {node}
+	method expState { }
+	method mark {op args}
+	method prune {node}
+	method refresh {node}
+	method selection {op args}
+	method toggle {node}
+	
+	method bbox {index} 
+	method compare {index1 op index2} 
+	method debug {args} {eval $args}
+	method delete {first {last {}}} 
+	method dlineinfo {index} 
+	method dump {args}
+	method get {index1 {index2 {}}} 
+	method index {index} 
+	method insert {args} 
+	method scan {option args} 
+	method search {args} 
+	method see {index} 
+	method tag {op args} 
+	method window {option args} 
+	method xview {args}
+	method yview {args}
+    }
 
-    public method bbox {index} 
-    public method compare {index1 op index2} 
-    public method debug {args} {eval $args}
-    public method delete {first {last {}}} 
-    public method dlineinfo {index} 
-    public method dump {args}
-    public method get {index1 {index2 {}}} 
-    public method index {index} 
-    public method insert {args} 
-    public method scan {option args} 
-    public method search {args} 
-    public method see {index} 
-    public method tag {op args} 
-    public method window {option args} 
-    public method xview {args}
-    public method yview {args}
+    protected {
+	method _contents {uid}
+	method _post {x y}
+	method _drawLevel {node indent}
+	method _select {x y}
+	method _deselectSubNodes {uid}
+	method _deleteNodeInfo {uid}
+	method _getParent {uid}
+	method _getHeritage {uid}
+	method _isInternalTag {tag}
+	method _iconSelect {node icon}
+	method _iconDblSelect {node icon}
+	method _imageSelect {node}
+	method _imageDblClick {node}
+	method _imagePost {node image type x y}
+	method _double {x y}
+    }
+    
+    private {
+        method _configureTags {}
 
-    protected method _contents {uid}
-    protected method _iconSelect {node icon}
-    protected method _post {x y}
-    protected method _drawLevel {node indent}
-    protected method _select {x y}
-    protected method _deselectSubNodes {uid}
-    protected method _deleteNodeInfo {uid}
-    protected method _getParent {uid}
-    protected method _getHeritage {uid}
-    protected method _isInternalTag {tag}
-
-    private variable _filterCode ""  ;# Compact view flag.
-    private variable _hcounter 0     ;# Counter for hierarchy icons
-    private variable _icons          ;# Array of user icons by uid
-    private variable _images         ;# Array of our icons by uid
-    private variable _indents        ;# Array of indentation by uid
-    private variable _marked         ;# Array of marked nodes by uid
-    private variable _markers ""     ;# List of markers for level being drawn
-    private variable _nodes          ;# List of subnodes by uid
-    private variable _pending ""     ;# Pending draw flag
-    private variable _posted ""      ;# List of tags at posted menu position
-    private variable _selected       ;# Array of selected nodes by uid
-    private variable _tags           ;# Array of user tags by uid
-    private variable _text           ;# Array of displayed text by uid
-    private variable _states         ;# Array of selection state by uid
-    private variable _ucounter 0     ;# Counter for user icons
+	variable _filterCode ""  ;# Compact view flag.
+	variable _hcounter 0     ;# Counter for hierarchy icons
+	variable _icons          ;# Array of user icons by uid
+	variable _images         ;# Array of our icons by uid
+	variable _indents        ;# Array of indentation by uid
+	variable _marked         ;# Array of marked nodes by uid
+	variable _markers ""     ;# List of markers for level being drawn
+	variable _nodes          ;# Array of subnodes by uid
+	variable _pending ""     ;# Pending draw flag
+	variable _posted ""      ;# List of tags at posted menu position
+	variable _selected       ;# Array of selected nodes by uid
+	variable _tags           ;# Array of user tags by uid
+	variable _text           ;# Array of displayed text by uid
+	variable _states         ;# Array of selection state by uid
+	variable _ucounter 0     ;# Counter for user icons
+    }
 }
 
 #
@@ -170,7 +191,7 @@ option add *Hierarchy.tabs 30 widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::constructor {args} {
+itcl::body iwidgets::Hierarchy::constructor {args} {
     itk_option remove iwidgets::Labeledwidget::state
 
     #
@@ -204,9 +225,9 @@ body iwidgets::Hierarchy::constructor {args} {
 	text $itk_component(clipper).list -wrap none -cursor center_ptr \
                 -state disabled -width 1 -height 1 \
 	        -xscrollcommand \
-		[code $this _scrollWidget $itk_interior.horizsb] \
+		[itcl::code $this _scrollWidget $itk_interior.horizsb] \
 		-yscrollcommand \
-		[code $this _scrollWidget $itk_interior.vertsb] \
+		[itcl::code $this _scrollWidget $itk_interior.vertsb] \
 	        -borderwidth 0 -highlightthickness 0
     } {
 	usual
@@ -228,20 +249,20 @@ body iwidgets::Hierarchy::constructor {args} {
     # Configure the command on the vertical scroll bar in the base class.
     #
     $itk_component(vertsb) configure \
-	-command [code $itk_component(list) yview]
+	-command [itcl::code $itk_component(list) yview]
 
     #
     # Configure the command on the horizontal scroll bar in the base class.
     #
     $itk_component(horizsb) configure \
-		-command [code $itk_component(list) xview]
+		-command [itcl::code $itk_component(list) xview]
     
     #
     # Configure our text component's tab settings for twenty levels.
     #
     set tabs ""
     for {set i 1} {$i < 20} {incr i} {
-	lappend tabs [expr $i*12+4]
+	lappend tabs [expr {$i*12+4}]
     }
     $itk_component(list) configure -tabs $tabs
 
@@ -273,10 +294,13 @@ body iwidgets::Hierarchy::constructor {args} {
     bindtags $itk_component(list) [list $itk_component(list) . all]
     
     bind $itk_component(list) <ButtonPress-1> \
-            [code $this _select %x %y]
+            [itcl::code $this _select %x %y]
+
+    bind $itk_component(list) <Double-1> \
+            [itcl::code $this _double %x %y]
 
     bind $itk_component(list) <ButtonPress-3> \
-            [code $this _post %x %y]
+            [itcl::code $this _post %x %y]
     
     #
     # Initialize the widget based on the command line options.
@@ -287,7 +311,7 @@ body iwidgets::Hierarchy::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::destructor {} {
+itcl::body iwidgets::Hierarchy::destructor {} {
     if {$_pending != ""} {
 	after cancel $_pending
     }
@@ -302,7 +326,7 @@ body iwidgets::Hierarchy::destructor {} {
 #
 # Font used for text in the list.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::font {
+itcl::configbody iwidgets::Hierarchy::font {
     $itk_component(list) tag configure info \
             -font $itk_option(-font) -spacing1 6
 }
@@ -312,7 +336,7 @@ configbody iwidgets::Hierarchy::font {
 #
 # Background color scheme for selected nodes.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::selectbackground {
+itcl::configbody iwidgets::Hierarchy::selectbackground {
     $itk_component(list) tag configure hilite \
             -background $itk_option(-selectbackground)
 }
@@ -322,7 +346,7 @@ configbody iwidgets::Hierarchy::selectbackground {
 #
 # Foreground color scheme for selected nodes.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::selectforeground {
+itcl::configbody iwidgets::Hierarchy::selectforeground {
     $itk_component(list) tag configure hilite \
             -foreground $itk_option(-selectforeground)
 }
@@ -332,7 +356,7 @@ configbody iwidgets::Hierarchy::selectforeground {
 #
 # Background color scheme for marked nodes.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::markbackground {
+itcl::configbody iwidgets::Hierarchy::markbackground {
     $itk_component(list) tag configure lowlite \
             -background $itk_option(-markbackground)
 }
@@ -342,7 +366,7 @@ configbody iwidgets::Hierarchy::markbackground {
 #
 # Foreground color scheme for marked nodes.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::markforeground {
+itcl::configbody iwidgets::Hierarchy::markforeground {
     $itk_component(list) tag configure lowlite \
             -foreground $itk_option(-markforeground)
 }
@@ -389,9 +413,12 @@ configbody iwidgets::Hierarchy::markforeground {
 # widget the information it needs to know thereby avoiding the look
 # ahead operation.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::querycommand {
+itcl::configbody iwidgets::Hierarchy::querycommand {
     clear
     draw -eventually
+
+    # Added for SF ticket #596111
+    _configureTags
 }
 
 # ------------------------------------------------------------------
@@ -403,7 +430,21 @@ configbody iwidgets::Hierarchy::querycommand {
 # the node's current selection status, where a value of 1 denotes
 # that the node is currently selected and 0 that it is not.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::selectcommand {
+itcl::configbody iwidgets::Hierarchy::selectcommand {
+}
+
+# ------------------------------------------------------------------
+# OPTION: -dblclickcommand
+#
+# Command executed to double click an item in the list.  If this command
+# contains "%n", it is replaced with the name of the selected node.  
+# If it contains a "%s", it is replaced with a boolean indicator of 
+# the node's current selection status, where a value of 1 denotes
+# that the node is currently selected and 0 that it is not.
+#
+# Douglas R. Howard, Jr.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Hierarchy::dblclickcommand {
 }
 
 # ------------------------------------------------------------------
@@ -414,7 +455,45 @@ configbody iwidgets::Hierarchy::selectcommand {
 # belongs to.  Should it contain "%i" then the icon name is 
 # substituted.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::iconcommand {
+itcl::configbody iwidgets::Hierarchy::iconcommand {
+}
+
+# ------------------------------------------------------------------
+# OPTION: -icondblcommand
+#
+# Command executed upon double selection of user icons.  If this command 
+# contains "%n", it is replaced with the name of the node the icon
+# belongs to.  Should it contain "%i" then the icon name is 
+# substituted.
+#
+# Douglas R. Howard, Jr.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Hierarchy::icondblcommand {
+}
+
+# ------------------------------------------------------------------
+# OPTION: -imagecommand
+#
+# Command executed upon selection of image icons.  If this command 
+# contains "%n", it is replaced with the name of the node the icon
+# belongs to.  Should it contain "%i" then the icon name is 
+# substituted.
+#
+# Douglas R. Howard, Jr.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Hierarchy::imagecommand {
+}
+
+# ------------------------------------------------------------------
+# OPTION: -imagedblcommand
+#
+# Command executed upon double selection of user icons.  If this command 
+# contains "%n", it is replaced with the name of the node the icon
+# belongs to.
+#
+# Douglas R. Howard, Jr.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Hierarchy::imagedblcommand {
 }
 
 # ------------------------------------------------------------------
@@ -425,7 +504,19 @@ configbody iwidgets::Hierarchy::iconcommand {
 # the -querycommand option or use the values previous found the
 # last time the query was made.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::alwaysquery {
+itcl::configbody iwidgets::Hierarchy::alwaysquery {
+    switch -- $itk_option(-alwaysquery) {
+	    1 - true - yes - on {
+	        ;# okay
+	    }
+	    0 - false - no - off {
+	        ;# okay
+	    }
+	    default {
+	        error "bad alwaysquery option \"$itk_option(-alwaysquery)\":\
+                    should be boolean"
+	    }
+    }
 }
 
 # ------------------------------------------------------------------
@@ -434,22 +525,22 @@ configbody iwidgets::Hierarchy::alwaysquery {
 # When true only the branch nodes and selected items are displayed.
 # This gives a compact view of important items.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::filter {
+itcl::configbody iwidgets::Hierarchy::filter {
     switch -- $itk_option(-filter) {
-	1 - true - yes - on {
-	    set newCode {set display [info exists _selected($child)]}
-	}
-	0 - false - no - off {
-	    set newCode {set display 1}
-	}
-	default {
-	    error "bad filter option \"$itk_option(-filter)\":\
+	    1 - true - yes - on {
+	        set newCode {set display [info exists _selected($child)]}
+	    }
+	    0 - false - no - off {
+	        set newCode {set display 1}
+	    }
+	    default {
+	        error "bad filter option \"$itk_option(-filter)\":\
                    should be boolean"
-	}
+	    }
     }
     if {$newCode != $_filterCode} {
-	set _filterCode $newCode
-	draw -eventually
+	    set _filterCode $newCode
+	    draw -eventually
     }
 }
 
@@ -460,18 +551,18 @@ configbody iwidgets::Hierarchy::filter {
 # is first displayed.  A fresh display can be triggered by
 # resetting the -querycommand option.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::expanded {
+itcl::configbody iwidgets::Hierarchy::expanded {
     switch -- $itk_option(-expanded) {
-	1 - true - yes - on {
-	    ;# okay
-	}
-	0 - false - no - off {
-	    ;# okay
-	}
-	default {
-	    error "bad expanded option \"$itk_option(-expanded)\":\
+	    1 - true - yes - on {
+	        ;# okay
+	    }
+	    0 - false - no - off {
+	        ;# okay
+	    }
+	    default {
+	        error "bad expanded option \"$itk_option(-expanded)\":\
                    should be boolean"
-	}
+	    }
     }
 }
     
@@ -482,7 +573,7 @@ configbody iwidgets::Hierarchy::expanded {
 # one not be provided, then one will be generated, pixmap if 
 # possible, bitmap otherwise.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::openicon {
+itcl::configbody iwidgets::Hierarchy::openicon {
     if {$itk_option(-openicon) == {}} {
 	if {[lsearch [image names] openFolder] == -1} {
 	    if {[lsearch [image types] pixmap] != -1} {
@@ -524,10 +615,8 @@ configbody iwidgets::Hierarchy::openicon {
 			0xff, 0x1f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 		}
 	    }
-
-	    set itk_option(-openicon) openFolder
 	}
-
+	set itk_option(-openicon) openFolder
     } else {
 	if {[lsearch [image names] $itk_option(-openicon)] == -1} {
 	    error "bad openicon option \"$itk_option(-openicon)\":\
@@ -543,7 +632,7 @@ configbody iwidgets::Hierarchy::openicon {
 # Should one not be provided, then one will be generated, pixmap if 
 # possible, bitmap otherwise.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::closedicon {
+itcl::configbody iwidgets::Hierarchy::closedicon {
     if {$itk_option(-closedicon) == {}} {
 	if {[lsearch [image names] closedFolder] == -1} {
 	    if {[lsearch [image types] pixmap] != -1} {
@@ -582,10 +671,8 @@ configbody iwidgets::Hierarchy::closedicon {
 			0xfe, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 		}
 	    }
-
-	    set itk_option(-closedicon) closedFolder
 	}
-
+	set itk_option(-closedicon) closedFolder
     } else {
 	if {[lsearch [image names] $itk_option(-closedicon)] == -1} {
 	    error "bad closedicon option \"$itk_option(-closedicon)\":\
@@ -601,7 +688,7 @@ configbody iwidgets::Hierarchy::closedicon {
 # one not be provided, then one will be generated, pixmap if 
 # possible, bitmap otherwise.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::nodeicon {
+itcl::configbody iwidgets::Hierarchy::nodeicon {
     if {$itk_option(-nodeicon) == {}} {
 	if {[lsearch [image names] nodeFolder] == -1} {
 	    if {[lsearch [image types] pixmap] != -1} {
@@ -640,10 +727,8 @@ configbody iwidgets::Hierarchy::nodeicon {
 			0xfe, 0x7f, 0x00, 0x00, 0x00, 0x00, 0x00, 0x00};
 		}
 	    }
-
-	    set itk_option(-nodeicon) nodeFolder
 	}
-
+	set itk_option(-nodeicon) nodeFolder
     } else {
 	if {[lsearch [image names] $itk_option(-nodeicon)] == -1} {
 	    error "bad nodeicon option \"$itk_option(-nodeicon)\":\
@@ -664,7 +749,7 @@ configbody iwidgets::Hierarchy::nodeicon {
 # to be applied which administers geometry constraints in a different
 # manner.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::width {
+itcl::configbody iwidgets::Hierarchy::width {
     if {$itk_option(-width) != 0} {
 	set shell [lindex [grid info $itk_component(clipper)] 1]
 
@@ -697,7 +782,7 @@ configbody iwidgets::Hierarchy::width {
 # to be applied which administers geometry constraints in a different
 # manner.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::height {
+itcl::configbody iwidgets::Hierarchy::height {
     if {$itk_option(-height) != 0} {
 	set shell [lindex [grid info $itk_component(clipper)] 1]
 
@@ -732,7 +817,7 @@ configbody iwidgets::Hierarchy::height {
 # are applied to the scrolled text as a whole.  The text is 
 # compressed or expanded to maintain the geometry constraints.
 # ------------------------------------------------------------------
-configbody iwidgets::Hierarchy::visibleitems {
+itcl::configbody iwidgets::Hierarchy::visibleitems {
     if {[regexp {^[0-9]+x[0-9]+$} $itk_option(-visibleitems)]} {
 	if {($itk_option(-width) == 0) && \
 		($itk_option(-height) == 0)} {
@@ -761,6 +846,25 @@ configbody iwidgets::Hierarchy::visibleitems {
 }
 
 # ------------------------------------------------------------------
+# OPTION: -textmenuloadcommand
+#
+# Dynamically loads the popup menu based on what was selected.
+#
+# Douglas R. Howard, Jr.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Hierarchy::textmenuloadcommand {}
+
+# ------------------------------------------------------------------
+# OPTION: -imagemenuloadcommand
+#
+# Dynamically loads the popup menu based on what was selected.
+#
+# Douglas R. Howard, Jr.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Hierarchy::imagemenuloadcommand {}
+
+
+# ------------------------------------------------------------------
 #                         PUBLIC METHODS
 # ------------------------------------------------------------------
 
@@ -771,10 +875,13 @@ configbody iwidgets::Hierarchy::visibleitems {
 # The display will remain empty until the -filter or -querycommand 
 # options are set.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::clear {} {
+itcl::body iwidgets::Hierarchy::clear {} {
     $itk_component(list) configure -state normal -cursor watch
     $itk_component(list) delete 1.0 end
     $itk_component(list) configure -state disabled -cursor $itk_option(-cursor)
+
+    # Clear the tags
+    eval $itk_component(list) tag delete [$itk_component(list) tag names]
     
     catch {unset _nodes}
     catch {unset _text}
@@ -783,6 +890,16 @@ body iwidgets::Hierarchy::clear {} {
     catch {unset _states}
     catch {unset _images}
     catch {unset _indents}
+    catch {unset _marked}
+    catch {unset _selected}
+    set _markers  ""
+    set _posted   ""
+    set _ucounter 0
+    set _hcounter 0 
+
+    foreach mark [$itk_component(list) mark names] {
+        $itk_component(list) mark unset $mark
+    }
 
     return
 }
@@ -794,7 +911,7 @@ body iwidgets::Hierarchy::clear {} {
 # Selections may be cleared, added, removed, or queried.  The add and
 # remove options accept a series of unique ids.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::selection {op args} {
+itcl::body iwidgets::Hierarchy::selection {op args} {
     switch -- $op {
         clear {
             $itk_component(list) tag remove hilite 1.0 end
@@ -836,7 +953,7 @@ body iwidgets::Hierarchy::selection {op args} {
 # be cleared, added, removed, or queried.  The add and remove options 
 # accept a series of unique ids.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::mark {op args} {
+itcl::body iwidgets::Hierarchy::mark {op args} {
     switch -- $op {
         clear {
             $itk_component(list) tag remove lowlite 1.0 end
@@ -878,7 +995,7 @@ body iwidgets::Hierarchy::mark {op args} {
 # button when the item menu was posted.  Usually used by the code
 # in the item menu to figure out what item is being manipulated.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::current {} {
+itcl::body iwidgets::Hierarchy::current {} {
     return $_posted
 }
 
@@ -889,7 +1006,7 @@ body iwidgets::Hierarchy::current {} {
 # a moment for large hierarchies, the cursor will be changed to a watch
 # during the expansion.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::expand {node} {
+itcl::body iwidgets::Hierarchy::expand {node} {
     if {! [info exists _states($node)]} {
 	error "bad expand node argument: \"$node\", the node doesn't exist"
     }
@@ -936,7 +1053,7 @@ body iwidgets::Hierarchy::expand {node} {
 # take a moment for large hierarchies, the cursor will be changed to a 
 # watch during the expansion.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::collapse {node} {
+itcl::body iwidgets::Hierarchy::collapse {node} {
     if {! [info exists _states($node)]} {
 	error "bad collapse node argument: \"$node\", the node doesn't exist"
     }
@@ -966,7 +1083,7 @@ body iwidgets::Hierarchy::collapse {node} {
 # Toggles the hierarchy beneath the specified node.  If the hierarchy
 # is currently expanded, then it is collapsed, and vice-versa.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::toggle {node} {
+itcl::body iwidgets::Hierarchy::toggle {node} {
     if {! [info exists _states($node)]} {
 	error "bad toggle node argument: \"$node\", the node doesn't exist"
     }
@@ -983,7 +1100,7 @@ body iwidgets::Hierarchy::toggle {node} {
 #
 # Removes a particular node from the hierarchy.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::prune {node} {
+itcl::body iwidgets::Hierarchy::prune {node} {
     #
     # While we're working, change the state and cursor so we can
     # edit the text and give a busy visual clue.
@@ -1044,10 +1161,10 @@ body iwidgets::Hierarchy::prune {node} {
 #
 # Performs a complete draw of the entire hierarchy.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::draw {{when -now}} {
+itcl::body iwidgets::Hierarchy::draw {{when -now}} {
     if {$when == "-eventually"} {
         if {$_pending == ""} {
-            set _pending [after idle [code $this draw -now]]
+            set _pending [after idle [itcl::code $this draw -now]]
         }
         return
     } elseif {$when != "-now"} {
@@ -1076,7 +1193,7 @@ body iwidgets::Hierarchy::draw {{when -now}} {
 # Performs a redraw of a specific node.  If that node is currently 
 # not visible, then no action is taken.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::refresh {node} {
+itcl::body iwidgets::Hierarchy::refresh {node} {
     if {! [info exists _nodes($node)]} {
 	error "bad refresh node argument: \"$node\", the node doesn't exist"
     }
@@ -1118,7 +1235,7 @@ body iwidgets::Hierarchy::refresh {node} {
 # Returns four element list describing the bounding box for the list
 # item at index
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::bbox {index} {
+itcl::body iwidgets::Hierarchy::bbox {index} {
     return [$itk_component(list) bbox $index]
 }
 
@@ -1127,7 +1244,7 @@ body iwidgets::Hierarchy::bbox {index} {
 #
 # Compare indices according to relational operator.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::compare {index1 op index2} {
+itcl::body iwidgets::Hierarchy::compare {index1 op index2} {
     return [$itk_component(list) compare $index1 $op $index2]
 }
 
@@ -1136,7 +1253,7 @@ body iwidgets::Hierarchy::compare {index1 op index2} {
 #
 # Delete a range of characters from the text.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::delete {first {last {}}} {
+itcl::body iwidgets::Hierarchy::delete {first {last {}}} {
     $itk_component(list) configure -state normal -cursor watch
     $itk_component(list) delete $first $last
     $itk_component(list) configure -state disabled -cursor $itk_option(-cursor)
@@ -1148,7 +1265,7 @@ body iwidgets::Hierarchy::delete {first {last {}}} {
 # Returns information about the contents of the text widget from 
 # index1 to index2.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::dump {args} {
+itcl::body iwidgets::Hierarchy::dump {args} {
     return [eval $itk_component(list) dump $args]
 }
 
@@ -1158,7 +1275,7 @@ body iwidgets::Hierarchy::dump {args} {
 # Returns a five element list describing the area occupied by the
 # display line containing index.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::dlineinfo {index} {
+itcl::body iwidgets::Hierarchy::dlineinfo {index} {
     return [$itk_component(list) dlineinfo $index]
 }
 
@@ -1167,7 +1284,7 @@ body iwidgets::Hierarchy::dlineinfo {index} {
 #
 # Return text from start index to end index.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::get {index1 {index2 {}}} {
+itcl::body iwidgets::Hierarchy::get {index1 {index2 {}}} {
     return [$itk_component(list) get $index1 $index2]
 }
 
@@ -1176,7 +1293,7 @@ body iwidgets::Hierarchy::get {index1 {index2 {}}} {
 #
 # Return position corresponding to index.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::index {index} {
+itcl::body iwidgets::Hierarchy::index {index} {
     return [$itk_component(list) index $index]
 }
 
@@ -1185,7 +1302,7 @@ body iwidgets::Hierarchy::index {index} {
 #
 # Insert text at index.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::insert {args} {
+itcl::body iwidgets::Hierarchy::insert {args} {
     $itk_component(list) configure -state normal -cursor watch
     eval $itk_component(list) insert $args
     $itk_component(list) configure -state disabled -cursor $itk_option(-cursor)
@@ -1196,7 +1313,7 @@ body iwidgets::Hierarchy::insert {args} {
 #
 # Implements scanning on texts.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::scan {option args} {
+itcl::body iwidgets::Hierarchy::scan {option args} {
     eval $itk_component(list) scan $option $args
 }
 
@@ -1205,7 +1322,7 @@ body iwidgets::Hierarchy::scan {option args} {
 #
 # Searches the text for characters matching a pattern.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::search {args} {
+itcl::body iwidgets::Hierarchy::search {args} {
     return [eval $itk_component(list) search $args]
 }
 
@@ -1215,7 +1332,7 @@ body iwidgets::Hierarchy::search {args} {
 # Adjusts the view in the window so the character at index is 
 # visible.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::see {index} {
+itcl::body iwidgets::Hierarchy::see {index} {
     $itk_component(list) see $index
 }
 
@@ -1224,7 +1341,7 @@ body iwidgets::Hierarchy::see {index} {
 #
 # Manipulate tags dependent on options.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::tag {op args} {
+itcl::body iwidgets::Hierarchy::tag {op args} {
     return [eval $itk_component(list) tag $op $args]
 }
 
@@ -1233,7 +1350,7 @@ body iwidgets::Hierarchy::tag {op args} {
 #
 # Manipulate embedded windows.
 # ------------------------------------------------------------------
-body iwidgets::Hierarchy::window {option args} {
+itcl::body iwidgets::Hierarchy::window {option args} {
     return [eval $itk_component(list) window $option $args]
 }
 
@@ -1242,7 +1359,7 @@ body iwidgets::Hierarchy::window {option args} {
 #
 # Thin wrap of the text widget's xview command.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::xview {args} {
+itcl::body iwidgets::Hierarchy::xview {args} {
     return [eval itk_component(list) xview $args]
 }
 
@@ -1251,8 +1368,49 @@ body iwidgets::Hierarchy::xview {args} {
 #
 # Thin wrap of the text widget's yview command.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::yview {args} {
+itcl::body iwidgets::Hierarchy::yview {args} {
     return [eval $itk_component(list) yview $args]
+}
+
+# ----------------------------------------------------------------------
+# PUBLIC METHOD: expanded node
+#
+# Tells if a node is expanded or collapsed
+#
+# Douglas R. Howard, Jr.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::expanded {node} {
+    if {! [info exists _states($node)]} {
+	error "bad collapse node argument: \"$node\", the node doesn't exist"
+    }
+    
+    return $_states($node)
+}
+
+# ----------------------------------------------------------------------
+# PUBLIC METHOD: expState
+#
+# Returns a list of all expanded nodes
+#
+# Douglas R. Howard, Jr.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::expState {} {
+    set nodes [_contents ""]
+    set open ""
+    set i 0
+    while {1} {
+	if {[info exists _states([lindex $nodes $i])] &&
+	$_states([lindex $nodes $i])} {
+	    lappend open [lindex $nodes $i]
+	    foreach child [_contents [lindex $nodes $i]] {
+		lappend nodes $child
+	    }
+	}
+	incr i
+	if {$i >= [llength $nodes]} {break}
+    }
+    
+    return $open
 }
 
 # ------------------------------------------------------------------
@@ -1266,7 +1424,7 @@ body iwidgets::Hierarchy::yview {args} {
 # Draws all of the nodes under node, using the indent string to
 # indent nodes.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_drawLevel {node indent} {
+itcl::body iwidgets::Hierarchy::_drawLevel {node indent} {
     lappend _markers "$node:start" [$itk_component(list) index insert]
     set bg [$itk_component(list) cget -background]
 
@@ -1331,7 +1489,13 @@ body iwidgets::Hierarchy::_drawLevel {node indent} {
 	    # its expanded/collapsed state.
 	    #
 	    label $_images($child) -image $icon -background $bg 
-	    bind $_images($child) <ButtonPress-1> [code $this toggle $child]
+	    # DRH - enhanced and added features that handle image clicking,
+	    # double clicking, and right clicking behavior
+	    bind $_images($child) <ButtonPress-1> \
+	      "[itcl::code $this toggle $child]; [itcl::code $this _imageSelect $child]"
+	    bind $_images($child) <Double-1> [itcl::code $this _imageDblClick $child]
+	    bind $_images($child) <ButtonPress-3> \
+	      [itcl::code $this _imagePost $child $_images($child) $type %x %y]
 	    $itk_component(list) window create insert -window $_images($child)
 
 	    #
@@ -1351,8 +1515,14 @@ body iwidgets::Hierarchy::_drawLevel {node indent} {
 			label $wid -image $image -background $bg 
 		    }
 
+		    # DRH - this will bind events to the icons to allow
+		    # clicking, double clicking, and right clicking actions.
 		    bind $wid <ButtonPress-1> \
-			[code $this _iconSelect $child $image]
+			    [itcl::code $this _iconSelect $child $image]
+		    bind $wid <Double-1> \
+			    [itcl::code $this _iconDblSelect $child $image]
+		    bind $wid <ButtonPress-3> \
+			    [itcl::code $this _imagePost $child $wid $type %x %y]
 		    $itk_component(list) window create insert -window $wid
 		}
 	    }
@@ -1368,6 +1538,11 @@ body iwidgets::Hierarchy::_drawLevel {node indent} {
 	    if {[info exists _selected($child)]} {
 		lappend texttags hilite
 	    } 
+
+            # The following conditional added for SF ticket #600941.
+            if {[info exists _marked($child)]} { 
+                lappend texttags lowlite 
+            } 
 
 	    foreach tag $_tags($child) {
 		lappend texttags $tag
@@ -1391,6 +1566,7 @@ body iwidgets::Hierarchy::_drawLevel {node indent} {
 		set firstline 0
 	    }
 
+	    $itk_component(list) tag raise $child
 	    lappend _markers "$child:start" [$itk_component(list) index insert]
 
 	    #
@@ -1421,9 +1597,12 @@ body iwidgets::Hierarchy::_drawLevel {node indent} {
 #
 # {{uid [text [tags [icons]]]} {uid [text [tags [icons]]]} ...}
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_contents {uid} {
-    if {! $itk_option(-alwaysquery) && [info exists _nodes($uid)]} {
-        return $_nodes($uid)
+itcl::body iwidgets::Hierarchy::_contents {uid} {
+    if {$itk_option(-alwaysquery)} {
+    } else {
+      if {[info exists _nodes($uid)]} {
+          return $_nodes($uid)
+      }
     }
 
     # 
@@ -1484,9 +1663,9 @@ body iwidgets::Hierarchy::_contents {uid} {
 # relative to the widget.  If (x,y) is on an item, then the itemMenu
 # component is posted.  Otherwise, the bgMenu is posted.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_post {x y} {
-    set rx [expr [winfo rootx $itk_component(list)]+$x]
-    set ry [expr [winfo rooty $itk_component(list)]+$y]
+itcl::body iwidgets::Hierarchy::_post {x y} {
+    set rx [expr {[winfo rootx $itk_component(list)]+$x}]
+    set ry [expr {[winfo rooty $itk_component(list)]+$y}]
 
     set index [$itk_component(list) index @$x,$y]
 
@@ -1508,10 +1687,48 @@ body iwidgets::Hierarchy::_post {x y} {
     # If we have tags then do the popup at this position.
     #
     if {$_posted != {}} {
+	# DRH - here is where the user's function for dynamic popup
+	# menu loading is done, if the user has specified to do so with the
+	# "-textmenuloadcommand"
+	if {$itk_option(-textmenuloadcommand) != {}} {
+	    eval $itk_option(-textmenuloadcommand)
+	}
 	tk_popup $itk_component(itemMenu) $rx $ry
     } else {
 	tk_popup $itk_component(bgMenu) $rx $ry
     }
+}
+
+# ----------------------------------------------------------------------
+# PROTECTED METHOD: _imagePost node image type x y
+#
+# Used internally to post the popup menu at the coordinate (x,y)
+# relative to the widget.  If (x,y) is on an image, then the itemMenu
+# component is posted.
+#
+# Douglas R. Howard, Jr.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::_imagePost {node image type x y} {
+    set rx [expr {[winfo rootx $image]+$x}]
+    set ry [expr {[winfo rooty $image]+$y}]
+
+    #
+    # The posted variable will hold the list of tags which exist at
+    # this x,y position that will be passed back to the user.  They
+    # don't need to know about our internal tags, info, hilite, and
+    # lowlite, so remove them from the list.
+    # 
+    set _posted {}
+
+    lappend _posted $node $type
+
+    #
+    # If we have tags then do the popup at this position.
+    #
+    if {$itk_option(-imagemenuloadcommand) != {}} {
+	eval $itk_option(-imagemenuloadcommand)
+    }
+    tk_popup $itk_component(itemMenu) $rx $ry
 }
 
 # ----------------------------------------------------------------------
@@ -1524,7 +1741,7 @@ body iwidgets::Hierarchy::_post {x y} {
 # appears, a boolean value representing the current selection state
 # will be substituted.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_select {x y} {
+itcl::body iwidgets::Hierarchy::_select {x y} {
     if {$itk_option(-selectcommand) != {}} {
 	if {[set seltags [$itk_component(list) tag names @$x,$y]] != {}} {
 	    foreach tag $seltags {
@@ -1540,6 +1757,44 @@ body iwidgets::Hierarchy::_select {x y} {
 	    }
 
 	    set cmd $itk_option(-selectcommand)
+	    regsub -all {%n} $cmd [lindex $node end] cmd
+	    regsub -all {%s} $cmd [list $selectstatus] cmd
+
+	    uplevel #0 $cmd
+	}
+    }
+
+    return
+}
+
+# ----------------------------------------------------------------------
+# PROTECTED METHOD: _double x y
+#
+# Used internally to double click an item at the coordinate (x,y) relative 
+# to the widget.  The command associated with the -dblclickcommand
+# option is execute following % character substitutions.  If %n
+# appears in the command, the selected node is substituted.  If %s
+# appears, a boolean value representing the current selection state
+# will be substituted.
+#
+# Douglas R. Howard, Jr.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::_double {x y} {
+    if {$itk_option(-dblclickcommand) != {}} {
+	if {[set seltags [$itk_component(list) tag names @$x,$y]] != {}} {
+	    foreach tag $seltags {
+		if {![_isInternalTag $tag]} {
+		    lappend node $tag
+		}
+	    }
+
+	    if {[lsearch $seltags "hilite"] == -1} {
+		set selectstatus 0
+	    } else {
+		set selectstatus 1
+	    }
+
+	    set cmd $itk_option(-dblclickcommand)
 	    regsub -all {%n} $cmd [list $node] cmd
 	    regsub -all {%s} $cmd [list $selectstatus] cmd
 
@@ -1555,8 +1810,10 @@ body iwidgets::Hierarchy::_select {x y} {
 #
 # Used internally to upon selection of user icons.  The -iconcommand
 # is executed after substitution of the node for %n and icon for %i.
+#
+# Douglas R. Howard, Jr.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_iconSelect {node icon} {
+itcl::body iwidgets::Hierarchy::_iconSelect {node icon} {
     set cmd $itk_option(-iconcommand)
     regsub -all {%n} $cmd [list $node] cmd
     regsub -all {%i} $cmd [list $icon] cmd
@@ -1567,12 +1824,68 @@ body iwidgets::Hierarchy::_iconSelect {node icon} {
 }
 
 # ----------------------------------------------------------------------
+# PROTECTED METHOD: _iconDblSelect node icon
+#
+# Used internally to upon double selection of user icons.  The 
+# -icondblcommand is executed after substitution of the node for %n and 
+# icon for %i.
+#
+# Douglas R. Howard, Jr.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::_iconDblSelect {node icon} {
+    if {$itk_option(-icondblcommand) != {}} {
+	set cmd $itk_option(-icondblcommand)
+	regsub -all {%n} $cmd [list $node] cmd
+	regsub -all {%i} $cmd [list $icon] cmd
+	
+	uplevel \#0 $cmd
+    }
+    return {}
+}
+
+# ----------------------------------------------------------------------
+# PROTECTED METHOD: _imageSelect node icon
+#
+# Used internally to upon selection of user icons.  The -imagecommand
+# is executed after substitution of the node for %n.
+#
+# Douglas R. Howard, Jr.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::_imageSelect {node} {
+    if {$itk_option(-imagecommand) != {}} {
+	set cmd $itk_option(-imagecommand)
+	regsub -all {%n} $cmd [list $node] cmd
+	
+	uplevel \#0 $cmd
+    }
+    return {}
+}
+
+# ----------------------------------------------------------------------
+# PROTECTED METHOD: _imageDblClick node
+#
+# Used internally to upon double selection of images.  The 
+# -imagedblcommand is executed.
+#
+# Douglas R. Howard, Jr.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::_imageDblClick {node} {
+    if {$itk_option(-imagedblcommand) != {}} {
+	set cmd $itk_option(-imagedblcommand)
+	regsub -all {%n} $cmd [list $node] cmd
+	
+	uplevel \#0 $cmd
+    }
+    return {}
+}
+
+# ----------------------------------------------------------------------
 # PROTECTED METHOD: _deselectSubNodes uid
 #
 # Used internally to recursively deselect all the nodes beneath a 
 # particular node.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_deselectSubNodes {uid} {
+itcl::body iwidgets::Hierarchy::_deselectSubNodes {uid} {
     foreach node $_nodes($uid) {
 	if {[array names _selected $node] != {}} {
 	    unset _selected($node)
@@ -1590,7 +1903,7 @@ body iwidgets::Hierarchy::_deselectSubNodes {uid} {
 # Used internally to recursively delete all the information about a
 # node and its decendents.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_deleteNodeInfo {uid} {
+itcl::body iwidgets::Hierarchy::_deleteNodeInfo {uid} {
     #
     # Recursively call ourseleves as we go down the hierarchy beneath
     # this node.
@@ -1620,7 +1933,7 @@ body iwidgets::Hierarchy::_deleteNodeInfo {uid} {
 #
 # Used internally to determine the parent for a node.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_getParent {uid} {
+itcl::body iwidgets::Hierarchy::_getParent {uid} {
     foreach node [array names _nodes] {
 	if {[set index [lsearch $_nodes($node) $uid]] != -1} {
 	    return $node
@@ -1633,7 +1946,7 @@ body iwidgets::Hierarchy::_getParent {uid} {
 #
 # Used internally to determine the list of parents for a node.
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_getHeritage {uid} {
+itcl::body iwidgets::Hierarchy::_getHeritage {uid} {
     set parents {}
 
     if {[set parent [_getParent $uid]] != {}} {
@@ -1648,7 +1961,23 @@ body iwidgets::Hierarchy::_getHeritage {uid} {
 #
 # Used internally to tags not to used for user callback commands
 # ----------------------------------------------------------------------
-body iwidgets::Hierarchy::_isInternalTag {tag} {
-   set ii [expr [lsearch -exact {info hilite lowlite unknown} $tag] != -1];
+itcl::body iwidgets::Hierarchy::_isInternalTag {tag} {
+   set ii [expr {[lsearch -exact {info hilite lowlite unknown} $tag] != -1}];
    return $ii;
+}
+
+# ----------------------------------------------------------------------
+# PRIVATE METHOD: _configureTags
+#
+# This method added to fix SF ticket #596111.  When the -querycommand
+# is reset after initial construction, the text component loses its
+# tag configuration.  This method resets the hilite, lowlite, and info
+# tags.  csmith: 9/5/02
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Hierarchy::_configureTags {} {
+  tag configure hilite -background $itk_option(-selectbackground) \
+    -foreground $itk_option(-selectforeground)
+  tag configure lowlite -background $itk_option(-markbackground) \
+    -foreground $itk_option(-markforeground)
+  tag configure info -font $itk_option(-font) -spacing1 6
 }

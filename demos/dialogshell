@@ -1,19 +1,14 @@
-#!/bin/sh
 # ----------------------------------------------------------------------
 #  DEMO: dialogshell in [incr Widgets]
 # ----------------------------------------------------------------------
-#\
-exec itkwish "$0" ${1+"$@"}
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
-# itkwish interprets the rest...
-# ----------------------------------------------------------------------
 iwidgets::radiobox .rb -labeltext "Use modality to\nlock up your\napplication:"
 pack .rb -padx 4 -pady 4
 
-.rb add none -text "none"
-.rb add application -text "application"
-.rb add global -text "global"
+.rb add none -text "-modality none"
+.rb add application -text "-modality application"
+.rb add global -text "-modality global"
 .rb select none
 
 button .activate -text "Push Me" -command {

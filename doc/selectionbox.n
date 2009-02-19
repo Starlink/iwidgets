@@ -5,26 +5,27 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) selectionbox.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS selectionbox iwid
+.HS iwidgets::selectionbox iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-selectionbox \- Create and manipulate a selection box widget
+iwidgets::selectionbox \- Create and manipulate a selection box widget
 .SH SYNOPSIS
-\fBselectionbox\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::selectionbox\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- selectionbox
+itk::Widget <- iwidgets::Selectionbox
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR
-\fBexportSelection\fR	\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR
-\fBinsertBackground\fR	\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR
-\fBinsertWidth\fR	\fBrelief\fR	\fBrepeatDelay\fR	\fBrepeatInterval\fR
-\fBselectBackground\fR	\fBselectBorderWidth\fR	\fBselectForeground\fR
+\fB
+activeBackground  background         borderWidth     cursor
+exportSelection   foreground         highlightColor  highlightThickness
+insertBackground  insertBorderWidth  insertOffTime   insertOnTime
+insertWidth       relief             repeatDelay     repeatInterval
+selectBackground  selectBorderWidth  selectForeground\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -177,7 +178,7 @@ any of the forms acceptable to Tk_GetPixels.  The default is 260 pixels.
 
 .SH DESCRIPTION
 .PP
-The \fBselectionbox\fR command creates a scrolled list of items and
+The \fBiwidgets::selectionbox\fR command creates a scrolled list of items and
 a selection entry field.  The user may choose any of the items displayed
 in the scrolled list of alternatives and the selection field will be
 filled with the choice.  The user is also free to enter a new value in
@@ -187,7 +188,7 @@ to be used in conjunction with the selection box.
 
 .SH "METHODS"
 .PP
-The \fBselectionbox\fR command creates a new Tcl command whose
+The \fBiwidgets::selectionbox\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -213,7 +214,7 @@ associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBselectionbox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::selectionbox\fR
 command.
 .TP
 \fIpathName \fBchildsite\fR
@@ -235,7 +236,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBselectionbox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::selectionbox\fR
 command.
 .TP
 \fIpathName \fBget\fR
@@ -282,9 +283,10 @@ widget manual entry for details on the selection component item.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  option add *textBackground white
 
- selectionbox .sb -items {Hello {Out There} World}
+ iwidgets::selectionbox .sb -items {Hello {Out There} World}
  pack .sb -padx 10 -pady 10 -fill both -expand yes 
 
  set cs [label [.sb childsite].label -text "Child Site"]

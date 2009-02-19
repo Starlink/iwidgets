@@ -5,26 +5,27 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) finddialog.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS finddialog iwid
+.HS iwidgets::finddialog iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-finddialog \- Create and manipulate a find dialog widget
+iwidgets::finddialog \- Create and manipulate a find dialog widget
 .SH SYNOPSIS
-\fBfinddialog\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::finddialog\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Toplevel <- Shell <- Dialogshell <- Finddialog
+itk::Toplevel <- iwidgets::Shell <- iwidgets::Dialogshell <- iwidgets::Finddialog
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBactiveForeground\fR	\fBbackground\fR	\fBborderWidth\fR
-\fBcursor\fR	\fBdisabledForeground\fR	\fBfont\fR	\fBforeground\fR
-\fBhighlightColor\fR	\fBhighlightThickness\fR	\fBinsertBackground\fR	\fBinsertBorderWidth\fR
-\fBinsertOffTime\fR	\fBinsertOnTime\fR	\fBinsertWidth\fR	\fBselectBackground\fR
-\fBselectBorderWidth\fR	\fBselectColor\fR	\fBselectForeground\fR
+\fB
+activeBackground   activeForeground    background        borderWidth
+cursor             disabledForeground  font              foreground
+highlightColor     highlightThickness  insertBackground  insertBorderWidth
+insertOffTime      insertOnTime        insertWidth       selectBackground
+selectBorderWidth  selectColor         selectForeground\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -157,7 +158,7 @@ Specifies the text or scrolledtext widget to be searched.
 
 .SH DESCRIPTION
 .PP
-The \fBfinddialog\fR command creates a find dialog that works in
+The \fBiwidgets::finddialog\fR command creates a find dialog that works in
 conjunction with a text or scrolledtext widget to provide a means
 of performing search operations.  The user is prompted for a text 
 pattern to be found in the text or scrolledtext widget.  The 
@@ -166,7 +167,7 @@ of the case, or backwards.
 
 .SH "METHODS"
 .PP
-The \fBfinddialog\fR command creates a new Tcl command whose
+The \fBiwidgets::finddialog\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -199,7 +200,7 @@ inherited methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBfinddialog\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::finddialog\fR
 command.
 .TP
 \fIpathName \fBclear\fR
@@ -217,7 +218,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBfinddialog\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::finddialog\fR
 command.
 .TP
 \fIpathName \fBfind\fR
@@ -276,12 +277,13 @@ component item.
 
 .SH EXAMPLE
 .DS
- scrolledtext .st
+ package require Iwidgets 4.0
+ iwidgets::scrolledtext .st
  pack .st
  .st insert end "Now is the time for all good men\\n" 
  .st insert end "to come to the aid of their country"
 
- finddialog .fd -textwidget .st
+ iwidgets::finddialog .fd -textwidget .st
  .fd center .st
  .fd activate
 .DE

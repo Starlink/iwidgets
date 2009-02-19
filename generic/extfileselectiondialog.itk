@@ -10,7 +10,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts               EMAIL: mulferts@spd.dsccc.com
 #
-#  @(#) $Id: extfileselectiondialog.itk,v 1.2 1996/06/26 19:29:42 mulferts Exp $
+#  @(#) $Id: extfileselectiondialog.itk,v 1.3 2002/02/27 06:45:10 mgbacke Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -40,24 +40,24 @@
 #
 itk::usual Extfileselectiondialog {
     keep -activebackground -activerelief -background -borderwidth -cursor \
-	 -elementborderwidth -foreground -highlightcolor -highlightthickness \
-	 -insertbackground -insertborderwidth -insertofftime -insertontime \
-	 -insertwidth -jump -labelfont -modality -selectbackground \
-	 -selectborderwidth -textbackground -textfont 
+     -elementborderwidth -foreground -highlightcolor -highlightthickness \
+     -insertbackground -insertborderwidth -insertofftime -insertontime \
+     -insertwidth -jump -labelfont -modality -selectbackground \
+     -selectborderwidth -textbackground -textfont 
 }
 
 # ------------------------------------------------------------------
 #                        EXTFILESELECTIONDIALOG
 # ------------------------------------------------------------------
-class iwidgets::Extfileselectiondialog {
+itcl::class iwidgets::Extfileselectiondialog {
     inherit iwidgets::Dialog
 
     constructor {args} {}
 
     public {
-	method childsite {}
-	method get {}
-	method filter {}
+    method childsite {}
+    method get {}
+    method filter {}
     }
 
     protected method _dbldir {}
@@ -85,7 +85,7 @@ option add *Extfileselectiondialog.master "." widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Extfileselectiondialog::constructor {args} {
+itcl::body iwidgets::Extfileselectiondialog::constructor {args} {
     component hull configure -borderwidth 0
     itk_option add hull.width hull.height
     
@@ -99,34 +99,34 @@ body iwidgets::Extfileselectiondialog::constructor {args} {
     # Instantiate a file selection box widget.
     #
     itk_component add fsb {
-	iwidgets::Extfileselectionbox $itk_interior.fsb -width 150 -height 150 \
-		-selectioncommand [code $this invoke] \
-	        -selectdircommand [code $this default Apply] \
-	        -selectfilecommand [code $this default OK]
+    iwidgets::Extfileselectionbox $itk_interior.fsb -width 150 -height 150 \
+        -selectioncommand [itcl::code $this invoke] \
+            -selectdircommand [itcl::code $this default Apply] \
+            -selectfilecommand [itcl::code $this default OK]
     } {
-	usual
+    usual
 
-	keep -labelfont -childsitepos -directory -dirslabel \
-	    -dirsearchcommand -dirson -fileslabel -fileson \
-	    -filesearchcommand -filterlabel -filteron \
-	    -filetype -invalid -mask -nomatchstring \
-	    -selectionlabel -selectionon
+    keep -labelfont -childsitepos -directory -dirslabel \
+        -dirsearchcommand -dirson -fileslabel -fileson \
+        -filesearchcommand -filterlabel -filteron \
+        -filetype -invalid -mask -nomatchstring \
+        -selectionlabel -selectionon -sashcursor
     }
     grid $itk_component(fsb) -sticky nsew
     grid rowconfigure $itk_interior 0 -weight 1
     grid columnconfigure $itk_interior 0 -weight 1
     
     $itk_component(fsb) component filter configure \
-	-focuscommand [code $this default Apply]
+    -focuscommand [itcl::code $this default Apply]
     $itk_component(fsb) component selection configure \
-	-focuscommand [code $this default OK]
+    -focuscommand [itcl::code $this default OK]
     $itk_component(fsb) component dirs configure \
-		-dblclickcommand [code $this _dbldir]
+        -dblclickcommand [itcl::code $this _dbldir]
     $itk_component(fsb) component files configure \
-		-dblclickcommand [code $this invoke] 
+        -dblclickcommand [itcl::code $this invoke] 
 
     buttonconfigure Apply -text "Filter" \
-	    -command [code $itk_component(fsb) filter]
+        -command [itcl::code $itk_component(fsb) filter]
     
     set itk_interior [$itk_component(fsb) childsite]
     
@@ -144,7 +144,7 @@ body iwidgets::Extfileselectiondialog::constructor {args} {
 #
 # Thinwrapped method of file selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Extfileselectiondialog::childsite {} {
+itcl::body iwidgets::Extfileselectiondialog::childsite {} {
     return [$itk_component(fsb) childsite]
 }
 
@@ -153,7 +153,7 @@ body iwidgets::Extfileselectiondialog::childsite {} {
 #
 # Thinwrapped method of file selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Extfileselectiondialog::get {} {
+itcl::body iwidgets::Extfileselectiondialog::get {} {
     return [$itk_component(fsb) get]
 }
 
@@ -162,7 +162,7 @@ body iwidgets::Extfileselectiondialog::get {} {
 #
 # Thinwrapped method of file selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Extfileselectiondialog::filter {} {
+itcl::body iwidgets::Extfileselectiondialog::filter {} {
     return [$itk_component(fsb) filter]
 }
 
@@ -172,9 +172,9 @@ body iwidgets::Extfileselectiondialog::filter {} {
 # Double select in directory list.  If the files list is on then
 # make the default button the filter and invoke.  If not, just invoke.
 # ------------------------------------------------------------------
-body iwidgets::Extfileselectiondialog::_dbldir {} {
+itcl::body iwidgets::Extfileselectiondialog::_dbldir {} {
     if {$itk_option(-fileson)} {
-	default Apply
+    default Apply
     }
 
     invoke

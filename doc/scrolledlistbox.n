@@ -5,24 +5,25 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) scrolledlistbox.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS scrolledlistbox iwid
+.HS iwidgets::scrolledlistbox iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-scrolledlistbox \- Create and manipulate scrolled listbox widgets
+iwidgets::scrolledlistbox \- Create and manipulate scrolled listbox widgets
 .SH SYNOPSIS
-\fBscrolledlistbox\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::scrolledlistbox\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- Scrolledwidget <- Scrolledlistbox
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Scrolledwidget <- iwidgets::Scrolledlistbox
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR
-\fBexportSelection\fR	\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR
-\fBrelief\fR	\fBselectBackground\fR	\fBselectBorderWidth\fR	\fBselectForeground\fR	
+\fB
+activeBackground  background        borderWidth        cursor
+exportSelection   foreground        highlightColor     highlightThickness
+relief            selectBackground  selectBorderWidth  selectForeground\fR	
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -30,7 +31,7 @@ See the "options" manual entry for details on the standard options.
 .LP
 .nf
 .ta 4c 8c 12c
-\fBselectMode\fR
+\fBselectMode\fR	\fBlistvariable\fR
 .fi
 .LP
 See the "listbox" widget manual entry for details on the above
@@ -49,7 +50,7 @@ associated options.
 .ta 4c 8c 12c
 \fBdisabledForeground\fR	\fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR
 \fBlabelMargin\fR	\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
-\fBstate\fR
+\fBstate\fR	\fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" class manual entry for details on the inherited 
@@ -196,7 +197,7 @@ manner.  The default width is zero.
 
 .SH DESCRIPTION
 .PP
-The \fBscrolledlistbox\fR command creates 
+The \fBiwidgets::scrolledlistbox\fR command creates 
 a scrolled listbox with additional options to manage
 horizontal and vertical scrollbars.  This includes options to control
 which scrollbars are displayed and the method, i.e. statically or
@@ -204,7 +205,7 @@ dynamically.
 
 .SH "METHODS"
 .PP
-The \fBscrolledlistbox\fR command creates a new Tcl command whose
+The \fBiwidgets::scrolledlistbox\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -257,9 +258,9 @@ The following widget commands are possible for scrolledlistbox widgets:
 .nf
 .ta 4c 8c 12c
 \fBactivate\fR	\fBbbox\fR	\fBcurselection\fR	\fBdelete\fR
-\fBget\fR	\fBindex\fR	\fBinsert\fR	\fBnearest\fR
-\fBscan\fR	\fBsee\fR	\fBselection\fR	\fBsize\fR
-\fBxview\fR	\fByview\fR
+\fBget\fR	\fBindex\fR	\fBinsert\fR	\fBitemconfigure\fR
+\fBnearest\fR	\fBscan\fR	\fBsee\fR	\fBselection\fR
+\fBsize\fR	\fBxview\fR	\fByview\fR
 .fi
 .LP
 See the "listbox" manual entry for details on the associated methods.
@@ -269,7 +270,7 @@ See the "listbox" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBscrolledlistbox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::scrolledlistbox\fR
 command.
 .TP
 \fIpathName \fBclear\fR
@@ -286,7 +287,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBscrolledlistbox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::scrolledlistbox\fR
 command.
 .TP
 \fIpathName \fBgetcurselection\fR
@@ -302,8 +303,8 @@ Justifies the list contents via teh scroll bars in one of four directions:
 Returns the number of items currently selected in the list.
 .TP
 \fIpathName \fBsort\fR \fIorder\fR
-Sort the current list in either \fBascending\fR or \fBdescending\fR order.  
-The values \fBincreasing\fR and \fBdecreasing\fR are also accepted.
+Sort the current list in any of the forms accepted by Tcl's lsort command.
+Also accepts either \fBascending\fR or \fBdescending\fR order.  
 
 .SH "COMPONENTS"
 .LP
@@ -334,6 +335,7 @@ manual entry for details on the vertsb component item.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  option add *textBackground white
  proc selCmd {} {
     puts stdout "[.slb getcurselection]"
@@ -342,7 +344,7 @@ manual entry for details on the vertsb component item.
     puts stdout "Double Click"
     return [selCmd]
  }
- scrolledlistbox .slb -selection single \\
+ iwidgets::scrolledlistbox .slb -selection single \\
     -vscrollmode static -hscrollmode dynamic -labeltext "List" \\
     -selectioncommand selCmd -dblclickcommand defCmd
  pack .slb -padx 10 -pady 10 -fill both -expand yes

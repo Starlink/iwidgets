@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts              EMAIL: mulferts@austin.dsccc.com
 #
-#  @(#) $Id: pane.itk,v 1.2 1996/07/12 16:15:11 mulferts Exp $
+#  @(#) $Id: pane.itk,v 1.3 2001/08/07 19:56:48 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -43,7 +43,7 @@ itk::usual Pane {
 # ------------------------------------------------------------------
 #                               PANE
 # ------------------------------------------------------------------
-class iwidgets::Pane {
+itcl::class iwidgets::Pane {
     inherit itk::Widget
 
     constructor {args} {}
@@ -64,7 +64,7 @@ proc ::iwidgets::pane {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Pane::constructor {args} {
+itcl::body iwidgets::Pane::constructor {args} {
     # 
     # Create the pane childsite.
     #
@@ -93,7 +93,7 @@ body iwidgets::Pane::constructor {args} {
 #
 # Specifies the minimum size that the pane may reach.
 # ------------------------------------------------------------------
-configbody iwidgets::Pane::minimum {
+itcl::configbody iwidgets::Pane::minimum {
     set pixels \
 	    [winfo pixels $itk_component(hull) $itk_option(-minimum)]
     
@@ -106,7 +106,7 @@ configbody iwidgets::Pane::minimum {
 # Specifies the border distance between the pane and pane contents.
 # This is done by setting the borderwidth of the pane to the margin.
 # ------------------------------------------------------------------
-configbody iwidgets::Pane::margin {
+itcl::configbody iwidgets::Pane::margin {
     set pixels [winfo pixels $itk_component(hull) $itk_option(-margin)]
     set itk_option(-margin) $pixels
     
@@ -123,6 +123,6 @@ configbody iwidgets::Pane::margin {
 #
 # Return the pane child site path name.
 # ------------------------------------------------------------------
-body iwidgets::Pane::childSite {} {
+itcl::body iwidgets::Pane::childSite {} {
     return $itk_component(childsite)
 }

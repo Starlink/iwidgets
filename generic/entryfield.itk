@@ -7,7 +7,7 @@
 #   AUTHOR:  Sue Yockey               E-mail: yockey@acm.org
 #            Mark L. Ulferts          E-mail: mulferts@austin.dsccc.com
 #
-#   @(#) $Id: entryfield.itk,v 1.7 1996/12/02 16:08:20 mulferts Exp $
+#   @(#) $Id: entryfield.itk,v 1.6 2001/09/17 19:24:46 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -46,7 +46,7 @@ itk::usual Entryfield {
 # ------------------------------------------------------------------
 #                            ENTRYFIELD
 # ------------------------------------------------------------------
-class iwidgets::Entryfield {
+itcl::class iwidgets::Entryfield {
     inherit iwidgets::Labeledwidget 
     
     constructor {args} {}
@@ -56,6 +56,7 @@ class iwidgets::Entryfield {
     itk_option define -fixed fixed Fixed 0
     itk_option define -focuscommand focusCommand Command {}
     itk_option define -invalid invalid Command {bell}
+    itk_option define -pasting pasting Behavior 1
     itk_option define -validate validate Command {}
     
     public {
@@ -84,6 +85,7 @@ class iwidgets::Entryfield {
     }
 
     private method _peek {char}
+    private method _checkLength {}
 }
 
 #
@@ -96,7 +98,7 @@ proc ::iwidgets::entryfield {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::constructor {args} {
+itcl::body iwidgets::Entryfield::constructor {args} {
     component hull configure -borderwidth 0
     
     itk_component add entry {
@@ -125,9 +127,9 @@ body iwidgets::Entryfield::constructor {args} {
     #
     # Entryfield instance bindings.
     #
-    bind $itk_component(entry) <KeyPress> [code $this _keyPress %A %K %s]
-    bind $itk_component(entry) <FocusIn> [code $this _focusCommand]
-    
+    bind $itk_component(entry) <KeyPress> [itcl::code $this _keyPress %A %K %s]
+    bind $itk_component(entry) <FocusIn> [itcl::code $this _focusCommand]
+
     #
     # Initialize the widget based on the command line options.
     #
@@ -143,21 +145,21 @@ body iwidgets::Entryfield::constructor {args} {
 #
 # Command associated upon detection of Return key press event
 # ------------------------------------------------------------------
-configbody iwidgets::Entryfield::command {}
+itcl::configbody iwidgets::Entryfield::command {}
 
 # ------------------------------------------------------------------
 # OPTION: -focuscommand
 #
 # Command associated upon detection of focus.
 # ------------------------------------------------------------------
-configbody iwidgets::Entryfield::focuscommand {}
+itcl::configbody iwidgets::Entryfield::focuscommand {}
 
 # ------------------------------------------------------------------
 # OPTION: -validate
 #
 # Specify a command to executed for the validation of Entryfields.
 # ------------------------------------------------------------------
-configbody iwidgets::Entryfield::validate {
+itcl::configbody iwidgets::Entryfield::validate {
     switch $itk_option(-validate) {
 	{} {
 	    set itk_option(-validate) {}
@@ -189,7 +191,40 @@ configbody iwidgets::Entryfield::validate {
 # Specify a command to executed should the current Entryfield contents
 # be proven invalid.
 # ------------------------------------------------------------------
-configbody iwidgets::Entryfield::invalid {}
+itcl::configbody iwidgets::Entryfield::invalid {}
+
+# ------------------------------------------------------------------
+# OPTION: -pasting
+#
+# Allows the developer to enable and disable pasting into the entry
+# component of the entryfield.  This is done to avoid potential stack
+# dumps when using the -validate configuration option.  Plus, it's just
+# a good idea to have complete control over what you allow the user
+# to enter into the entryfield.
+# ------------------------------------------------------------------
+itcl::configbody iwidgets::Entryfield::pasting {
+  set oldtags [bindtags $itk_component(entry)]
+  if {[lindex $oldtags 0] != "pastetag"} {
+    bindtags $itk_component(entry) [linsert $oldtags 0 pastetag] 
+  }
+
+  if ($itk_option(-pasting)) {
+    bind pastetag <ButtonRelease-2> [itcl::code $this _checkLength]
+    bind pastetag <Control-v> [itcl::code $this _checkLength]
+    bind pastetag <Insert> [itcl::code $this _checkLength]
+    bind pastetag <KeyPress> {}
+  } else {
+    bind pastetag <ButtonRelease-2> {break}
+    bind pastetag <Control-v> {break}
+    bind pastetag <Insert> {break}
+    bind pastetag <KeyPress> {
+      # Disable function keys > F9.
+      if {[regexp {^F[1,2][0-9]+$} "%K"]} {
+	break
+      }
+    }
+  }
+}
 
 # ------------------------------------------------------------------
 # OPTION: -fixed
@@ -200,7 +235,7 @@ configbody iwidgets::Entryfield::invalid {}
 # only be able to type -fixed number of characters into it (or 
 # unlimited if -fixed = 0).
 # ------------------------------------------------------------------
-configbody iwidgets::Entryfield::fixed {
+itcl::configbody iwidgets::Entryfield::fixed {
     if {[regexp {[^0-9]} $itk_option(-fixed)] || \
 	    ($itk_option(-fixed) < 0)} {
 	error "bad fixed option \"$itk_option(-fixed)\",\
@@ -213,7 +248,7 @@ configbody iwidgets::Entryfield::fixed {
 #
 # Specifies the position of the child site in the widget.
 # ------------------------------------------------------------------
-configbody iwidgets::Entryfield::childsitepos {
+itcl::configbody iwidgets::Entryfield::childsitepos {
     set parent [winfo parent $itk_component(entry)]
 
     switch $itk_option(-childsitepos) {
@@ -274,7 +309,7 @@ configbody iwidgets::Entryfield::childsitepos {
 #
 # Returns the path name of the child site widget.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::childsite {} {
+itcl::body iwidgets::Entryfield::childsite {} {
     return $itk_component(efchildsite)
 }
 
@@ -283,7 +318,7 @@ body iwidgets::Entryfield::childsite {} {
 #
 # Thin wrap of the standard entry widget get method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::get {} {
+itcl::body iwidgets::Entryfield::get {} {
     return [$itk_component(entry) get]
 }
 
@@ -292,7 +327,7 @@ body iwidgets::Entryfield::get {} {
 #
 # Thin wrap of the standard entry widget delete method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::delete {args} {
+itcl::body iwidgets::Entryfield::delete {args} {
     return [eval $itk_component(entry) delete $args]
 }
 
@@ -301,7 +336,7 @@ body iwidgets::Entryfield::delete {args} {
 #
 # Thin wrap of the standard entry widget icursor method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::icursor {args} {
+itcl::body iwidgets::Entryfield::icursor {args} {
     return [eval $itk_component(entry) icursor $args]
 }
 
@@ -310,7 +345,7 @@ body iwidgets::Entryfield::icursor {args} {
 #
 # Thin wrap of the standard entry widget index method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::index {args} {
+itcl::body iwidgets::Entryfield::index {args} {
     return [eval $itk_component(entry) index $args]
 }
 
@@ -319,7 +354,7 @@ body iwidgets::Entryfield::index {args} {
 #
 # Thin wrap of the standard entry widget index method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::insert {args} {
+itcl::body iwidgets::Entryfield::insert {args} {
     return [eval $itk_component(entry) insert $args]
 }
 
@@ -328,7 +363,7 @@ body iwidgets::Entryfield::insert {args} {
 #
 # Thin wrap of the standard entry widget scan method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::scan {args} {
+itcl::body iwidgets::Entryfield::scan {args} {
     return [eval $itk_component(entry) scan $args]
 }
 
@@ -337,7 +372,7 @@ body iwidgets::Entryfield::scan {args} {
 #
 # Thin wrap of the standard entry widget selection method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::selection {args} {
+itcl::body iwidgets::Entryfield::selection {args} {
     return [eval $itk_component(entry) selection $args]
 }
 
@@ -346,7 +381,7 @@ body iwidgets::Entryfield::selection {args} {
 #
 # Thin wrap of the standard entry widget xview method.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::xview {args} {
+itcl::body iwidgets::Entryfield::xview {args} {
     return [eval $itk_component(entry) xview $args]
 }
 
@@ -355,7 +390,7 @@ body iwidgets::Entryfield::xview {args} {
 #
 # Delete the current entry contents.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::clear {} {
+itcl::body iwidgets::Entryfield::clear {} {
     $itk_component(entry) delete 0 end
     icursor 0
 }
@@ -366,7 +401,7 @@ body iwidgets::Entryfield::clear {} {
 # The numeric procedure validates character input for a given 
 # Entryfield to be numeric and returns the result.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::numeric {char} {
+itcl::body iwidgets::Entryfield::numeric {char} {
     return [regexp {[0-9]} $char]
 }
 
@@ -376,7 +411,7 @@ body iwidgets::Entryfield::numeric {char} {
 # The integer procedure validates character input for a given 
 # Entryfield to be integer and returns the result.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::integer {string} {
+itcl::body iwidgets::Entryfield::integer {string} {
     return [regexp {^[-+]?[0-9]*$} $string]
 }
 
@@ -386,7 +421,7 @@ body iwidgets::Entryfield::integer {string} {
 # The alphabetic procedure validates character input for a given 
 # Entryfield to be alphabetic and returns the result.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::alphabetic {char} {
+itcl::body iwidgets::Entryfield::alphabetic {char} {
     return [regexp -nocase {[a-z]} $char]
 }
 
@@ -396,7 +431,7 @@ body iwidgets::Entryfield::alphabetic {char} {
 # The alphanumeric procedure validates character input for a given 
 # Entryfield to be alphanumeric and returns the result.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::alphanumeric {char} {
+itcl::body iwidgets::Entryfield::alphanumeric {char} {
     return [regexp -nocase {[0-9a-z]} $char]
 }
 
@@ -406,7 +441,7 @@ body iwidgets::Entryfield::alphanumeric {char} {
 # The hexidecimal procedure validates character input for a given 
 # Entryfield to be hexidecimal and returns the result.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::hexidecimal {string} {
+itcl::body iwidgets::Entryfield::hexidecimal {string} {
     return [regexp {^(0x)?[0-9a-fA-F]*$} $string]
 }
 
@@ -416,7 +451,7 @@ body iwidgets::Entryfield::hexidecimal {string} {
 # The real procedure validates character input for a given Entryfield
 # to be real and returns the result.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::real {string} {
+itcl::body iwidgets::Entryfield::real {string} {
     return [regexp {^[-+]?[0-9]*\.?[0-9]*([0-9]\.?[eE][-+]?[0-9]*)?$} $string]
 }
 
@@ -426,11 +461,11 @@ body iwidgets::Entryfield::real {string} {
 # The peek procedure returns the value of the Entryfield with the
 # char inserted at the insert position.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::_peek {char} {
+itcl::body iwidgets::Entryfield::_peek {char} {
     set str [get]
 
     set insertPos [index insert] 
-    set firstPart [string range $str 0 [expr $insertPos - 1]]
+    set firstPart [string range $str 0 [expr {$insertPos - 1}]]
     set lastPart [string range $str $insertPos end]
 
     regsub -all {\\} "$char" {\\\\} char
@@ -444,7 +479,7 @@ body iwidgets::Entryfield::_peek {char} {
 # Method bound to focus event which evaluates the current command
 # specified in the focuscommand option
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::_focusCommand {} {
+itcl::body iwidgets::Entryfield::_focusCommand {} {
     uplevel #0 $itk_option(-focuscommand)
 }
 
@@ -454,7 +489,7 @@ body iwidgets::Entryfield::_focusCommand {} {
 # Monitor the key press event checking for return keys, fixed width
 # specification, and optional validation procedures.
 # ------------------------------------------------------------------
-body iwidgets::Entryfield::_keyPress {char sym state} {
+itcl::body iwidgets::Entryfield::_keyPress {char sym state} {
     #
     # A Return key invokes the optionally specified command option.
     #
@@ -469,16 +504,37 @@ body iwidgets::Entryfield::_keyPress {char sym state} {
     if {($sym == "Tab") || ($sym == "BackSpace") || ($sym == "Delete")} {
 	return -code continue 1
     }
-    
+
     # 
     # Character is not printable or the state is greater than one which
     # means a modifier was used such as a control, meta key, or control
     # or meta key with numlock down.
     #
-    if {($char == "") || \
-	    ($state == 4) || ($state == 8) || \
-	    ($state == 36) || ($state == 40)} {
-	return -code continue 1
+    #-----------------------------------------------------------
+    # BUG FIX: csmith (Chad Smith: csmith@adc.com), 3/15/99
+    #-----------------------------------------------------------
+    # The following conditional used to hardcode specific state values, such
+    # as "4" and "8".  These values are used to detect <Ctrl>, <Shift>, etc.
+    # key combinations.  On the windows platform, the <Alt> key is state
+    # 16, and on the unix platform, the <Alt> key is state 8.  All <Ctrl>
+    # and <Alt> combinations should be masked out, regardless of the
+    # <NumLock> or <CapsLock> status, and regardless of platform.
+    #-----------------------------------------------------------
+    set CTRL 4
+    global tcl_platform
+    if {$tcl_platform(platform) == "unix"} {
+      set ALT 8
+    } elseif {$tcl_platform(platform) == "windows"} {
+      set ALT 16
+    } else {
+      # This is something other than UNIX or WINDOWS.  Default to the
+      # old behavior (UNIX).
+      set ALT 8
+    }
+    # Thanks to Rolf Schroedter for the following elegant conditional.  This
+    # masks out all <Ctrl> and <Alt> key combinations.
+    if {($char == "") || ($state & ($CTRL | $ALT))} {
+      return -code continue 1
     }
 
     #
@@ -521,3 +577,27 @@ body iwidgets::Entryfield::_keyPress {char sym state} {
     return -code continue 1
 }
 
+# ------------------------------------------------------------------
+# PRIVATE METHOD: _checkLength
+#
+# This method was added by csmith for SF ticket 227912. We need to
+# to check the clipboard content before allowing any pasting into
+# the entryfield to disallow text that is longer than the value
+# specified by the -fixed option.
+# ------------------------------------------------------------------
+itcl::body iwidgets::Entryfield::_checkLength {} {
+  if {$itk_option(-fixed) != 0} {
+    if [catch {::selection get -selection CLIPBOARD} pending] {
+      # Nothing in the clipboard.  Check the primary selection.
+      if [catch {::selection get -selection PRIMARY} pending] {
+        # Nothing here either.  Goodbye.
+        return
+      }
+    }
+    set len [expr {[string length $pending] + [string length [get]]}]
+    if {$len > $itk_option(-fixed)} {
+      uplevel #0 $itk_option(-invalid)
+      return -code break 0
+    }
+  }
+}

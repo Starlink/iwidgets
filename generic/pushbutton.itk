@@ -11,7 +11,7 @@
 #   AUTHOR:  Mark L. Ulferts        EMAIL: mulferts@austin.dsccc.com
 #            Bret A. Schuhmacher    EMAIL: bas@wn.com
 #
-#   @(#) $Id: pushbutton.itk,v 1.4 1996/09/25 13:25:59 mulferts Exp $
+#   @(#) $Id: pushbutton.itk,v 1.3 2001/08/17 19:03:44 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -48,7 +48,7 @@ itk::usual Pushbutton {
 # ------------------------------------------------------------------
 #                            PUSHBUTTON
 # ------------------------------------------------------------------
-class iwidgets::Pushbutton {
+itcl::class iwidgets::Pushbutton {
     inherit itk::Widget
 
     constructor {args} {}
@@ -92,7 +92,7 @@ option add *Pushbutton.borderWidth 2 widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Pushbutton::constructor {args} {
+itcl::body iwidgets::Pushbutton::constructor {args} {
     #
     # Reconfigure the hull to act as the outer sunken ring of
     # the pushbutton, complete with focus ring.
@@ -128,7 +128,7 @@ body iwidgets::Pushbutton::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Pushbutton::destructor {} {
+itcl::body iwidgets::Pushbutton::destructor {} {
     if {$_reposition != ""} {after cancel $_reposition}
 }
 
@@ -141,7 +141,7 @@ body iwidgets::Pushbutton::destructor {} {
 #
 # Specifies the extra space surrounding the label in the x direction.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::padx {
+itcl::configbody iwidgets::Pushbutton::padx {
     $itk_component(pushbutton) configure -padx $itk_option(-padx)
 
     _relayout
@@ -152,7 +152,7 @@ configbody iwidgets::Pushbutton::padx {
 #
 # Specifies the extra space surrounding the label in the y direction.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::pady {
+itcl::configbody iwidgets::Pushbutton::pady {
     $itk_component(pushbutton) configure -pady $itk_option(-pady)
 
     _relayout
@@ -163,7 +163,7 @@ configbody iwidgets::Pushbutton::pady {
 #
 # Specifies the label font.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::font {
+itcl::configbody iwidgets::Pushbutton::font {
     $itk_component(pushbutton) configure -font $itk_option(-font)
 
     _relayout
@@ -174,7 +174,7 @@ configbody iwidgets::Pushbutton::font {
 #
 # Specifies the label text.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::text {
+itcl::configbody iwidgets::Pushbutton::text {
     $itk_component(pushbutton) configure -text $itk_option(-text)
 
     _relayout
@@ -185,7 +185,7 @@ configbody iwidgets::Pushbutton::text {
 #
 # Specifies the label bitmap.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::bitmap {
+itcl::configbody iwidgets::Pushbutton::bitmap {
     $itk_component(pushbutton) configure -bitmap $itk_option(-bitmap)
 
     _relayout
@@ -196,7 +196,7 @@ configbody iwidgets::Pushbutton::bitmap {
 #
 # Specifies the label image.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::image {
+itcl::configbody iwidgets::Pushbutton::image {
     $itk_component(pushbutton) configure -image $itk_option(-image)
 
     _relayout
@@ -207,7 +207,7 @@ configbody iwidgets::Pushbutton::image {
 #
 # Specifies the thickness of the highlight ring.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::highlightthickness {
+itcl::configbody iwidgets::Pushbutton::highlightthickness {
     $itk_component(pushbutton) configure \
 	    -highlightthickness $itk_option(-highlightthickness)
 
@@ -219,7 +219,7 @@ configbody iwidgets::Pushbutton::highlightthickness {
 #
 # Specifies the width of the relief border.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::borderwidth {
+itcl::configbody iwidgets::Pushbutton::borderwidth {
     $itk_component(pushbutton) configure -borderwidth $itk_option(-borderwidth)
 
     _relayout
@@ -230,7 +230,7 @@ configbody iwidgets::Pushbutton::borderwidth {
 #
 # Boolean describing whether the button displays its default ring.  
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::defaultring {
+itcl::configbody iwidgets::Pushbutton::defaultring {
     _relayout
 }
 
@@ -239,7 +239,7 @@ configbody iwidgets::Pushbutton::defaultring {
 #
 # The size of the padded default ring around the button.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::defaultringpad {
+itcl::configbody iwidgets::Pushbutton::defaultringpad {
     pack $itk_component(pushbutton) \
 	    -padx $itk_option(-defaultringpad) \
 	    -pady $itk_option(-defaultringpad)
@@ -252,7 +252,7 @@ configbody iwidgets::Pushbutton::defaultringpad {
 # A value of zero lets the push button determine the height based
 # on the requested height plus highlightring and defaultringpad.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::height {
+itcl::configbody iwidgets::Pushbutton::height {
     _relayout
 }
 
@@ -263,7 +263,7 @@ configbody iwidgets::Pushbutton::height {
 # A value of zero lets the push button determine the width based
 # on the requested width plus highlightring and defaultringpad.
 # ------------------------------------------------------------------
-configbody iwidgets::Pushbutton::width {
+itcl::configbody iwidgets::Pushbutton::width {
     _relayout
 }
 
@@ -276,7 +276,7 @@ configbody iwidgets::Pushbutton::width {
 #
 # Thin wrap of standard button widget flash method.
 # ------------------------------------------------------------------
-body iwidgets::Pushbutton::flash {} {
+itcl::body iwidgets::Pushbutton::flash {} {
     $itk_component(pushbutton) flash
 }
 
@@ -285,7 +285,7 @@ body iwidgets::Pushbutton::flash {} {
 #
 # Thin wrap of standard button widget invoke method.
 # ------------------------------------------------------------------
-body iwidgets::Pushbutton::invoke {} {
+itcl::body iwidgets::Pushbutton::invoke {} {
     $itk_component(pushbutton) invoke
 }
 
@@ -301,10 +301,10 @@ body iwidgets::Pushbutton::invoke {} {
 # it is "later" or it is not specified, then the change is applied later,
 # when the application is idle.
 # ------------------------------------------------------------------
-body iwidgets::Pushbutton::_relayout {{when later}} {
+itcl::body iwidgets::Pushbutton::_relayout {{when later}} {
     if {$when == "later"} {
 	if {$_reposition == ""} {
-	    set _reposition [after idle [code $this _relayout now]]
+	    set _reposition [after idle [itcl::code $this _relayout now]]
 	}
 	return
     } elseif {$when != "now"} {
@@ -314,19 +314,19 @@ body iwidgets::Pushbutton::_relayout {{when later}} {
     set _reposition ""
 
     if {$itk_option(-width) == 0} {
-	set w [expr [winfo reqwidth $itk_component(pushbutton)] \
+	set w [expr {[winfo reqwidth $itk_component(pushbutton)] \
 		+ 2 * $itk_option(-highlightthickness) \
 		+ 2 * $itk_option(-borderwidth) \
-		+ 2 * $itk_option(-defaultringpad)]
+		+ 2 * $itk_option(-defaultringpad)}]
     } else {
 	set w $itk_option(-width)
     }
     
     if {$itk_option(-height) == 0} {
-	set h [expr [winfo reqheight $itk_component(pushbutton)] \
+	set h [expr {[winfo reqheight $itk_component(pushbutton)] \
 		+ 2 * $itk_option(-highlightthickness) \
 		+ 2 * $itk_option(-borderwidth) \
-		+ 2 * $itk_option(-defaultringpad)]
+		+ 2 * $itk_option(-defaultringpad)}]
     } else {
 	set h $itk_option(-height)
     }

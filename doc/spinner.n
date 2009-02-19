@@ -5,26 +5,27 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) spinner.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS spinner iwid
+.HS iwidgets::spinner iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-spinner \- Create and manipulate a spinner widget
+iwidgets::spinner \- Create and manipulate a spinner widget
 .SH SYNOPSIS
-\fBspinner\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::spinner\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- Spinner
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Spinner
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR	\fBexportSelection\fR
-\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR	\fBinsertBackground\fR
-\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR	\fBinsertWidth\fR
-\fBjustify\fR	\fBrelief\fR	\fBselectBackground\fR	\fBselectBorderWidth\fR
-\fBselectForeground\fR	\fBtextVariable\fR
+\fB
+background         borderWidth     cursor              exportSelection
+foreground         highlightColor  highlightThickness  insertBackground
+insertBorderWidth  insertOffTime   insertOnTime        insertWidth
+justify            relief          selectBackground    selectBorderWidth
+selectForeground   textVariable\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -52,7 +53,7 @@ inherited options.
 .ta 4c 8c 12c
 \fBdisabledForeground\fR	\fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR
 \fBlabelMargin\fR	\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
-\fBstate\fR
+\fBstate\fR \fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" widget manual entry for details on the above
@@ -107,14 +108,14 @@ buttons.  A repeatinterval of 0 disables button repeat.  The default is
 
 .SH DESCRIPTION
 .PP
-The \fBspinner\fR command creates a spinner widget.  The spinner is 
+The \fBiwidgets::spinner\fR command creates a spinner widget.  The spinner is 
 comprised of an entryfield plus up and down arrow buttons. 
 Arrows may be drawn horizontally or vertically.
 .DE
 
 .SH "METHODS"
 .PP
-The \fBspinner\fR command creates a new Tcl command whose
+The \fBiwidgets::spinner\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -146,7 +147,7 @@ See the "entryfield" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBspinner\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::spinner\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -160,7 +161,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBspinner\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::spinner\fR
 command.
 .TP
 \fIpathName \fBdown\fR
@@ -190,6 +191,7 @@ the "canvas" widget manual entry for details on the uparrow component item.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  set months {January February March April May June July \\
                  August September October November December}
 
@@ -209,8 +211,8 @@ the "canvas" widget manual entry for details on the uparrow component item.
      .sm insert 0 [lindex $months $index]
  }
 
- spinner .sm -labeltext "Month : " -width 10 -fixed 10 -validate blockInput \\
-             -decrement {spinMonth -1} -increment {spinMonth 1}
+ iwidgets::spinner .sm -labeltext "Month : " -width 10 -fixed 10 \\
+   -validate blockInput -decrement {spinMonth -1} -increment {spinMonth 1}
  .sm insert 0 January
 
  pack .sm -padx 10 -pady 10

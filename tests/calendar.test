@@ -11,9 +11,22 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: calendar.test,v 1.1 1996/01/02 15:21:45 mulferts Exp $
+# @(#) $Id: calendar.test,v 1.4 2001/11/16 15:28:03 smithc Exp $
 
-package require Iwidgets 3.0
+package require tcltest
+namespace import -force ::tcltest::*
+
+if [catch {package require Iwidgets 4.0}] {
+  # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
+  # env var is initialized in the Makefile when doing a 'make test'.
+  # If sourcing this file independently, this variable must be set manually.
+  if ![info exists env(IWIDGETS_LIBRARY)] {
+    error "Unable to locate Iwidgets package.  Set your IWIDGETS_LIBRARY\
+      environment\nvariable to the directory that contains iwidgets.tcl"
+  }
+  lappend auto_path $env(IWIDGETS_LIBRARY)
+  package require Iwidgets 4.0
+}
 
 if {[string compare test [info procs test]] == 1} {
     source defs
@@ -42,7 +55,7 @@ incr c
 #
 test Calendar-2.$o {configuration option} {
     llength [.cal configure]
-} {21}
+} {22}
 
 incr o
 
@@ -57,6 +70,8 @@ foreach test {
     {-days {M T W T F S S} {M T W T F S S}}
     {-foreground black black}
     {-height 300 300}
+    {-int yes yes}
+    {-int no no}
     {-outline black black}
     {-selectcolor blue blue}
     {-selectthickness 2 2}
@@ -151,3 +166,6 @@ test Calendar-1.$c {Calendar destruction} {
     destroy .cal
     update 
 } {}
+
+::tcltest::cleanupTests
+exit

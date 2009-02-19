@@ -10,7 +10,7 @@
 #  AUTHOR: Sue Yockey                  EMAIL: yockey@actc.com
 #          Mark L. Ulferts                    mulferts@austin.dsccc.com
 #
-#   @(#) $Id: spindate.itk,v 1.2 1996/07/12 16:19:05 mulferts Exp $
+#   @(#) $Id: spindate.itk,v 1.5 2001/08/22 15:51:13 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -55,7 +55,7 @@ itk::usual Spindate {
 # ------------------------------------------------------------------
 #                            SPINDATE
 # ------------------------------------------------------------------
-class iwidgets::Spindate {
+itcl::class iwidgets::Spindate {
     inherit itk::Widget 
     
     constructor {args} {}
@@ -101,7 +101,7 @@ proc ::iwidgets::spindate {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Spindate::constructor {args} {
+itcl::body iwidgets::Spindate::constructor {args} {
     set _interior $itk_interior
 
     set clicks [clock seconds]
@@ -111,8 +111,8 @@ body iwidgets::Spindate::constructor {args} {
     #
     itk_component add month {
 	iwidgets::Spinner $itk_interior.month  -fixed 2 -justify right \
-	    -decrement [code $this _spinMonth -1] \
-	    -increment [code $this _spinMonth 1] 
+	    -decrement [itcl::code $this _spinMonth -1] \
+	    -increment [itcl::code $this _spinMonth 1] 
     } {
 	keep -background -cursor -arroworient -foreground \
 		-labelfont -labelmargin -relief -textbackground \
@@ -133,8 +133,8 @@ body iwidgets::Spindate::constructor {args} {
     #
     itk_component add day {
 	iwidgets::Spinint $itk_interior.day -fixed 2 -justify right \
-	    -decrement [code $this _spinDay -1] \
-	    -increment [code $this _spinDay 1]
+	    -decrement [itcl::code $this _spinDay -1] \
+	    -increment [itcl::code $this _spinDay 1]
     } {
 	keep -background -cursor -arroworient -foreground \
 		-labelfont -labelmargin -relief -textbackground \
@@ -185,7 +185,7 @@ body iwidgets::Spindate::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Spindate::destructor {} {
+itcl::body iwidgets::Spindate::destructor {} {
     if {$_repack != ""} {after cancel $_repack}
 }
 
@@ -198,7 +198,7 @@ body iwidgets::Spindate::destructor {} {
 #
 # Specifies the location of all 3 spinners' labels.
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::labelpos {
+itcl::configbody iwidgets::Spindate::labelpos {
     switch $itk_option(-labelpos) {
 	n {
 	    $itk_component(month) configure -labelpos n
@@ -260,7 +260,7 @@ configbody iwidgets::Spindate::labelpos {
 # Specifies the orientation of the 3 spinners for Month, Day 
 # and year.
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::orient {
+itcl::configbody iwidgets::Spindate::orient {
     _packDate
 }
 
@@ -269,7 +269,7 @@ configbody iwidgets::Spindate::orient {
 # 
 # Specifies whether or not to display the month spinner.
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::monthon {
+itcl::configbody iwidgets::Spindate::monthon {
     _packDate
 }
 
@@ -278,7 +278,7 @@ configbody iwidgets::Spindate::monthon {
 # 
 # Specifies whether or not to display the day spinner.
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::dayon {
+itcl::configbody iwidgets::Spindate::dayon {
     _packDate
 }
 
@@ -287,7 +287,7 @@ configbody iwidgets::Spindate::dayon {
 # 
 # Specifies whether or not to display the year spinner.
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::yearon {
+itcl::configbody iwidgets::Spindate::yearon {
     _packDate
 }
 
@@ -297,7 +297,7 @@ configbody iwidgets::Spindate::yearon {
 # Specifies the margin space between the month and day spinners 
 # and the day and year spinners. 
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::datemargin {
+itcl::configbody iwidgets::Spindate::datemargin {
     _packDate
 }
 
@@ -306,7 +306,7 @@ configbody iwidgets::Spindate::datemargin {
 #
 # Number of digits for year display, 2 or 4 
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::yeardigits {
+itcl::configbody iwidgets::Spindate::yeardigits {
     set clicks [clock seconds]
 
     switch $itk_option(-yeardigits) {
@@ -337,7 +337,7 @@ configbody iwidgets::Spindate::yeardigits {
 # Format of month display, integers (1-12) or brief strings (Jan - 
 # Dec), or full strings (January - December).
 # ------------------------------------------------------------------
-configbody iwidgets::Spindate::monthformat {
+itcl::configbody iwidgets::Spindate::monthformat {
     set clicks [clock seconds]
 
     if {$itk_option(-monthformat) == "brief"} {
@@ -378,7 +378,7 @@ configbody iwidgets::Spindate::monthformat {
 # Reference the clock command for more information on obtaining dates 
 # and their formats.
 # ------------------------------------------------------------------
-body iwidgets::Spindate::get {{format "-string"}} { 
+itcl::body iwidgets::Spindate::get {{format "-string"}} { 
     set month [$itk_component(month) get]
     set day [$itk_component(day) get]
     set year [$itk_component(year) get]
@@ -411,7 +411,7 @@ body iwidgets::Spindate::get {{format "-string"}} {
 # integer clock value.  Reference the clock command for more 
 # information on obtaining dates and their formats.
 # ------------------------------------------------------------------
-body iwidgets::Spindate::show {{date "now"}} {
+itcl::body iwidgets::Spindate::show {{date "now"}} {
     #
     # Convert the date to a clock clicks value.
     #
@@ -477,7 +477,7 @@ body iwidgets::Spindate::show {{date "now"}} {
 # the spun month, then the day is set to the last day for the
 # new month.
 # ----------------------------------------------------------------
-body iwidgets::Spindate::_spinMonth {direction} {
+itcl::body iwidgets::Spindate::_spinMonth {direction} {
     set month [$itk_component(month) get]
     set day [$itk_component(day) get]
     set year [$itk_component(year) get]
@@ -507,9 +507,10 @@ body iwidgets::Spindate::_spinMonth {direction} {
     $itk_component(month) insert 0 \
 	[clock format $clicks -format $_monthFormatStr]
 
+    set currday [$itk_component(day) get]
     set lastday [_lastDay [$itk_component(month) get] $year]
 
-    if {$day > $lastday} {
+    if {$currday > $lastday} {
 	$itk_component(day) clear
 	$itk_component(day) insert end $lastday
     }
@@ -523,7 +524,7 @@ body iwidgets::Spindate::_spinMonth {direction} {
 # month.  If it was the last day of the month, change it to the
 # first.  Otherwise, spin it to the next day.
 # ----------------------------------------------------------------
-body iwidgets::Spindate::_spinDay {direction} {
+itcl::body iwidgets::Spindate::_spinDay {direction} {
     set month [$itk_component(month) get]
     set day [$itk_component(day) get]
     set year [$itk_component(year) get]
@@ -554,10 +555,10 @@ body iwidgets::Spindate::_spinDay {direction} {
 # specified, then the change is applied later, when the application 
 # is idle.
 # ------------------------------------------------------------------
-body iwidgets::Spindate::_packDate {{when later}} {
+itcl::body iwidgets::Spindate::_packDate {{when later}} {
     if {$when == "later"} {
 	if {$_repack == ""} {
-	    set _repack [after idle [code $this _packDate now]]
+	    set _repack [after idle [itcl::code $this _packDate now]]
 	}
 	return
     } elseif {$when != "now"} {
@@ -571,14 +572,6 @@ body iwidgets::Spindate::_packDate {{when later}} {
 	grid rowconfigure $_interior $i -minsize 0
 	grid columnconfigure $_interior $i -minsize 0
     }
-
-    #
-    # Get some boolean 1/0 values for the -monthon and -dayon options.
-    # We need this later so that Tcl doesn't complain about operands
-    # of || being strings.
-    #
-    set monthon [expr {$itk_option(-monthon) == "1"}]
-    set dayon [expr {$itk_option(-dayon) == "1"}]
 
     set _repack ""
 
@@ -610,7 +603,7 @@ body iwidgets::Spindate::_packDate {{when later}} {
 	    }
 	    
 	    if {$itk_option(-yearon)} {
-		if {$monthon || $dayon} {
+		if {$itk_option(-monthon) || $itk_option(-dayon)} {
 		    grid rowconfigure $_interior [incr row] \
 			-minsize $itk_option(-datemargin)
 		}
@@ -650,7 +643,7 @@ body iwidgets::Spindate::_packDate {{when later}} {
 	    }
 	    
 	    if {$itk_option(-yearon)} {
-		if {$monthon || $dayon} {
+		if {$itk_option(-monthon) || $itk_option(-dayon)} {
 		    grid columnconfigure $_interior [incr column] \
 			-minsize $itk_option(-datemargin)
 		}
@@ -683,18 +676,18 @@ body iwidgets::Spindate::_packDate {{when later}} {
 # the given month and year.  We start at 28 and go forward till
 # we fail.  Crude but effective.
 # ------------------------------------------------------------------
-body iwidgets::Spindate::_lastDay {month year} {
+itcl::body iwidgets::Spindate::_lastDay {month year} {
     set lastone 28
 
     for {set lastone 28} {$lastone < 32} {incr lastone} {
 	if {[regexp {[0-9]+} $month]} {
-	    if {[catch {clock scan "$month/[expr $lastone + 1]/$year"}] != 0} {
+	  if {[catch {clock scan "$month/[expr {$lastone + 1}]/$year"}] != 0} {
 		return $lastone
-	    }
+	  }
 	} else {
-	    if {[catch {clock scan "[expr $lastone + 1] $month $year"}] != 0} {
+	  if {[catch {clock scan "[expr {$lastone + 1}] $month $year"}] != 0} {
 		return $lastone
-	    }
+	  }
 	}
     }
 }

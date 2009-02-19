@@ -12,9 +12,22 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: extfileselectiondialog.test,v 1.1 1996/12/06 21:29:45 mulferts Exp $
+# @(#) $Id: extfileselectiondialog.test,v 1.4 2002/02/27 06:45:52 mgbacke Exp $
 
-package require Iwidgets 3.0
+package require tcltest
+namespace import -force ::tcltest::*
+
+if [catch {package require Iwidgets 4.0}] {
+  # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
+  # env var is initialized in the Makefile when doing a 'make test'.
+  # If sourcing this file independently, this variable must be set manually.
+  if ![info exists env(IWIDGETS_LIBRARY)] {
+    error "Unable to locate Iwidgets package.  Set your IWIDGETS_LIBRARY\
+      environment\nvariable to the directory that contains iwidgets.tcl"
+  }
+  lappend auto_path $env(IWIDGETS_LIBRARY)
+  package require Iwidgets 4.0
+}
 
 if {[string compare test [info procs test]] == 1} {
     source defs
@@ -42,7 +55,7 @@ incr c
 #
 test Extfileselectiondialog-2.$o {configuration option} {
     llength [.fsd configure]
-} {51}
+} {52}
 
 incr o
 
@@ -56,6 +69,7 @@ foreach test {
     {-childsitepos top top} 
     {-childsitepos bottom bottom} 
     {-cursor gumby gumby} 
+    {-sashcursor xterm xterm}
     {-directory {..} {..}} 
     {-textbackground GhostWhite GhostWhite} 
     {-foreground Black Black}
@@ -84,6 +98,7 @@ foreach test {
     {-selectionon no no} 
     {-selectionon yes yes} 
     {-textfont -Adobe-Helvetica-Medium-R-Normal--*-120-*-*-*-*-*-* -Adobe-Helvetica-Medium-R-Normal--*-120-*-*-*-*-*-*} 
+    {-labelfont -Adobe-Helvetica-Medium-R-Normal--*-120-*-*-*-*-*-* -Adobe-Helvetica-Medium-R-Normal--*-120-*-*-*-*-*-*} 
     {-background #d9d9d9 #d9d9d9} 
     {-buttonboxpos n n} 
     {-buttonboxpos e e} 
@@ -198,3 +213,6 @@ test Extfileselectiondialog-1.$o {Extfileselectiondialog -childsitepos} {
     update
     destroy .fsd
 } {}
+
+::tcltest::cleanupTests
+exit

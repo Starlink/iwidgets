@@ -5,26 +5,27 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) spinint.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS spinint iwid
+.HS iwidgets::spinint iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-spinint \- Create and manipulate a integer spinner widget
+iwidgets::spinint \- Create and manipulate a integer spinner widget
 .SH SYNOPSIS
-\fBspinint\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::spinint\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- Spinner <- Spinint
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Spinner <- iwidgets::Spinint
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR	\fBexportSelection\fR
-\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR	\fBinsertBackground\fR
-\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR	\fBinsertWidth\fR
-\fBjustify\fR	\fBrelief\fR	\fBselectBackground\fR	\fBselectBorderWidth\fR
-\fBselectForeground\fR	\fBtextVariable\fR
+\fB
+background         borderWidth     cursor              exportSelection
+foreground         highlightColor  highlightThickness  insertBackground
+insertBorderWidth  insertOffTime   insertOnTime        insertWidth
+justify            relief          selectBackground    selectBorderWidth
+selectForeground   textVariable\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -52,7 +53,7 @@ inherited options.
 .ta 4c 8c 12c
 \fBdisabledForeground\fR	\fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR
 \fBlabelMargin\fR	\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
-\fBstate\fR
+\fBstate\fR	\fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" widget manual entry for details on the above
@@ -100,14 +101,14 @@ The default is true.
 
 .SH DESCRIPTION
 .PP
-The \fBspinint\fR command creates a spinint widget.  The spinint allows
+The \fBiwidgets::spinint\fR command creates a spinint widget.  The spinint allows
 "spinning" of integer values within a specified range with wrap support.
 The spinner arrows may be drawn horizontally or vertically.
 .DE
 
 .SH "METHODS"
 .PP
-The \fBspinint\fR command creates a new Tcl command whose
+The \fBiwidgets::spinint\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -140,7 +141,7 @@ See the "entryfield" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBspinint\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::spinint\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -154,7 +155,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBspinint\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::spinint\fR
 command.
 .TP
 \fIpathName \fBdown\fR
@@ -170,9 +171,10 @@ component items.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  option add *textBackground white
  
- spinint .si -labeltext "Temperature" -labelpos w \\
+ iwidgets::spinint .si -labeltext "Temperature" -labelpos w \\
     -fixed yes -width 5 -range {32 212}
 
  pack .si -pady 10

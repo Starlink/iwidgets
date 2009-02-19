@@ -5,17 +5,17 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) calendar.n 1.0 97/04/30 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS calendar iwid
+.HS iwidgets::calendar iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-calendar \- Create and manipulate a monthly calendar
+iwidgets::calendar \- Create and manipulate a monthly calendar
 .SH SYNOPSIS
-\fBcalendar\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::calendar\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- calendar
+itk::Widget <- iwidgets::calendar
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -24,6 +24,17 @@ itk::Widget <- calendar
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
+.SH "ASSOCIATED OPTIONS"
+.LP
+.nf
+.ta 4c 8c 12c
+\fBint\fR
+.fi
+.LP
+See the "datefield" manual entry for details on this option.  Note that
+this option is needed when the calendar is used in conjunction
+with the dateentry widget.  It is necessary for support of international
+date formats in versions of Tk < 8.4.
 .SH "WIDGET-SPECIFIC OPTIONS"
 .LP
 .nf
@@ -209,7 +220,7 @@ is 200 pixels.
 
 .SH DESCRIPTION
 .PP
-The \fBcalendar\fR command creates a calendar widget for the selection 
+The \fBiwidgets::calendar\fR command creates a calendar widget for the selection 
 of a date, displaying a single month at a time.  Buttons exist on the 
 top to change the month in effect turning the pages of a calendar.  As 
 a page is turned, the dates for the month are modified.  Selection of 
@@ -218,7 +229,7 @@ via the -command option or just retrieved using the get command.
 
 .SH "METHODS"
 .PP
-The \fBcalendar\fR command creates a new Tcl command whose
+The \fBiwidgets::calendar\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -234,7 +245,7 @@ commands are possible for calendar widgets:
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBcalendar\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::calendar\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -248,7 +259,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBcalendar\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::calendar\fR
 command.
 .TP
 \fIpathName \fBget\fR ?\fBformat\fR?
@@ -265,7 +276,7 @@ the keyword "now".  Reference the clock
 command for more information on obtaining dates and their formats.
 Note that selecting a date does not change the 
 month being shown to that of the date given.  This chore is left
-to the \fBshow\R command.
+to the \fBshow\fR command.
 .TP
 \fIpathName \fBshow\fR \fIdate\fR
 Changes the currently displayed date to be that of the date 
@@ -298,20 +309,22 @@ entry for details on the page component item.
 Name:	\fBbackward\fR
 Class:	\fBButton\fR
 .fi
-.IP
+.TP
 The backward component provides the button on the upper right of the
 calendar that changes the month to be the next.  See the "button" 
 widget manual entry for details on the backward component item.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  proc selectCmd {date} {
    puts $date
  }
 
- calendar .c -command {selectCmd %d} -weekendbackground mistyrose \\
+ iwidgets::calendar .c -command {selectCmd %d} \\
+	-weekendbackground mistyrose \\
 	-weekdaybackground ghostwhite -outline black \\
-        -startday wednesday -days {We Th Fr Sa Su Mo Tu}
+	-startday wednesday -days {We Th Fr Sa Su Mo Tu}
  pack .c 
 .DE
 .SH AUTHOR

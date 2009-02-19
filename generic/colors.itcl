@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts               EMAIL: mulferts@spd.dsccc.com
 #
-#  @(#) $Id: colors.itcl,v 1.3 1996/07/12 16:36:58 mulferts Exp $
+#  @(#) $Id: colors.itcl,v 1.2 2001/08/15 18:33:55 smithc Exp $
 # ----------------------------------------------------------------------
 #                   Copyright (c) 1995  Mark L. Ulferts
 # ======================================================================
@@ -64,9 +64,9 @@ namespace eval iwidgets::colors {
             error "bad arg: \"$rgb\", should be list of red, green, and blue"
         }
 
-        set r [expr [lindex $rgb 0]/65535.0]
-        set g [expr [lindex $rgb 1]/65535.0]
-        set b [expr [lindex $rgb 2]/65535.0]
+        set r [expr {[lindex $rgb 0]/65535.0}]
+        set g [expr {[lindex $rgb 1]/65535.0}]
+        set b [expr {[lindex $rgb 2]/65535.0}]
 
         set max 0
         if {$r > $max} {set max $r}
@@ -79,26 +79,26 @@ namespace eval iwidgets::colors {
         if {$b < $min} {set min $b}
 
         if {$max != 0} {
-            set sat  [expr ($max-$min)/$max]
+            set sat  [expr {($max-$min)/$max}]
         } else {
             set sat 0
         }
         if {$sat == 0} {
             set hue 0
         } else {
-            set rc [expr ($max-$r)/($max-$min)]
-            set gc [expr ($max-$g)/($max-$min)]
-            set bc [expr ($max-$b)/($max-$min)]
+            set rc [expr {($max-$r)/($max-$min)}]
+            set gc [expr {($max-$g)/($max-$min)}]
+            set bc [expr {($max-$b)/($max-$min)}]
 
             if {$r == $max} {
-                set hue [expr $bc-$gc]
+                set hue [expr {$bc-$gc}]
             } elseif {$g == $max} {
-                set hue [expr 2+$rc-$bc]
+                set hue [expr {2+$rc-$bc}]
             } elseif {$b == $max} {
-                set hue [expr 4+$gc-$rc]
+                set hue [expr {4+$gc-$rc}]
             }
-            set hue [expr $hue*0.1666667]
-            if {$hue < 0} {set hue [expr $hue+1.0]}
+            set hue [expr {$hue*0.1666667}]
+            if {$hue < 0} {set hue [expr {$hue+1.0}]}
         }
         return [list $hue $sat $max]
     }
@@ -123,16 +123,16 @@ namespace eval iwidgets::colors {
 	set sat [lindex $hsb 1]
 	set value [lindex $hsb 2]
 
-	set v [format %.0f [expr 65535.0*$value]]
+	set v [format %.0f [expr {65535.0*$value}]]
 	if {$sat == 0} {
 	    return "$v $v $v"
 	} else {
-	    set hue [expr $hue*6.0]
+	    set hue [expr {$hue*6.0}]
 	    if {$hue >= 6.0} {
 		set hue 0.0
 	    }
 	    scan $hue. %d i
-	    set f [expr $hue-$i]
+	    set f [expr {$hue-$i}]
 	    set p [format %.0f [expr {65535.0*$value*(1 - $sat)}]]
 	    set q [format %.0f [expr {65535.0*$value*(1 - ($sat*$f))}]]
 	    set t [format %.0f [expr {65535.0*$value*(1 - ($sat*(1 - $f)))}]]
@@ -170,10 +170,10 @@ namespace eval iwidgets::colors {
 
 		if { $brightness < 0.9 } {
 			# try turning the brightness up first.
-			set brightness [expr $brightness * 1.1]
+			set brightness [expr {$brightness * 1.1}]
 		} else {
 			# otherwise fiddle with saturation
-			set saturation [expr $saturation * 0.25]
+			set saturation [expr {$saturation * 0.25}]
 		}
 
 		set hsb [lreplace $hsb 1 1 [set saturation]]
@@ -201,7 +201,7 @@ namespace eval iwidgets::colors {
 	proc bottomShadow { bgColor } {
 
 		set hsb [rgbToHsb [winfo rgb . $bgColor]]
-		set hsb [lreplace $hsb 2 2 [expr [lindex $hsb 2] * 0.8]]
+		set hsb [lreplace $hsb 2 2 [expr {[lindex $hsb 2] * 0.8}]]
 		set rgb [hsbToRgb $hsb]
 		set color [rgbToNumeric $rgb]
 		return $color

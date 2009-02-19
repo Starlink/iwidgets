@@ -5,17 +5,17 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) radiobox.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS radiobox iwid
+.HS iwidgets::radiobox iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-radiobox \- Create and manipulate a radiobox widget
+iwidgets::radiobox \- Create and manipulate a radiobox widget
 .SH SYNOPSIS
-\fBradiobox\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::radiobox\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- labeledframe <- radiobox
+itk::Widget <- iwidgets::Labeledframe <- iwidgets::Radiobox
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -43,20 +43,30 @@ Class:  \fBCommand\fR
 Command-Line Switch:    \fB-command\fR
 .fi
 .IP
-Specifies a Tcl command procedure to be evaluated following a  change in 
+Specifies a Tcl command procedure to be evaluated following a change in 
 the current radio box selection.
+.LP
+.nf
+Name:   \fBorient\fR
+Class:  \fBOrient\fR
+Command-Line Switch:    \fB-orient\fR
+Default Value:	\fBvertical\fR
+.fi
+.IP
+Specifies the orientation of the radiobuttons within the radiobox.  Valid
+values are either "horizontal" or "vertical".
 .LP
 .BE
 
 .SH DESCRIPTION
 .PP
-The \fBradiobox\fR command creates a radio button box widget 
+The \fBiwidgets::radiobox\fR command creates a radio button box widget 
 capable of adding, inserting, deleting, selecting, and configuring 
 radiobuttons as well as obtaining the currently selected button.
 
 .SH "METHODS"
 .PP
-The \fBradiobox\fR command creates a new Tcl command whose
+The \fBiwidgets::radiobox\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -107,7 +117,7 @@ information on the format of this list).
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBradiobox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::radiobox\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -121,7 +131,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBradiobox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::radiobox\fR
 command.
 .TP
 \fIpathName \fBdelete\fR \fIindex\fR
@@ -151,7 +161,8 @@ Selects a specified radiobutton given an \fIindex\fR.
 
 .SH EXAMPLE
 .DS
- radiobox .rb -labeltext Fonts
+ package require Iwidgets 4.0
+ iwidgets::radiobox .rb -labeltext Fonts
  .rb add times -text Times
  .rb add helvetica -text Helvetica
  .rb add courier -text Courier

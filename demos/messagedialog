@@ -1,13 +1,7 @@
-#!/bin/sh
 # ----------------------------------------------------------------------
 #  DEMO: messagedialog in [incr Widgets]
 # ----------------------------------------------------------------------
-#\
-exec itkwish "$0" ${1+"$@"}
-package require Iwidgets 3.0
-
-# itkwish interprets the rest...
-# ----------------------------------------------------------------------
+package require Iwidgets 4.0
 
 button .b -text "Confirm..." -command {
     if {[.md activate]} {

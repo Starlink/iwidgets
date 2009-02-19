@@ -1,17 +1,15 @@
-#!/bin/sh
-# \
-	exec itkwish "$0" ${1+"$@"}
-
-package require Iwidgets 3.0
-
-# itkwish interprets the rest...
 # ----------------------------------------------------------------------
+#  DEMO: canvasprintbox in [incr Widgets]
+# ----------------------------------------------------------------------
+package require Iwidgets 4.0
+
 option add *textBackground seashell
 
 #
 # Make a canvas for the main application:
 #
 canvas .c -width 200 -height 200 -background white
+pack .c
 
 .c create rectangle 30 30 150 150 -fill blue
 .c create oval 70 70 190 190 -fill red
@@ -22,4 +20,3 @@ iwidgets::canvasprintbox .pcb -printcmd "lpr" -pagesize "A4"
 
 .pcb setcanvas .c
 
-pack .pcb -fill both -expand yes

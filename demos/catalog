@@ -10,13 +10,10 @@
 #  Copyright (c) 1993-1998  Lucent Technologies, Inc.
 # ======================================================================
 #\
-exec itkwish3.0 "$0"
+exec wish8.4 "$0"
 
-package require Itcl
-package require Itk
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
-# everything else is executed by itkwish...
 # ----------------------------------------------------------------------
 option add *Scrolledtext.textBackground white startupFile
 option add *Scrolledlistbox.textBackground white startupFile
@@ -375,11 +372,12 @@ Bill Scott
 Alfredo Jahn
 Tako Schotanus
 Kris Raney
-John Tucker,
+John Tucker
 Mitch Gorman
 John Reekie
 Ken Copeland
 Tony Parent 
+Chad Smith
 and
 Michael McLennan
 "
@@ -394,6 +392,12 @@ foreach file [lsort [glob [file join ${iwidgets::library} demos *]]] {
     if {![file isdirectory $file] && ![string match *.* $name] 
         && ![string match catalog $name]
         && ![string match scopedobject $name]} {
+	if {$name == "mainwindow"} {
+	    # This demo is doesn't work well with the catalog
+	    # so we skip it.
+
+	    continue
+	}
         $widgets(list) insert end $name
     }
 }

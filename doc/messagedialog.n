@@ -5,17 +5,17 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) messagedialog.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS messagedialog iwid
+.HS iwidgets::messagedialog iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-messagedialog \- Create and manipulate a message dialog widget
+iwidgets::messagedialog \- Create and manipulate a message dialog widget
 .SH SYNOPSIS
-\fBmessagedialog\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::messagedialog\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Toplevel <- Shell <- Dialogshell <- Dialog <- Messagedialog
+itk::Toplevel <- iwidgets::Shell <- iwidgets::Dialogshell <- iwidgets::Dialog <- iwidgets::Messagedialog
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -87,14 +87,14 @@ acceptable to Tk_GetPixels.
 
 .SH DESCRIPTION
 .PP
-The \fBmessagedialog\fR command creates a message dialog composite widget. 
+The \fBiwidgets::messagedialog\fR command creates a message dialog composite widget. 
 The messagedialog is derived from the Dialog class and is composed of 
 an image and associated message text with commands to manipulate the 
 dialog buttons.
 
 .SH "METHODS"
 .PP
-The \fBmessagedialog\fR command creates a new Tcl command whose
+The \fBiwidgets::messagedialog\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -136,7 +136,7 @@ inherited methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBmessagedialog\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::messagedialog\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -150,7 +150,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBmessagedialog\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::messagedialog\fR
 command.
 
 .SH "COMPONENTS"
@@ -174,10 +174,11 @@ See the "label" widget manual entry for details on the message component item.
 
 .SH EXAMPLE
 .DS
+ package require Iwidgets 4.0
  #
  # Standard question message dialog used for confirmation.
  #
- messagedialog .md -title "Message Dialog" -text "Are you sure ?" \\
+ iwidgets::messagedialog .md -title "Message Dialog" -text "Are you sure ?" \\
 	-bitmap questhead -modality global
 
  .md buttonconfigure OK -text Yes
@@ -199,7 +200,7 @@ See the "label" widget manual entry for details on the message component item.
  #
  # Copyright notice with automatic deactivation.
  #
- messagedialog .cr -title "Copyright" -bitmap @dsc.xbm -imagepos n \\
+ iwidgets::messagedialog .cr -title "Copyright" -bitmap @dsc.xbm -imagepos n \\
      -text "Copyright 1995 DSC Communications Corporation\\n \\
 	    All rights reserved"
  

@@ -11,7 +11,20 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 
-package require Iwidgets 3.0
+package require tcltest
+namespace import -force ::tcltest::*
+
+if [catch {package require Iwidgets 4.0}] {
+  # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
+  # env var is initialized in the Makefile when doing a 'make test'.
+  # If sourcing this file independently, this variable must be set manually.
+  if ![info exists env(IWIDGETS_LIBRARY)] {
+    error "Unable to locate Iwidgets package.  Set your IWIDGETS_LIBRARY\
+      environment\nvariable to the directory that contains iwidgets.tcl"
+  }
+  lappend auto_path $env(IWIDGETS_LIBRARY)
+  package require Iwidgets 4.0
+}
 
 if {[string compare test [info procs test]] == 1} {
     source defs
@@ -41,7 +54,7 @@ incr c
 #
 test Combobox-2.$o {configuration option} {
     llength [.cb configure]
-} {50}
+} {52}
 
 incr o
 
@@ -101,6 +114,15 @@ foreach test {
     {-selectbackground steelblue steelblue}
     {-selectborderwidth 1 1}
     {-selectforeground Black Black}
+    {-sticky w w}
+    {-sticky nw nw}
+    {-sticky n n}
+    {-sticky ne ne}
+    {-sticky e e}
+    {-sticky se se}
+    {-sticky s s}
+    {-sticky sw sw}
+    {-sticky news news}
     {-textbackground white white}
     {-textfont 10x20 10x20}
     {-textfont -Adobe-Helvetica-Medium-R-Normal--*-120-* \
@@ -141,10 +163,16 @@ foreach test {
     {-margin bogus {bad screen distance "bogus"}}
     {-popupcursor bogus {bad cursor spec "bogus"}}
     {-selectborderwidth bogus {bad screen distance "bogus"}}
-    {-state bogus {bad state value "bogus": must be normal or disabled}}
+    {-state bogus {bad state "bogus": must be disabled or normal}}
     {-unique bogus {bad unique value "bogus": should be boolean}}
     {-vscrollmode bogus {bad vscrollmode option "bogus": should be static, dynamic, or none}}
     {-width bogus {expected integer but got "bogus"}} } {
+        if {[lindex $test 0] == "-state"} {
+          if {$::tk_version >= 8.4} {
+            # A new state was added to the Tk entry widget in 8.4.
+            set test {-state bogus {bad state "bogus": must be disabled, normal, or readonly}}
+          }
+        }
 	set option [lindex $test 0]
         test Combobox-2.$o "configuration options, $option" {
 	    list [catch {.cb configure $option [lindex $test 1]} msg] $msg
@@ -244,7 +272,7 @@ foreach test {
     {{.cb selection} {wrong # args: should be ".cb selection option first ?last?"}}
     {{.cb selection bogus1 bogus2 bogus3 bogus4} {wrong # args: should be ".cb selection option first ?last?"}}
     {{.cb selection bogus bogus} {bad Scrolledlistbox index "bogus": must be active, anchor, end, @x,y, number, or a pattern}}
-    {{.cb sort bogus} {bad sort argument "bogus": should be ascending, descending, increasing, or decreasing}}} {
+    {{.cb sort bogus} {bad sort argument "bogus": must be a valid argument to the Tcl lsort command}}} {
     set method [lindex [lindex $test 0] 1]
     test Combobox-3.$m "object methods, $method" {
 	list [catch {eval [lindex $test 0]} msg] $msg
@@ -295,3 +323,6 @@ test Combobox-4.5 {Combobox destruction} {
     destroy .cb4
     update 
 } {}
+
+::tcltest::cleanupTests
+exit

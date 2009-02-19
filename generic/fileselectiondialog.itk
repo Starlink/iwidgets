@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts               EMAIL: mulferts@spd.dsccc.com
 #
-#  @(#) $Id: fileselectiondialog.itk,v 1.2 1996/06/26 19:29:42 mulferts Exp $
+#  @(#) $Id: fileselectiondialog.itk,v 1.2 2001/08/07 19:56:48 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -48,7 +48,7 @@ itk::usual Fileselectiondialog {
 # ------------------------------------------------------------------
 #                        FILESELECTIONDIALOG
 # ------------------------------------------------------------------
-class iwidgets::Fileselectiondialog {
+itcl::class iwidgets::Fileselectiondialog {
     inherit iwidgets::Dialog
 
     constructor {args} {}
@@ -84,7 +84,7 @@ option add *Fileselectiondialog.master "." widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Fileselectiondialog::constructor {args} {
+itcl::body iwidgets::Fileselectiondialog::constructor {args} {
     component hull configure -borderwidth 0
     itk_option add hull.width hull.height
     
@@ -99,9 +99,9 @@ body iwidgets::Fileselectiondialog::constructor {args} {
     #
     itk_component add fsb {
 	iwidgets::Fileselectionbox $itk_interior.fsb -width 150 -height 150 \
-		-selectioncommand [code $this invoke] \
-	        -selectdircommand [code $this default Apply] \
-	        -selectfilecommand [code $this default OK]
+		-selectioncommand [itcl::code $this invoke] \
+	        -selectdircommand [itcl::code $this default Apply] \
+	        -selectfilecommand [itcl::code $this default OK]
     } {
 	usual
 
@@ -116,16 +116,16 @@ body iwidgets::Fileselectiondialog::constructor {args} {
     grid columnconfigure $itk_interior 0 -weight 1
     
     $itk_component(fsb) component filter configure \
-	-focuscommand [code $this default Apply]
+	-focuscommand [itcl::code $this default Apply]
     $itk_component(fsb) component selection configure \
-	-focuscommand [code $this default OK]
+	-focuscommand [itcl::code $this default OK]
     $itk_component(fsb) component dirs configure \
-		-dblclickcommand [code $this _dbldir]
+		-dblclickcommand [itcl::code $this _dbldir]
     $itk_component(fsb) component files configure \
-		-dblclickcommand [code $this invoke] 
+		-dblclickcommand [itcl::code $this invoke] 
 
     buttonconfigure Apply -text "Filter" \
-	    -command [code $itk_component(fsb) filter]
+	    -command [itcl::code $itk_component(fsb) filter]
     
     set itk_interior [$itk_component(fsb) childsite]
     
@@ -143,7 +143,7 @@ body iwidgets::Fileselectiondialog::constructor {args} {
 #
 # Thinwrapped method of file selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectiondialog::childsite {} {
+itcl::body iwidgets::Fileselectiondialog::childsite {} {
     return [$itk_component(fsb) childsite]
 }
 
@@ -152,7 +152,7 @@ body iwidgets::Fileselectiondialog::childsite {} {
 #
 # Thinwrapped method of file selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectiondialog::get {} {
+itcl::body iwidgets::Fileselectiondialog::get {} {
     return [$itk_component(fsb) get]
 }
 
@@ -161,7 +161,7 @@ body iwidgets::Fileselectiondialog::get {} {
 #
 # Thinwrapped method of file selection box class.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectiondialog::filter {} {
+itcl::body iwidgets::Fileselectiondialog::filter {} {
     return [$itk_component(fsb) filter]
 }
 
@@ -171,7 +171,7 @@ body iwidgets::Fileselectiondialog::filter {} {
 # Double select in directory list.  If the files list is on then
 # make the default button the filter and invoke.  If not, just invoke.
 # ------------------------------------------------------------------
-body iwidgets::Fileselectiondialog::_dbldir {} {
+itcl::body iwidgets::Fileselectiondialog::_dbldir {} {
     if {$itk_option(-fileson)} {
 	default Apply
     }

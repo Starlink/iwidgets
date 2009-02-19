@@ -5,24 +5,25 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) timeentry.n 1.0 97/04/30 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS timeentry iwid
+.HS iwidgets::timeentry iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-timeentry \- Create and manipulate a timeentry widget
+iwidgets::timeentry \- Create and manipulate a timeentry widget
 .SH SYNOPSIS
-\fBtimeentry\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::timeentry\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- LabeledWidget <- Timefield <- Timeentry
+itk::Widget <- iwidgets::LabeledWidget <- iwidgets::Timefield <- iwidgets::Timeentry
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR	\fBexportSelection\fR
-\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR	\fBinsertBackground\fR
-\fBjustify\fR	\fBrelief\fR
+\fB
+background  borderWidth     cursor              exportSelection
+foreground  highlightColor  highlightThickness  insertBackground
+justify     relief\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -32,7 +33,7 @@ See the "options" manual entry for details on the standard options.
 .ta 4c 8c 12c
 \fBdisabledForeground\fR	\fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR
 \fBlabelMargin\fR	\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
-\fBstate\fR
+\fBstate\fR \fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" class manual entry for details on these
@@ -103,7 +104,7 @@ or time icon button.
 
 .SH DESCRIPTION
 .PP
-The \fBtimeentry\fR command creates a time entry field 
+The \fBiwidgets::timeentry\fR command creates a time entry field 
 with a popup watch by combining the timefield and watch 
 widgets together.  This allows a user to enter the time via the 
 keyboard or by using the mouse and selecting the watch icon 
@@ -112,7 +113,7 @@ which brings up a popup watch.
 
 .SH "METHODS"
 .PP
-The \fBtimeentry\fR command creates a new Tcl command whose
+The \fBiwidgets::timeentry\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -135,7 +136,7 @@ See the "timefield" manual entry for details on the associated methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBtimeentry\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::timeentry\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -149,7 +150,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBtimeentry\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::timeentry\fR
 command.
 
 .SH "COMPONENTS"
@@ -184,7 +185,8 @@ See the "entry" widget manual entry for details on the time component item.
 
 .SH EXAMPLE
 .DS
- timeentry .te
+ package require Iwidgets 4.0
+ iwidgets::timeentry .te
  pack .te
 .DE
 .SH AUTHOR

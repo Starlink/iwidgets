@@ -1,13 +1,8 @@
-#!/bin/sh
 # ----------------------------------------------------------------------
 #  DEMO: toolbar in [incr Widgets]
 # ----------------------------------------------------------------------
-#\
-exec itkwish "$0" ${1+"$@"}
-package require Iwidgets 3.0
+package require Iwidgets 4.0
 
-# itkwish interprets the rest...
-# ----------------------------------------------------------------------
 label .status -textvariable statusVar -width 40 -anchor w
 pack .status -side bottom
 

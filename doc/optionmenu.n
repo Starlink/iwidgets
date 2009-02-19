@@ -5,24 +5,25 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) optionmenu.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS optionmenu iwid
+.HS iwidgets::optionmenu iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-optionmenu \- Create and manipulate a option menu widget
+iwidgets::optionmenu \- Create and manipulate a option menu widget
 .SH SYNOPSIS
-\fBoptionmenu\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::optionmenu\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- optionmenu
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Optionmenu
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBactiveBorderWidth\fR	\fBactiveForeground\fR	\fBbackground\fR
-\fBborderWidth\fR	\fBcursor\fR	\fBdisabledForeground\fR	\fBfont\fR
-\fBforeground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR	\fBrelief\fR
+\fB
+activeBackground  activeBorderWidth  activeForeground    background
+borderWidth       cursor             disabledForeground  font
+foreground        highlightColor     highlightThickness  relief\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -32,7 +33,7 @@ See the "options" manual entry for details on the standard options.
 .ta 4c 8c 12c
 \fBdisabledForeground\fR	\fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR
 \fBlabelMargin\fR	\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
-\fBstate\fR
+\fBstate\fR	\fBsticky\fR
 .fi
 .LP
 See the "LabeledWidget" manual entry for details on the inherited options.
@@ -106,13 +107,13 @@ automatically.  Setting this option overrides that functionality.
 
 .SH DESCRIPTION
 .PP
-The \fBoptionmenu\fR command creates an option menu widget with options 
+The \fBiwidgets::optionmenu\fR command creates an option menu widget with options 
 to manage it.  An option menu displays a frame containing a label and a button.
 A pop-up menu will allow for the value of the button to change.
 
 .SH "METHODS"
 .PP
-The \fBoptionmenu\fR command creates a new Tcl command whose
+The \fBiwidgets::optionmenu\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -134,7 +135,7 @@ so on.
 .TP 12
 \fBend\fR
 Indicates the bottommost entry in the menu.  If there are no
-entries in the menu then zero is returned.
+entries in the menu then -1 is returned.
 .TP 12
 \fBselect\fR
 Returns the numerical index of the currently selected option menu entry.
@@ -154,7 +155,7 @@ The following widget commands are possible for optionmenu widgets:
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBoptionmenu\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::optionmenu\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -168,7 +169,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBoptionmenu\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::optionmenu\fR
 command.
 .TP
 \fIpathName \fBdelete \fIfirst\fR ?\fIlast\fR?
@@ -231,7 +232,8 @@ manual entry for details on the popupMenu component item.
 
 .SH EXAMPLE
 .DS
- optionmenu .om -labelmargin 5 \\
+ package require Iwidgets 4.0
+ iwidgets::optionmenu .om -labelmargin 5 \\
      -labelon true -labelpos w -labeltext "Operating System :"
 
  .om insert end Unix VMS Linux OS/2 {Windows NT} DOS

@@ -50,18 +50,17 @@
 #
 # Default resources.
 #
-
-set tk_strictMotif 1
-
-option add *Disjointlistbox.lhsLabelText 	Available	widgetDefault
-option add *Disjointlistbox.rhsLabelText 	Current		widgetDefault
-option add *Disjointlistbox.lhsButtonLabel 	{Insert >>}	widgetDefault
-option add *Disjointlistbox.rhsButtonLabel	{<< Remove}	widgetDefault
-option add *Disjointlistbox.vscrollMode 	static		widgetDefault
-option add *Disjointlistbox.hscrollMode 	static		widgetDefault
-option add *Disjointlistbox.selectMode 		multiple	widgetDefault
-option add *Disjointlistbox.labelPos 		nw		widgetDefault
-option add *Disjointlistbox.buttonPlacement 	bottom		widgetDefault
+option add *Disjointlistbox.lhsLabelText    Available   widgetDefault
+option add *Disjointlistbox.rhsLabelText    Current     widgetDefault
+option add *Disjointlistbox.lhsButtonLabel  {Insert >>} widgetDefault
+option add *Disjointlistbox.rhsButtonLabel  {<< Remove} widgetDefault
+option add *Disjointlistbox.vscrollMode     static      widgetDefault
+option add *Disjointlistbox.hscrollMode     static      widgetDefault
+option add *Disjointlistbox.selectMode      multiple    widgetDefault
+option add *Disjointlistbox.labelPos        nw          widgetDefault
+option add *Disjointlistbox.buttonPlacement bottom      widgetDefault
+option add *Disjointlistbox.lhsSortOption   increasing  widgetDefault
+option add *Disjointlistbox.rhsSortOption   increasing  widgetDefault
 
 
 #
@@ -76,7 +75,7 @@ itk::usual Disjointlistbox {
 # ----------------------------------------------------------------------
 # ::iwidgets::Disjointlistbox 
 # ----------------------------------------------------------------------
-class ::iwidgets::Disjointlistbox {
+itcl::class ::iwidgets::Disjointlistbox {
 
   inherit itk::Widget
 
@@ -84,8 +83,10 @@ class ::iwidgets::Disjointlistbox {
   # options
   #
   itk_option define -buttonplacement buttonPlacement ButtonPlacement bottom
-  itk_option define -lhsbuttonlabel lhsButtonLabel LabelText {Insert >>}
-  itk_option define -rhsbuttonlabel rhsButtonLabel LabelText {<< Remove}
+  itk_option define -lhsbuttonlabel  lhsButtonLabel  LabelText       {Insert >>}
+  itk_option define -rhsbuttonlabel  rhsButtonLabel  LabelText       {<< Remove}
+  itk_option define -lhssortoption   lhsSortOption   LhsSortOption   increasing
+  itk_option define -rhssortoption   rhsSortOption   RhsSortOption   increasing
 
   constructor {args} {}
 
@@ -133,70 +134,70 @@ proc ::iwidgets::disjointlistbox {pathName args} {
 #
 # Purpose:   
 #
-body ::iwidgets::Disjointlistbox::constructor {args} {
-  #
-  # Create the left-most Listbox
-  #
-  itk_component add lhs {
-    iwidgets::Scrolledlistbox $itk_interior.lhs \
-      -selectioncommand [code $this listboxClick lhs rhs] \
-      -dblclickcommand [code $this listboxDblClick lhs rhs]
-  } {
-    usual
-    keep -selectmode -vscrollmode -hscrollmode
-    rename -labeltext -lhslabeltext lhsLabelText LabelText
-  }
+itcl::body ::iwidgets::Disjointlistbox::constructor {args} {
+    #
+    # Create the left-most Listbox
+    #
+    itk_component add lhs {
+        iwidgets::Scrolledlistbox $itk_interior.lhs \
+                -selectioncommand [itcl::code $this listboxClick lhs rhs] \
+                -dblclickcommand [itcl::code $this listboxDblClick lhs rhs]
+    } {
+        usual
+        keep -selectmode -vscrollmode -hscrollmode
+        rename -labeltext -lhslabeltext lhsLabelText LabelText
+    }
 
-  #
-  # Create the right-most Listbox
-  #
-  itk_component add rhs {
-    iwidgets::Scrolledlistbox $itk_interior.rhs \
-      -selectioncommand [code $this listboxClick rhs lhs] \
-      -dblclickcommand [code $this listboxDblClick rhs lhs]
-  } {
-    usual
-    keep -selectmode -vscrollmode -hscrollmode
-    rename -labeltext -rhslabeltext rhsLabelText LabelText
-  }
+    #
+    # Create the right-most Listbox
+    #
+    itk_component add rhs {
+        iwidgets::Scrolledlistbox $itk_interior.rhs \
+                -selectioncommand [itcl::code $this listboxClick rhs lhs] \
+                -dblclickcommand [itcl::code $this listboxDblClick rhs lhs]
+    } {
+        usual
+        keep -selectmode -vscrollmode -hscrollmode
+        rename -labeltext -rhslabeltext rhsLabelText LabelText
+    }
 
-  #
-  # Create the left-most item count Label
-  #
-  itk_component add lhsCount {
-    label $itk_interior.lhscount
-  } {
-    usual
-    rename -font -labelfont labelFont Font
-  }
+    #
+    # Create the left-most item count Label
+    #
+    itk_component add lhsCount {
+        label $itk_interior.lhscount
+    } {
+        usual
+        rename -font -labelfont labelFont Font
+    }
 
-  #
-  # Create the right-most item count Label
-  #
-  itk_component add rhsCount {
-    label $itk_interior.rhscount
-  } {
-    usual
-    rename -font -labelfont labelFont Font
-  }
+    #
+    # Create the right-most item count Label
+    #
+    itk_component add rhsCount {
+        label $itk_interior.rhscount
+    } {
+        usual
+        rename -font -labelfont labelFont Font
+    }
 
-  set sourceListbox $itk_component(lhs)
-  set destinationListbox $itk_component(rhs)
+    set sourceListbox $itk_component(lhs)
+    set destinationListbox $itk_component(rhs)
 
-  #
-  # Bind the "showCount" method to the Map event of one of the labels
-  # to keep the diplayed item count current.
-  #
-  bind $itk_component(lhsCount) <Map> [code $this showCount]
+    #
+    # Bind the "showCount" method to the Map event of one of the labels
+    # to keep the diplayed item count current.
+    #
+    bind $itk_component(lhsCount) <Map> [itcl::code $this showCount]
 
-  grid $itk_component(lhs) -row 0 -column 0 -sticky nsew
-  grid $itk_component(rhs) -row 0 -column 2 -sticky nsew
+    grid $itk_component(lhs) -row 0 -column 0 -sticky nsew
+    grid $itk_component(rhs) -row 0 -column 2 -sticky nsew
 
-  grid rowconfigure    $itk_interior 0 -weight 1
-  grid columnconfigure $itk_interior 0 -weight 1
-  grid columnconfigure $itk_interior 2 -weight 1
+    grid rowconfigure    $itk_interior 0 -weight 1
+    grid columnconfigure $itk_interior 0 -weight 1
+    grid columnconfigure $itk_interior 2 -weight 1
 
-  eval itk_initialize $args
+    eval itk_initialize $args
 }
 
 # ------------------------------------------------------------------
@@ -204,12 +205,12 @@ body ::iwidgets::Disjointlistbox::constructor {args} {
 #
 # Purpose: Evaluate a single click make in the specified Listbox.
 #
-body ::iwidgets::Disjointlistbox::listboxClick {clickSide otherSide} {
+itcl::body ::iwidgets::Disjointlistbox::listboxClick {clickSide otherSide} {
     set button "button"
     $itk_component($clickSide$button) configure -state active
     $itk_component($otherSide$button) configure -state disabled
-    set sourceListbox      $itk_component($clickSide)
-    set destinationListbox $itk_component($otherSide)
+    set sourceListbox      $clickSide
+    set destinationListbox $otherSide
 }
 
 # ------------------------------------------------------------------
@@ -217,9 +218,9 @@ body ::iwidgets::Disjointlistbox::listboxClick {clickSide otherSide} {
 #
 # Purpose: Evaluate a double click in the specified Listbox.
 #
-body ::iwidgets::Disjointlistbox::listboxDblClick {clickSide otherSide} {
-  listboxClick $clickSide $otherSide
-  transfer
+itcl::body ::iwidgets::Disjointlistbox::listboxDblClick {clickSide otherSide} {
+    listboxClick $clickSide $otherSide
+    transfer
 }
 
 # ------------------------------------------------------------------
@@ -227,24 +228,27 @@ body ::iwidgets::Disjointlistbox::listboxDblClick {clickSide otherSide} {
 #
 # Purpose: Transfer source Listbox items to destination Listbox
 #
-body ::iwidgets::Disjointlistbox::transfer {} {
+itcl::body ::iwidgets::Disjointlistbox::transfer {} {
 
-  if {[$sourceListbox selecteditemcount] == 0} {
-    return
-  }
-  set selectedindices [lsort -integer -decreasing [$sourceListbox curselection]]
-  set selecteditems [$sourceListbox getcurselection]
+    if {[$sourceListbox selecteditemcount] == 0} {
+        return
+    }
+    set selectedindices [lsort -integer -decreasing [$sourceListbox curselection]]
+    set selecteditems [$sourceListbox getcurselection]
 
-  foreach index $selectedindices {
-    $sourceListbox delete $index
-  }
+    foreach index $selectedindices {
+        $sourceListbox delete $index
+    }
 
-  foreach item $selecteditems {
-    $destinationListbox insert end $item
-  }
-  $destinationListbox sort increasing
+    foreach item $selecteditems {
+        $destinationListbox insert end $item
+    }
 
-  showCount
+    if {![string equal $itk_option(-${destinationListbox}sortoption) "none"]} {
+        $destinationListbox sort $itk_option(-${destinationListbox}sortoption)
+    }
+
+    showCount
 }
 
 # ------------------------------------------------------------------
@@ -252,8 +256,8 @@ body ::iwidgets::Disjointlistbox::transfer {} {
 #
 # Purpose: Retrieve the items of the left Listbox widget
 #
-body ::iwidgets::Disjointlistbox::getlhs {{first 0} {last end}} {
-  return [lhs get $first $last]
+itcl::body ::iwidgets::Disjointlistbox::getlhs {{first 0} {last end}} {
+    return [lhs get $first $last]
 }
 
 # ------------------------------------------------------------------
@@ -261,8 +265,8 @@ body ::iwidgets::Disjointlistbox::getlhs {{first 0} {last end}} {
 #
 # Purpose: Retrieve the items of the right Listbox widget
 #
-body ::iwidgets::Disjointlistbox::getrhs {{first 0} {last end}} {
-  return [rhs get $first $last]
+itcl::body ::iwidgets::Disjointlistbox::getrhs {{first 0} {last end}} {
+    return [rhs get $first $last]
 }
 
 # ------------------------------------------------------------------
@@ -270,9 +274,9 @@ body ::iwidgets::Disjointlistbox::getrhs {{first 0} {last end}} {
 #
 # Purpose: Insert items into the right Listbox widget
 #
-body ::iwidgets::Disjointlistbox::insertrhs {items} {
-  remove $itk_component(lhs) $items
-  insert $itk_component(rhs) $items
+itcl::body ::iwidgets::Disjointlistbox::insertrhs {items} {
+    remove $itk_component(lhs) $items
+    insert rhs $items
 }
 
 # ------------------------------------------------------------------
@@ -280,9 +284,9 @@ body ::iwidgets::Disjointlistbox::insertrhs {items} {
 #
 # Purpose: Insert items into the left Listbox widget
 #
-body ::iwidgets::Disjointlistbox::insertlhs {items} {
-  remove $itk_component(rhs) $items
-  insert $itk_component(lhs) $items
+itcl::body ::iwidgets::Disjointlistbox::insertlhs {items} {
+    remove $itk_component(rhs) $items
+    insert lhs $items
 }
 
 # ------------------------------------------------------------------
@@ -291,10 +295,10 @@ body ::iwidgets::Disjointlistbox::insertlhs {items} {
 # Purpose: Remove the items from the Listbox widgets and set the item count
 #          Labels text to 0
 #
-body ::iwidgets::Disjointlistbox::clear {} {
-  lhs clear
-  rhs clear
-  showCount
+itcl::body ::iwidgets::Disjointlistbox::clear {} {
+    lhs clear
+    rhs clear
+    showCount
 }
 
 # ------------------------------------------------------------------
@@ -303,20 +307,24 @@ body ::iwidgets::Disjointlistbox::clear {} {
 # Purpose: Insert the input items into the input Listbox widget while
 #          maintaining the disjoint property between them.
 #
-body ::iwidgets::Disjointlistbox::insert {theListbox items} {
+itcl::body ::iwidgets::Disjointlistbox::insert {theListbox items} {
 
-  set curritems [$theListbox get 0 end]
+    set curritems [$theListbox get 0 end]
 
-  foreach item $items {
-    #
-    # if the item is not already present in the Listbox then insert it
-    #
-    if {[lsearch -exact $curritems $item] == -1} {
-      $theListbox insert end $item
+    foreach item $items {
+        #
+        # if the item is not already present in the Listbox then insert it
+        #
+        if {[lsearch -exact $curritems $item] == -1} {
+            $theListbox insert end $item
+        }
     }
-  }
-  $theListbox sort increasing
-  showCount
+
+    if {![string equal $itk_option(-${theListbox}sortoption) "none"]} {
+        $theListbox sort $itk_option(-${theListbox}sortoption)
+    }
+
+    showCount
 }
 
 # ------------------------------------------------------------------
@@ -325,24 +333,24 @@ body ::iwidgets::Disjointlistbox::insert {theListbox items} {
 # Purpose: Remove the input items from the input Listbox widget while
 #          maintaining the disjoint property between them.
 #
-body ::iwidgets::Disjointlistbox::remove {theListbox items} {
+itcl::body ::iwidgets::Disjointlistbox::remove {theListbox items} {
 
-  set indexes {}
-  set curritems [$theListbox get 0 end]
+    set indexes {}
+    set curritems [$theListbox get 0 end]
 
-  foreach item $items {
-    #
-    # if the item is in the listbox then add its index to the index list
-    # 
-    if {[set index [lsearch -exact $curritems $item]] != -1} {
-      lappend indexes $index
+    foreach item $items {
+        #
+        # if the item is in the listbox then add its index to the index list
+        # 
+        if {[set index [lsearch -exact $curritems $item]] != -1} {
+            lappend indexes $index
+        }
     }
-  }
 
-  foreach index [lsort -integer -decreasing $indexes] {
-    $theListbox delete $index
-  }
-  showCount
+    foreach index [lsort -integer -decreasing $indexes] {
+        $theListbox delete $index
+    }
+    showCount
 }
 
 # ------------------------------------------------------------------
@@ -350,9 +358,9 @@ body ::iwidgets::Disjointlistbox::remove {theListbox items} {
 #
 # Purpose: Set the text of the item count Labels.
 #
-body ::iwidgets::Disjointlistbox::showCount {} {
-  $itk_component(lhsCount) config -text "item count: [lhs size]"
-  $itk_component(rhsCount) config -text "item count: [rhs size]"
+itcl::body ::iwidgets::Disjointlistbox::showCount {} {
+    $itk_component(lhsCount) config -text "item count: [lhs size]"
+    $itk_component(rhsCount) config -text "item count: [rhs size]"
 }
 
 # ------------------------------------------------------------------
@@ -363,9 +371,9 @@ body ::iwidgets::Disjointlistbox::showCount {} {
 # which exist in the input list option to maintain the disjoint
 # property between the two
 #
-body ::iwidgets::Disjointlistbox::setlhs {items} {
-  lhs clear
-  insertlhs $items
+itcl::body ::iwidgets::Disjointlistbox::setlhs {items} {
+    lhs clear
+    insertlhs $items
 }
 
 # ------------------------------------------------------------------
@@ -376,9 +384,9 @@ body ::iwidgets::Disjointlistbox::setlhs {items} {
 # which exist in the input list option to maintain the disjoint
 # property between the two
 #
-body ::iwidgets::Disjointlistbox::setrhs {items} {
-  rhs clear
-  insertrhs $items
+itcl::body ::iwidgets::Disjointlistbox::setrhs {items} {
+    rhs clear
+    insertrhs $items
 }
 
 # ------------------------------------------------------------------
@@ -386,8 +394,8 @@ body ::iwidgets::Disjointlistbox::setrhs {items} {
 #
 # Purpose: Evaluates the specified arguments against the lhs Listbox
 #
-body ::iwidgets::Disjointlistbox::lhs {args} {
-  return [eval $itk_component(lhs) $args]
+itcl::body ::iwidgets::Disjointlistbox::lhs {args} {
+    return [eval $itk_component(lhs) $args]
 }
 
 # ------------------------------------------------------------------
@@ -395,8 +403,8 @@ body ::iwidgets::Disjointlistbox::lhs {args} {
 #
 # Purpose: Evaluates the specified arguments against the rhs Listbox
 #
-body ::iwidgets::Disjointlistbox::rhs {args} {
-  return [eval $itk_component(rhs) $args]
+itcl::body ::iwidgets::Disjointlistbox::rhs {args} {
+    return [eval $itk_component(rhs) $args]
 }
 
 # ------------------------------------------------------------------
@@ -405,85 +413,117 @@ body ::iwidgets::Disjointlistbox::rhs {args} {
 # Configure the placement of the buttons to be either between or below
 # the two list boxes.
 #
-configbody ::iwidgets::Disjointlistbox::buttonplacement {
-  if {$itk_option(-buttonplacement) != ""} {
+itcl::configbody ::iwidgets::Disjointlistbox::buttonplacement {
+    if {$itk_option(-buttonplacement) != ""} {
 
-    if { [lsearch [component] lhsbutton] != -1 } {
-      eval destroy $itk_component(rhsbutton) $itk_component(lhsbutton)
+        if { [lsearch [component] lhsbutton] != -1 } {
+            eval destroy $itk_component(rhsbutton) $itk_component(lhsbutton)
+        }
+
+        if { [lsearch [component] bbox] != -1 } {
+            destroy $itk_component(bbox)
+        }
+
+        set where $itk_option(-buttonplacement)
+
+        switch $where {
+
+            center {
+                #
+                # Create the button box frame
+                #
+                itk_component add bbox {
+                    frame $itk_interior.bbox
+                }
+    
+                itk_component add lhsbutton {
+                    button $itk_component(bbox).lhsbutton -command [itcl::code \
+                            $this transfer]
+                } {
+                    usual
+                    rename -text -lhsbuttonlabel lhsButtonLabel LabelText
+                    rename -font -labelfont labelFont Font
+                }
+    
+                itk_component add rhsbutton {
+                    button $itk_component(bbox).rhsbutton -command [itcl::code \
+                            $this transfer]
+                } {
+                    usual
+                    rename -text -rhsbuttonlabel rhsButtonLabel LabelText
+                    rename -font -labelfont labelFont Font
+                }
+    
+                grid configure $itk_component(lhsCount) -row 1 -column 0 \
+                        -sticky ew
+                grid configure $itk_component(rhsCount) -row 1 -column 2 \
+                        -sticky ew
+     
+                grid configure $itk_component(bbox) \
+                        -in $itk_interior -row 0 -column 1 -columnspan 1 \
+                                -sticky nsew
+    
+                grid configure $itk_component(rhsbutton) \
+                        -in $itk_component(bbox) -row 0 -column 0 -sticky ew
+                grid configure $itk_component(lhsbutton) \
+                        -in $itk_component(bbox) -row 1 -column 0 -sticky ew
+                }
+
+            bottom {
+    
+                itk_component add lhsbutton {
+                    button $itk_interior.lhsbutton -command [itcl::code $this \
+                            transfer]
+                } {
+                    usual
+                    rename -text -lhsbuttonlabel lhsButtonLabel LabelText
+                    rename -font -labelfont labelFont Font
+                }
+
+                itk_component add rhsbutton {
+                    button $itk_interior.rhsbutton -command [itcl::code $this \
+                            transfer]
+                } {
+                    usual
+                    rename -text -rhsbuttonlabel rhsButtonLabel LabelText
+                    rename -font -labelfont labelFont Font
+                }
+
+                grid $itk_component(lhsCount)  -row 2 -column 0 -sticky ew
+                grid $itk_component(rhsCount)  -row 2 -column 2 -sticky ew
+                grid $itk_component(lhsbutton) -row 1 -column 0 -sticky ew
+                grid $itk_component(rhsbutton) -row 1 -column 2 -sticky ew
+            }
+
+            default {
+                error "bad buttonplacement option\"$where\": should be center\
+                        or bottom"
+            }
+        }
     }
-
-    if { [lsearch [component] bbox] != -1 } {
-      destroy $itk_component(bbox)
-    }
-
-    set where $itk_option(-buttonplacement)
-
-    switch $where {
-
-      center {
-        #
-        # Create the button box frame
-        #
-        itk_component add bbox {
-          frame $itk_interior.bbox
-        }
-
-        itk_component add lhsbutton {
-          button $itk_component(bbox).lhsbutton -command [code $this transfer]
-        } {
-          usual
-          rename -text -lhsbuttonlabel lhsButtonLabel LabelText
-          rename -font -labelfont labelFont Font
-        }
-
-        itk_component add rhsbutton {
-          button $itk_component(bbox).rhsbutton -command [code $this transfer]
-        } {
-          usual
-          rename -text -rhsbuttonlabel rhsButtonLabel LabelText
-          rename -font -labelfont labelFont Font
-        }
-
-        grid configure $itk_component(lhsCount) -row 1 -column 0 -sticky ew
-        grid configure $itk_component(rhsCount) -row 1 -column 2 -sticky ew
-
-        grid configure $itk_component(bbox) \
-              -in $itk_interior -row 0 -column 1 -columnspan 1 -sticky nsew
-
-        grid configure $itk_component(rhsbutton) \
-              -in $itk_component(bbox) -row 0 -column 0 -sticky ew
-        grid configure $itk_component(lhsbutton) \
-              -in $itk_component(bbox) -row 1 -column 0 -sticky ew
-      }
-
-      bottom {
-
-        itk_component add lhsbutton {
-          button $itk_interior.lhsbutton -command [code $this transfer]
-        } {
-          usual
-          rename -text -lhsbuttonlabel lhsButtonLabel LabelText
-          rename -font -labelfont labelFont Font
-        }
-
-        itk_component add rhsbutton {
-          button $itk_interior.rhsbutton -command [code $this transfer]
-        } {
-          usual
-          rename -text -rhsbuttonlabel rhsButtonLabel LabelText
-          rename -font -labelfont labelFont Font
-        }
-
-        grid $itk_component(lhsCount)  -row 2 -column 0 -sticky ew
-        grid $itk_component(rhsCount)  -row 2 -column 2 -sticky ew
-        grid $itk_component(lhsbutton) -row 1 -column 0 -sticky ew
-        grid $itk_component(rhsbutton) -row 1 -column 2 -sticky ew
-      }
-
-      default {
-        error "bad buttonplacement option\"$where\": should be center or bottom"
-      }
-    }
-  }
 }
 
+# ------------------------------------------------------------------
+# OPTION: lhssortoption
+#
+# Configure the sort option to use for the left side
+#
+itcl::configbody ::iwidgets::Disjointlistbox::lhssortoption {
+
+    if {![string equal $itk_option(-lhssortoption) "none"]} {
+        $itk_component(lhs) sort $itk_option(-lhssortoption)
+    }
+}
+
+
+# ------------------------------------------------------------------
+# OPTION: rhssortoption
+#
+# Configure the sort option to use for the right side
+#
+itcl::configbody ::iwidgets::Disjointlistbox::rhssortoption {
+
+    if {![string equal $itk_option(-rhssortoption) "none"]} {
+        $itk_component(rhs) sort $itk_option(-rhssortoption)
+    }
+}

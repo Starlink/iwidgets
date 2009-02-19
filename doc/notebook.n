@@ -5,19 +5,19 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) notebook.n
-'/"
+'\"
 .so man.macros
-.HS notebook iwid
+.HS iwidgets::notebook iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 '\"
 '\"
 .SH NAME
-notebook \- create and manipulate notebook widgets
+iwidgets::notebook \- create and manipulate notebook widgets
 .SH SYNOPSIS
-\fBnotebook\fR \fIpathName\fR ?\fIoptions\fR?
+\fBiwidgets::notebook\fR \fIpathName\fR ?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- notebook
+itk::Widget <- iwidgets::Notebook
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -52,11 +52,11 @@ of the page when the page is switched.
 .BE
 .SH DESCRIPTION
 .PP
-The \fBnotebook\fR command creates a new window (given by the pathName 
+The \fBiwidgets::notebook\fR command creates a new window (given by the pathName 
 argument) and makes it into a notebook widget. Additional options, described 
 above may be specified on the command line or in the option database to 
 configure aspects of the notebook such as its colors, font, and text. 
-The \fBnotebook\fR command returns its \fIpathName\fR argument. At the time 
+The \fBiwidgets::notebook\fR command returns its \fIpathName\fR argument. At the time 
 this command is invoked, there must not exist a window named pathName, but 
 pathName's parent must exist.
 
@@ -91,7 +91,7 @@ packing of the newly selected page.
 
 .SH "WIDGET-SPECIFIC METHODS"
 .PP
-The \fBnotebookfR command creates a new Tcl command whose name 
+The \fBiwidgets::notebookfR command creates a new Tcl command whose name 
 is \fIpathName\fR. This command may be used to invoke various operations 
 on the widget. It has the following general form:
 .DS C
@@ -188,7 +188,7 @@ list will be identical to the corresponding sublist of the value returned
 if no option is specified). If one or more option-value pairs are specified, 
 then the command modifies the given widget option(s) to have the given 
 value(s); in this case the command returns an empty string. \fIOption\fR 
-may have any of the values accepted by the \fBnotebook\fR command.
+may have any of the values accepted by the \fBiwidgets::notebook\fR command.
 .TP
 \fIpathName\fR \fBdelete\fR \fIindex1\fR ?i\fRndex2?
 Delete all of the pages between \fIindex1\fR and \fIindex2\fR inclusive. 
@@ -279,8 +279,10 @@ Following is an example that creates a notebook with two pages. In this example,
 .nf
 .IP
 .ta 2c 8c 12c
+.DS
+package require Iwidgets 4.0
 # Create the notebook widget and pack it.
-  notebook .nb -width 100 -height 100
+  iwidgets::notebook .nb -width 100 -height 100
   pack .nb -anchor nw \\
 	-fill both \\
 	-expand yes \\
@@ -308,9 +310,10 @@ Following is an example that creates a notebook with two pages. In this example,
 .IP
 # Create the scrollbar and associate teh scrollbar
 # and the notebook together, then pack the scrollbar
-  ScrollBar .scroll -command ".nb view"
+  scrollbar .scroll -command ".nb view"
   .nb configure -scrollcommand ".scroll set"
   pack .scroll -fill y -expand yes -pady 10
+.DE
 .fi
 .SH AUTHOR
 Bill W. Scott

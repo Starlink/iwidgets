@@ -5,17 +5,17 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) panedwindow.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS panedwindow iwid
+.HS iwidgets::panedwindow iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-panedwindow \- Create and manipulate a paned window widget
+iwidgets::panedwindow \- Create and manipulate a paned window widget
 .SH SYNOPSIS
-\fBpanedwindow\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::panedwindow\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- panedwindow
+itk::Widget <- iwidgets::Panedwindow
 .SH "STANDARD OPTIONS"
 .LP
 .nf
@@ -96,6 +96,15 @@ Specifies the width of the sash in any of the forms acceptable to
 \fBTk_GetPixels\fR.  The default is 10 pixels.
 .LP
 .nf
+Name:	\fBshowHandle\fR
+Class:	\fBShowHandle\fR
+Command-Line Switch:	\fB-showhandle\fR
+.fi
+.IP
+Specifies whether or not to display the sashes on the window panes.
+The default is 1, and valid options are 0 and 1.
+.LP
+.nf
 Name:	\fBthickness\fR
 Class:	\fBThickness\fR
 Command-Line Switch:	\fB-thickness\fR
@@ -118,7 +127,7 @@ acceptable to \fBTk_GetPixels\fR.  The default is 10 pixels.
 
 .SH DESCRIPTION
 .PP
-The \fBpanedwindow\fR command creates a multiple paned window widget 
+The \fBiwidgets::panedwindow\fR command creates a multiple paned window widget 
 capable of orienting the panes
 either vertically or horizontally.  Each pane is itself a frame acting
 as a child site for other widgets.  The border separating each pane 
@@ -127,7 +136,7 @@ one another.
 
 .SH "METHODS"
 .PP
-The \fBpanedwindow\fR command creates a new Tcl command whose
+The \fBiwidgets::panedwindow\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -179,7 +188,7 @@ The \fBadd\fR method returns the path name of the pane.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBpanedwindow\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::panedwindow\fR
 command.
 .TP
 \fIpathName \fBchildsite\fR ?\fIindex\fR?
@@ -198,7 +207,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBpanedwindow\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::panedwindow\fR
 command.
 .TP
 \fIpathName \fBdelete\fR \fIindex\fR
@@ -258,7 +267,8 @@ normal operation of the panedwindow, this problem will never occur.
 
 .SH EXAMPLE
 .DS
- panedwindow .pw -width 300 -height 300 
+ package require Iwidgets 4.0
+ iwidgets::panedwindow .pw -width 300 -height 300 
  .pw add top
  .pw add middle -margin 10
  .pw add bottom -margin 10 -minimum 10

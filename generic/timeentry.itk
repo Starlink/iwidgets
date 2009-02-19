@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 #   AUTHOR:  Mark L. Ulferts          E-mail: mulferts@austin.dsccc.com
 #
-#   @(#) $Id: timeentry.itk,v 1.0 1997/04/28 12:00:20 mulferts Exp $
+#   @(#) $Id: timeentry.itk,v 1.4 2001/08/17 19:05:08 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -44,7 +44,7 @@ itk::usual Timeentry {
 # ------------------------------------------------------------------
 #                              TIMEENTRY
 # ------------------------------------------------------------------
-class iwidgets::Timeentry {
+itcl::class iwidgets::Timeentry {
     inherit iwidgets::Timefield
     
     constructor {args} {}
@@ -106,7 +106,7 @@ option add *Timeentry.watchHeight 175 widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Timeentry::constructor {args} {
+itcl::body iwidgets::Timeentry::constructor {args} {
     #
     # Create an icon label to act as a button to bring up the 
     # watch popup.
@@ -135,7 +135,7 @@ body iwidgets::Timeentry::constructor {args} {
 # Should one not be provided, then a default pixmap will be used
 # if possible, bitmap otherwise.
 # ------------------------------------------------------------------
-configbody iwidgets::Timeentry::icon {
+itcl::configbody iwidgets::Timeentry::icon {
     if {$itk_option(-icon) == {}} {
 	$itk_component(iconbutton) configure -image [_getDefaultIcon]
     } else {
@@ -154,7 +154,7 @@ configbody iwidgets::Timeentry::icon {
 # Specifies the grab level, local or global, to be obtained when 
 # bringing up the popup watch.  The default is global.
 # ------------------------------------------------------------------
-configbody iwidgets::Timeentry::grab {
+itcl::configbody iwidgets::Timeentry::grab {
     switch -- $itk_option(-grab) {
 	"local" - "global" {}
 	default {
@@ -171,10 +171,10 @@ configbody iwidgets::Timeentry::grab {
 # normal.  A disabled state prevents selection of the time field
 # or time icon button.
 # ------------------------------------------------------------------
-configbody iwidgets::Timeentry::state {
+itcl::configbody iwidgets::Timeentry::state {
     switch -- $itk_option(-state) {
 	normal {
-	    bind $itk_component(iconbutton) <Button-1> [code $this _popup]
+	    bind $itk_component(iconbutton) <Button-1> [itcl::code $this _popup]
 	}
 	disabled {
 	    bind $itk_component(iconbutton) <Button-1> {}
@@ -191,7 +191,7 @@ configbody iwidgets::Timeentry::state {
 # This method is invoked uto retrieve the name of the default icon
 # image displayed in the icon button.
 # ------------------------------------------------------------------
-body iwidgets::Timeentry::_getDefaultIcon {} {
+itcl::body iwidgets::Timeentry::_getDefaultIcon {} {
 
   if {[lsearch [image types] pixmap] != -1} {
 	set _defaultIcon [image create pixmap -data {
@@ -249,7 +249,7 @@ body iwidgets::Timeentry::_getDefaultIcon {} {
     # Since this image will only need to be created once, we redefine
     # this method to just return the image name for subsequent calls.
     #
-    body ::iwidgets::Timeentry::_getDefaultIcon {} {
+    itcl::body ::iwidgets::Timeentry::_getDefaultIcon {} {
 	return $_defaultIcon
     }
 
@@ -265,7 +265,7 @@ body iwidgets::Timeentry::_getDefaultIcon {} {
 # the position at which to display the watch, performs a grab
 # and displays the watch.
 # ------------------------------------------------------------------
-body iwidgets::Timeentry::_popup {} {
+itcl::body iwidgets::Timeentry::_popup {} {
     #
     # First, let's nullify the icon binding so that any another 
     # selections are ignored until were done with this one.  Next,
@@ -288,7 +288,7 @@ body iwidgets::Timeentry::_popup {} {
     #
     # Add a binding to for Escape to always release the grab.
     #
-    bind $itk_component(popup) <KeyPress-Escape> [code $this _releaseGrab]
+    bind $itk_component(popup) <KeyPress-Escape> [itcl::code $this _releaseGrab]
 
     #
     # Create the watch widget.
@@ -311,7 +311,7 @@ body iwidgets::Timeentry::_popup {} {
     # Create a button widget so the user can say they are done.
     #
     itk_component add close {
-	button $itk_component(popup).close -command [code $this _getPopupTime]
+	button $itk_component(popup).close -command [itcl::code $this _getPopupTime]
     } {
 	usual
 	rename -text -closetext closeText Text
@@ -328,18 +328,18 @@ body iwidgets::Timeentry::_popup {} {
     set rootx [winfo rootx $itk_component(iconbutton)]
     set rooty [winfo rooty $itk_component(iconbutton)]
     set popupwidth [cget -watchwidth]
-    set popupheight [expr [cget -watchheight] + \
-			 [winfo reqheight $itk_component(close)]]
+    set popupheight [expr {[cget -watchheight] + \
+			 [winfo reqheight $itk_component(close)]}]
 
-    set popupx [expr $rootx + 3 + \
-		    [winfo width $itk_component(iconbutton)]]
-    set popupy [expr $rooty + 3 + \
-		    [winfo height $itk_component(iconbutton)]]
+     set popupx [expr {$rootx + 3 + \
+                    [winfo width $itk_component(iconbutton)]}]
+     set popupy [expr {$rooty + 3 + \
+                    [winfo height $itk_component(iconbutton)]}]
 
-    if {([expr $popupx + $popupwidth] > [winfo screenwidth .]) || \
-	    ([expr $popupy + $popupheight] > [winfo screenheight .])} {
-	set popupx [expr $rootx - 3 - $popupwidth]
-	set popupy [expr $rooty - 3 - $popupheight]
+     if {(($popupx + $popupwidth) > [winfo screenwidth .]) || \
+            (($popupy + $popupheight) > [winfo screenheight .])} {
+        set popupx [expr {$rootx - 3 - $popupwidth}]
+        set popupy [expr {$rooty - 3 - $popupheight}]
     }
     
     #
@@ -378,7 +378,7 @@ body iwidgets::Timeentry::_popup {} {
 # watch.  It releases the grab and sets the time in the
 # timefield widget.
 # ------------------------------------------------------------------
-body iwidgets::Timeentry::_getPopupTime {} {
+itcl::body iwidgets::Timeentry::_getPopupTime {} {
     show [$itk_component(watch) get -clicks]
     _releaseGrab 
 }
@@ -390,10 +390,9 @@ body iwidgets::Timeentry::_getPopupTime {} {
 # relief of the button back to raised and reapplies the binding
 # to the icon button that engages the popup action.
 # ------------------------------------------------------------------
-body iwidgets::Timeentry::_releaseGrab {} {
+itcl::body iwidgets::Timeentry::_releaseGrab {} {
     grab release $itk_component(popup)
     $itk_component(iconbutton) configure -relief raised
     destroy $itk_component(popup) 
-    unset itk_component(popup)
-    bind $itk_component(iconbutton) <Button-1> [code $this _popup]
+    bind $itk_component(iconbutton) <Button-1> [itcl::code $this _popup]
 }

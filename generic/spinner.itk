@@ -12,7 +12,7 @@
 #                                     E-mail: syockey@spd.dsccc.com
 #                                             yockey@acm.org
 #
-#   @(#) $Id: spinner.itk,v 1.3 1996/07/12 16:19:34 mulferts Exp $
+#   @(#) $Id: spinner.itk,v 1.3 2001/08/17 19:04:37 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -51,7 +51,7 @@ itk::usual Spinner {
 # ------------------------------------------------------------------
 #                              SPINNER
 # ------------------------------------------------------------------
-class iwidgets::Spinner {
+itcl::class iwidgets::Spinner {
     inherit iwidgets::Entryfield 
 
     constructor {args} {}
@@ -99,7 +99,7 @@ proc ::iwidgets::spinner {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Spinner::constructor {args} {
+itcl::body iwidgets::Spinner::constructor {args} {
     #
     # Save off the interior for later use.
     #
@@ -128,11 +128,11 @@ body iwidgets::Spinner::constructor {args} {
     #
     # Add bindings for button press events on the up and down buttons.
     #
-    bind $itk_component(uparrow) <ButtonPress-1> [code $this _pushup]
-    bind $itk_component(uparrow) <ButtonRelease-1> [code $this _relup]
+    bind $itk_component(uparrow) <ButtonPress-1> [itcl::code $this _pushup]
+    bind $itk_component(uparrow) <ButtonRelease-1> [itcl::code $this _relup]
 
-    bind $itk_component(downarrow)  <ButtonPress-1> [code $this _pushdown]
-    bind $itk_component(downarrow) <ButtonRelease-1> [code $this _reldown]
+    bind $itk_component(downarrow)  <ButtonPress-1> [itcl::code $this _pushdown]
+    bind $itk_component(downarrow) <ButtonRelease-1> [itcl::code $this _reldown]
     
     eval itk_initialize $args
 
@@ -146,7 +146,7 @@ body iwidgets::Spinner::constructor {args} {
 #                          DESTRUCTOR
 # ------------------------------------------------------------------
 
-body iwidgets::Spinner::destructor {} {
+itcl::body iwidgets::Spinner::destructor {} {
     if {$_reposition != ""} {after cancel $_reposition}
     if {$_uptimer != ""} {after cancel $_uptimer}
     if {$_downtimer != ""} {after cancel $_downtimer}
@@ -161,7 +161,7 @@ body iwidgets::Spinner::destructor {} {
 #
 # Place arrows vertically or horizontally .
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::arroworient {
+itcl::configbody iwidgets::Spinner::arroworient {
     _positionArrows
 }
 
@@ -170,7 +170,7 @@ configbody iwidgets::Spinner::arroworient {
 #
 # Change font, resize arrow buttons.
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::textfont {
+itcl::configbody iwidgets::Spinner::textfont {
     _positionArrows
 }
 
@@ -179,7 +179,7 @@ configbody iwidgets::Spinner::textfont {
 #
 # Change highlightthickness, resize arrow buttons.
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::highlightthickness {
+itcl::configbody iwidgets::Spinner::highlightthickness {
     _positionArrows
 }
 
@@ -188,7 +188,7 @@ configbody iwidgets::Spinner::highlightthickness {
 #
 # Change borderwidth, resize arrow buttons.
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::borderwidth {
+itcl::configbody iwidgets::Spinner::borderwidth {
     _positionArrows
 }
 
@@ -197,9 +197,9 @@ configbody iwidgets::Spinner::borderwidth {
 #
 # Up arrow callback. 
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::increment {
+itcl::configbody iwidgets::Spinner::increment {
     if {$itk_option(-increment) == {}} {
-	set itk_option(-increment) [code $this up]
+	set itk_option(-increment) [itcl::code $this up]
     }
 }
 
@@ -208,9 +208,9 @@ configbody iwidgets::Spinner::increment {
 #
 # Down arrow callback. 
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::decrement {
+itcl::configbody iwidgets::Spinner::decrement {
     if {$itk_option(-decrement) == {}} {
-	set itk_option(-decrement) [code $this down]
+	set itk_option(-decrement) [itcl::code $this down]
     }
 }
 
@@ -220,7 +220,7 @@ configbody iwidgets::Spinner::decrement {
 # Arrow repeat rate in milliseconds. A repeatinterval of 0 disables 
 # button repeat.
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::repeatinterval {
+itcl::configbody iwidgets::Spinner::repeatinterval {
     if {$itk_option(-repeatinterval) < 0} {
        set itk_option(-repeatinterval) 0
     } 
@@ -231,7 +231,7 @@ configbody iwidgets::Spinner::repeatinterval {
 #
 # Arrow repeat delay in milliseconds. 
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::repeatdelay {
+itcl::configbody iwidgets::Spinner::repeatdelay {
     if {$itk_option(-repeatdelay) < 0} {
        set itk_option(-repeatdelay) 0
     } 
@@ -243,7 +243,7 @@ configbody iwidgets::Spinner::repeatdelay {
 # Set the foreground color of the up and down arrows. Remember
 # to make sure the "tag" exists before setting them...
 # ------------------------------------------------------------------
-configbody iwidgets::Spinner::foreground {
+itcl::configbody iwidgets::Spinner::foreground {
 
     if { [$itk_component(uparrow) gettags up] != "" } {
 	$itk_component(uparrow) itemconfigure up \
@@ -265,7 +265,7 @@ configbody iwidgets::Spinner::foreground {
 #
 # Up arrow command.  Meant to be overloaded by derived class. 
 # ------------------------------------------------------------------
-body iwidgets::Spinner::up {} {
+itcl::body iwidgets::Spinner::up {} {
 }
 
 # ------------------------------------------------------------------
@@ -273,7 +273,7 @@ body iwidgets::Spinner::up {} {
 #
 # Down arrow command.  Meant to be overloaded by derived class.
 # ------------------------------------------------------------------
-body iwidgets::Spinner::down {} {
+itcl::body iwidgets::Spinner::down {} {
 }
 
 # ------------------------------------------------------------------
@@ -283,10 +283,10 @@ body iwidgets::Spinner::down {} {
 # immediately.  If it is "later" or it is not specified, then the 
 # change is applied later, when the application is idle.
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_positionArrows {{when later}} {
+itcl::body iwidgets::Spinner::_positionArrows {{when later}} {
     if {$when == "later"} {
 	if {$_reposition == ""} {
-	    set _reposition [after idle [code $this _positionArrows now]]
+	    set _reposition [after idle [itcl::code $this _positionArrows now]]
 	}
 	return
     } elseif {$when != "now"} {
@@ -310,15 +310,15 @@ body iwidgets::Spinner::_positionArrows {{when later}} {
 	    grid $itk_component(downarrow) -row 1 -column 0
 
 	    set totalHgt [winfo reqheight $itk_component(entry)] 
-	    set spinHgt [expr $totalHgt / 2]
-	    set spinWid [expr round ($spinHgt * 1.6)]
+	    set spinHgt [expr {$totalHgt / 2}]
+	    set spinWid [expr {round ($spinHgt * 1.6)}]
 	}
 	horizontal {
 	    grid $itk_component(uparrow) -row 0 -column 0
 	    grid $itk_component(downarrow) -row 0 -column 1
 
-	    set spinHgt [expr [winfo reqheight $itk_component(entry)] - \
-		    (2 * [$itk_component(entry) cget -highlightthickness])]
+	    set spinHgt [expr {[winfo reqheight $itk_component(entry)] - \
+		    (2 * [$itk_component(entry) cget -highlightthickness])}]
 	    set spinWid $spinHgt
 	}
 	default {
@@ -332,23 +332,23 @@ body iwidgets::Spinner::_positionArrows {{when later}} {
     # Next delete the previous spinner polygons and create new ones.
     #
     $itk_component(uparrow) config \
-	    -height [expr $spinHgt - (2 * $bdw)] \
-	    -width [expr $spinWid - (2 * $bdw)]
+	    -height [expr {$spinHgt - (2 * $bdw)}] \
+	    -width [expr {$spinWid - (2 * $bdw)}]
     $itk_component(uparrow) delete up
     $itk_component(uparrow) create polygon \
-	    [expr $spinWid / 2] $bdw \
-	    [expr $spinWid - $bdw - 1] [expr $spinHgt - $bdw -1] \
-	    [expr $bdw + 1] [expr $spinHgt - $bdw - 1] \
+	    [expr {$spinWid / 2}] $bdw \
+	    [expr {$spinWid - $bdw - 1}] [expr {$spinHgt - $bdw -1}] \
+	    [expr {$bdw + 1}] [expr {$spinHgt - $bdw - 1}] \
 	    -fill $itk_option(-foreground) -tags up
 	    
     $itk_component(downarrow) config \
-	    -height [expr $spinHgt - (2 * $bdw)] \
-	    -width [expr $spinWid - (2 * $bdw)]
+	    -height [expr {$spinHgt - (2 * $bdw)}] \
+	    -width [expr {$spinWid - (2 * $bdw)}]
     $itk_component(downarrow) delete down
     $itk_component(downarrow) create polygon \
-	    [expr $spinWid / 2] [expr ($spinHgt - $bdw) - 1] \
-	    [expr $bdw + 2] [expr $bdw + 1] \
-	    [expr $spinWid - $bdw - 2] [expr $bdw + 1] \
+	    [expr {$spinWid / 2}] [expr {($spinHgt - $bdw) - 1}] \
+	    [expr {$bdw + 2}] [expr {$bdw + 1}] \
+	    [expr {$spinWid - $bdw - 2}] [expr {$bdw + 1}] \
 	    -fill $itk_option(-foreground) -tags down
 }
 
@@ -357,7 +357,7 @@ body iwidgets::Spinner::_positionArrows {{when later}} {
 #
 # Up arrow button press event.  Call _doup with repeatdelay. 
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_pushup {} {
+itcl::body iwidgets::Spinner::_pushup {} {
     $itk_component(uparrow) config -relief sunken
     _doup $itk_option(-repeatdelay)
 }
@@ -367,7 +367,7 @@ body iwidgets::Spinner::_pushup {} {
 #
 # Down arrow button press event.  Call _dodown with repeatdelay. 
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_pushdown {} {
+itcl::body iwidgets::Spinner::_pushdown {} {
     $itk_component(downarrow) config -relief sunken
     _dodown $itk_option(-repeatdelay)
 }
@@ -378,11 +378,11 @@ body iwidgets::Spinner::_pushdown {} {
 # Call _up and post to do another one after "rate" milliseconds if
 # repeatinterval > 0.
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_doup {rate} {
+itcl::body iwidgets::Spinner::_doup {rate} {
     _up 
 
     if {$itk_option(-repeatinterval) > 0} {
-	set _uptimer [after $rate [code $this _doup $itk_option(-repeatinterval)]]
+	set _uptimer [after $rate [itcl::code $this _doup $itk_option(-repeatinterval)]]
     }
 }
 
@@ -392,12 +392,12 @@ body iwidgets::Spinner::_doup {rate} {
 # Call _down and post to do another one after "rate" milliseconds if 
 # repeatinterval > 0.
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_dodown {rate} {
+itcl::body iwidgets::Spinner::_dodown {rate} {
     _down 
 
     if {$itk_option(-repeatinterval) > 0} {
 	set _downtimer \
-		[after $rate [code $this _dodown $itk_option(-repeatinterval)]]
+		[after $rate [itcl::code $this _dodown $itk_option(-repeatinterval)]]
     }
 }
 
@@ -406,7 +406,7 @@ body iwidgets::Spinner::_dodown {rate} {
 #
 # Up arrow button release event.  Cancel pending up timer.
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_relup {} {
+itcl::body iwidgets::Spinner::_relup {} {
     $itk_component(uparrow) config -relief raised
 
     if {$_uptimer != ""} {
@@ -420,7 +420,7 @@ body iwidgets::Spinner::_relup {} {
 #
 # Up arrow button release event.  Cancel pending down timer.
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_reldown {} {
+itcl::body iwidgets::Spinner::_reldown {} {
     $itk_component(downarrow) config -relief raised
 
     if {$_downtimer != ""} { 
@@ -434,7 +434,7 @@ body iwidgets::Spinner::_reldown {} {
 #
 # Up arrow button press event.  Call defined increment command. 
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_up {} {
+itcl::body iwidgets::Spinner::_up {} {
     uplevel #0 $itk_option(-increment)
 }
 
@@ -443,6 +443,6 @@ body iwidgets::Spinner::_up {} {
 #
 # Down arrow button press event.  Call defined decrement command. 
 # ------------------------------------------------------------------
-body iwidgets::Spinner::_down {} {
+itcl::body iwidgets::Spinner::_down {} {
     uplevel #0 $itk_option(-decrement)
 }

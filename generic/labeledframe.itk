@@ -84,7 +84,7 @@ itk::usual Labeledframe {
     keep -background -cursor -labelfont -foreground
 }
 
-class iwidgets::Labeledframe {
+itcl::class iwidgets::Labeledframe {
 
   inherit itk::Archetype
 
@@ -103,14 +103,19 @@ class iwidgets::Labeledframe {
   public method childsite {}
 
   #
-  # Private methods
+  # Protected methods
   #
-    method smt {value} { _setMarginThickness $value }
-  private {
+  protected {
     method _positionLabel {{when later}}
     method _collapseMargin {}
     method _setMarginThickness {value}
+    method smt {value} { _setMarginThickness $value }
+  }
 
+  #
+  # Private methods/data
+  #
+  private {
     proc _initTable {}
 
     variable _reposition ""  ;# non-null => _positionLabel pending
@@ -130,7 +135,7 @@ proc ::iwidgets::labeledframe {pathName args} {
 # -----------------------------------------------------------------------------
 #                        CONSTRUCTOR
 # -----------------------------------------------------------------------------
-body iwidgets::Labeledframe::constructor { args } {
+itcl::body iwidgets::Labeledframe::constructor { args } {
   #
   #  Create a window with the same name as this object
   #
@@ -146,7 +151,7 @@ body iwidgets::Labeledframe::constructor { args } {
     rename -highlightbackground -background background Background
     rename -highlightcolor -background background Background
   }
-  bind itk-delete-$itk_hull <Destroy> "delete object $this"
+  bind itk-delete-$itk_hull <Destroy> "itcl::delete object $this"
 
   set tags [bindtags $itk_hull]
   bindtags $itk_hull [linsert $tags 0 itk-delete-$itk_hull]
@@ -182,7 +187,7 @@ body iwidgets::Labeledframe::constructor { args } {
   grid columnconfigure $itk_interior 1 -weight 1
   grid rowconfigure    $itk_interior 1 -weight 1
 
-  bind $itk_component(label) <Configure> +[code $this _positionLabel]
+  bind $itk_component(label) <Configure> +[itcl::code $this _positionLabel]
 
   #
   # Initialize the class array of layout configuration options.  Since
@@ -199,9 +204,9 @@ body iwidgets::Labeledframe::constructor { args } {
 }
 
 # -----------------------------------------------------------------------------
-#                           DESTURCTOR
+#                           DESTRUCTOR
 # -----------------------------------------------------------------------------
-body iwidgets::Labeledframe::destructor {} {
+itcl::body iwidgets::Labeledframe::destructor {} {
 
   if {$_reposition != ""} {
     after cancel $_reposition
@@ -227,7 +232,7 @@ body iwidgets::Labeledframe::destructor {} {
 # Specifies the width of the horizontal gap from the border to the
 # the child site.
 # ------------------------------------------------------------------
-configbody iwidgets::Labeledframe::ipadx {
+itcl::configbody iwidgets::Labeledframe::ipadx {
   grid configure $itk_component(childsite) -padx $itk_option(-ipadx)
   _positionLabel
 }
@@ -238,7 +243,7 @@ configbody iwidgets::Labeledframe::ipadx {
 # Specifies the width of the vertical gap from the border to the
 # the child site.
 # ------------------------------------------------------------------
-configbody iwidgets::Labeledframe::ipady {
+itcl::configbody iwidgets::Labeledframe::ipady {
   grid configure $itk_component(childsite) -pady $itk_option(-ipady)
   _positionLabel
 }
@@ -249,7 +254,7 @@ configbody iwidgets::Labeledframe::ipady {
 # Set the margin of the most adjacent side of the label to the hull
 # relief.
 # ----------------------------------------------------------------------------
-configbody iwidgets::Labeledframe::labelmargin {
+itcl::configbody iwidgets::Labeledframe::labelmargin {
   _positionLabel
 }
 
@@ -259,7 +264,7 @@ configbody iwidgets::Labeledframe::labelmargin {
 # Set the position of the label within the relief of the hull frame
 # widget.
 # ----------------------------------------------------------------------------
-configbody iwidgets::Labeledframe::labelpos {
+itcl::configbody iwidgets::Labeledframe::labelpos {
   _positionLabel
 }
 
@@ -283,7 +288,7 @@ configbody iwidgets::Labeledframe::labelpos {
 #   Each of the 12 rows is layed out as follows:
 #     {"-relx" "-rely" <rowconfigure|columnconfigure> <row/column number>}
 # -----------------------------------------------------------------------------
-body iwidgets::Labeledframe::_initTable {} {
+itcl::body iwidgets::Labeledframe::_initTable {} {
   array set _LAYOUT_TABLE {
     nw-relx 0.0  nw-rely 0.0  nw-wrap 0 nw-conf rowconfigure    nw-num 0
     n-relx  0.5  n-rely  0.0  n-wrap  0 n-conf  rowconfigure    n-num  0
@@ -319,7 +324,7 @@ body iwidgets::Labeledframe::_initTable {} {
 # PUBLIC METHOD:: childsite
 #
 # -----------------------------------------------------------------------------
-body iwidgets::Labeledframe::childsite {} {
+itcl::body iwidgets::Labeledframe::childsite {} {
   return $itk_component(childsite)
 }
 
@@ -331,11 +336,11 @@ body iwidgets::Labeledframe::childsite {} {
 # specified, then the change is applied later, when the application
 # is idle.
 # -----------------------------------------------------------------------------
-body iwidgets::Labeledframe::_positionLabel {{when later}} {
+itcl::body iwidgets::Labeledframe::_positionLabel {{when later}} {
 
   if {$when == "later"} {
     if {$_reposition == ""} {
-      set _reposition [after idle [code $this _positionLabel now]]
+      set _reposition [after idle [itcl::code $this _positionLabel now]]
     }
     return
   } 
@@ -361,78 +366,78 @@ body iwidgets::Labeledframe::_positionLabel {{when later}} {
   switch $pos {
     nw {
       set labelThickness $labelHeight
-      set minsize [expr $labelThickness/2.0]
-      set xPos [expr $minsize+$borderwidth+$margin]
+      set minsize [expr {$labelThickness/2.0}]
+      set xPos [expr {$minsize+$borderwidth+$margin}]
       set yPos -$minsize
     }
     n {
       set labelThickness $labelHeight
-      set minsize [expr $labelThickness/2.0]
-      set xPos [expr -$labelWidth/2.0]
+      set minsize [expr {$labelThickness/2.0}]
+      set xPos [expr {-$labelWidth/2.0}]
       set yPos -$minsize
     }
     ne  {
       set labelThickness $labelHeight
-      set minsize [expr $labelThickness/2.0]
-      set xPos [expr -($minsize+$borderwidth+$margin+$labelWidth)]
+      set minsize [expr {$labelThickness/2.0}]
+      set xPos [expr {-($minsize+$borderwidth+$margin+$labelWidth)}]
       set yPos -$minsize
     }
 
     sw  {
       set labelThickness $labelHeight
-      set minsize [expr $labelThickness/2.0]
-      set xPos [expr $minsize+$borderwidth+$margin]
+      set minsize [expr {$labelThickness/2.0}]
+      set xPos [expr {$minsize+$borderwidth+$margin}]
       set yPos -$minsize
     }
     s {
       set labelThickness $labelHeight
-      set minsize [expr $labelThickness/2.0]
-      set xPos [expr -$labelWidth/2.0]
-      set yPos [expr -$labelHeight/2.0]
+      set minsize [expr {$labelThickness/2.0}]
+      set xPos [expr {-$labelWidth/2.0}]
+      set yPos [expr {-$labelHeight/2.0}]
     }
     se {
       set labelThickness $labelHeight
-      set minsize [expr $labelThickness/2.0]
-      set xPos [expr -($minsize+$borderwidth+$margin+$labelWidth)]
-      set yPos [expr -$labelHeight/2.0]
+      set minsize [expr {$labelThickness/2.0}]
+      set xPos [expr {-($minsize+$borderwidth+$margin+$labelWidth)}]
+      set yPos [expr {-$labelHeight/2.0}]
     }
 
     wn {
       set labelThickness $labelWidth
-      set minsize [expr $labelThickness/2.0]
+      set minsize [expr {$labelThickness/2.0}]
       set xPos -$minsize
-      set yPos [expr $minsize+$margin+$borderwidth]
+      set yPos [expr {$minsize+$margin+$borderwidth}]
     }
     w {
       set labelThickness $labelWidth
-      set minsize [expr $labelThickness/2.0]
+      set minsize [expr {$labelThickness/2.0}]
       set xPos -$minsize
-      set yPos [expr -($labelHeight/2.0)]
+      set yPos [expr {-($labelHeight/2.0)}]
     }
     ws {
       set labelThickness $labelWidth
-      set minsize [expr $labelThickness/2.0]
+      set minsize [expr {$labelThickness/2.0}]
       set xPos -$minsize
-      set yPos [expr -($minsize+$borderwidth+$margin+$labelHeight)]
+      set yPos [expr {-($minsize+$borderwidth+$margin+$labelHeight)}]
     }
 
     en {
       set labelThickness $labelWidth
-      set minsize [expr $labelThickness/2.0]
+      set minsize [expr {$labelThickness/2.0}]
       set xPos -$minsize
-      set yPos [expr $minsize+$borderwidth+$margin]
+      set yPos [expr {$minsize+$borderwidth+$margin}]
     }
     e {
       set labelThickness $labelWidth
-      set minsize [expr $labelThickness/2.0]
+      set minsize [expr {$labelThickness/2.0}]
       set xPos -$minsize
-      set yPos [expr -($labelHeight/2.0)]
+      set yPos [expr {-($labelHeight/2.0)}]
     }
     es {
       set labelThickness $labelWidth
-      set minsize [expr $labelThickness/2.0]
+      set minsize [expr {$labelThickness/2.0}]
       set xPos -$minsize
-      set yPos [expr -($minsize+$borderwidth+$margin+$labelHeight)]
+      set yPos [expr {-($minsize+$borderwidth+$margin+$labelHeight)}]
     }
   }
   _setMarginThickness $minsize
@@ -456,7 +461,7 @@ body iwidgets::Labeledframe::_positionLabel {{when later}} {
 # Resets the "-minsize" of all rows and columns of the hull's grid
 # used to set the label margin to 0
 # -----------------------------------------------------------------------------
-body iwidgets::Labeledframe::_collapseMargin {} {
+itcl::body iwidgets::Labeledframe::_collapseMargin {} {
   grid columnconfigure $itk_interior 0 -minsize 0
   grid columnconfigure $itk_interior 2 -minsize 0
   grid rowconfigure $itk_interior 0 -minsize 0
@@ -482,7 +487,7 @@ body iwidgets::Labeledframe::_collapseMargin {} {
 # This way the option is not visible or configurable without some hacking.
 #
 # -----------------------------------------------------------------------------
-body iwidgets::Labeledframe::_setMarginThickness {value} {
+itcl::body iwidgets::Labeledframe::_setMarginThickness {value} {
   itk_option add hull.highlightthickness
   $itk_component(hull) configure -highlightthickness $value
   itk_option remove hull.highlightthickness

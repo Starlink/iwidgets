@@ -5,24 +5,25 @@
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
 '\" @(#) hierarchy.n 1.21 94/12/17 16:04:44
-'/" 
+'\" 
 .so man.macros
-.HS hierarchy iwid
+.HS iwidgets::hierarchy iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-hierarchy \- Create and manipulate a hierarchy widget
+iwidgets::hierarchy \- Create and manipulate a hierarchy widget
 .SH SYNOPSIS
-\fBhierarchy\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::hierarchy\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Labeledwidget <- Scrolledwidget <- Hierarchy
+itk::Widget <- iwidgets::Labeledwidget <- iwidgets::Scrolledwidget <- iwidgets::Hierarchy
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBactiveForeground\fR	\fBbackground\fR	\fBborderWidth\fR
-\fBcursor\fR	\fBdisabledForeground\fR	\fBforeground\fR	\fBhighlightColor\fR
-\fBhighlightThickness\fR	\fBrelief\fR	\fBselectBackground\fR	\fBselectForeground\fR
+\fB
+activeBackground    activeForeground    background        borderWidth
+cursor              disabledForeground  foreground        highlightColor
+highlightThickness  relief              selectBackground  selectForeground\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -48,7 +49,7 @@ associated options.
 .nf
 .ta 4c 8c 12c
 \fBlabelBitmap\fR	\fBlabelFont\fR	\fBlabelImage\fR	\fBlabelMargin\fR
-\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR
+\fBlabelPos\fR	\fBlabelText\fR	\fBlabelVariable\fR	\fBsticky\fR
 .fi
 .LP
 See the "labeledwidget" class manual entry for details on the inherited options.
@@ -76,6 +77,17 @@ Specifies the name of an existing closed icon image to be used in the
 hierarchy before those nodes that are collapsed.  Should one not be 
 provided, then a folder icon will be generated, pixmap if possible, 
 bitmap otherwise.
+.LP
+.nf
+Name:	\fBdblClickCommand\fR
+Class:	\fBCommand\fR
+Command-Line Switch:	\fB-dblclickcommand\fR
+.fi
+.IP
+Specifies a command to be executed upon user double clicking via mouse button
+one of the text label of an entry. If this command contains "%n", it is
+replaced with the name of the selected node. Should it contain "%s" then a
+boolean indicator of the node's current selection status is substituted.
 .LP
 .nf
 Name:	\fBexpanded\fR
@@ -122,6 +134,48 @@ one of any additional icons given in the values returned by the command
 associated with the -querycommand option.  If this command contains "%n", 
 it is replaced with the name of the node the icon belongs to.  Should it 
 contain "%i" then the icon name is  substituted.
+.LP
+.nf
+Name:	\fBiconDblCommand\fR
+Class:	\fBCommand\fR
+Command-Line Switch:	\fB-icondblcommand\fR
+.fi
+.IP
+Specifies a command to be executed upon user double clicking via mouse button
+one of the icon of an entry. If this command contains "%n", it is replaced
+with the name of the node the icon belongs to. Should it contain "%i" then
+the icon name is substituted.
+.LP
+.nf
+Name:	\fBimageCommand\fR
+Class:	\fBCommand\fR
+Command-Line Switch:	\fB-imagecommand\fR
+.fi
+.IP
+Specifies a command to be executed upon user selecting an image of an entry.
+If this command contains "%n", it is replaced with the name of the selected
+node. Should it contain "%s" then a boolean indicator of the node's current
+selection status is substituted.
+.LP
+.nf
+Name:	\fBimageDblCommand\fR
+Class:	\fBCommand\fR
+Command-Line Switch:	\fB-imagedblcommand\fR
+.fi
+.IP
+Specifies a command to be executed upon user double clicking via mouse button
+one of the image of an entry. If this command contains "%n", it is replaced
+with the name of the node the icon belongs to. Should it contain "%i" then
+the icon name is substituted.
+.LP
+.nf
+Name:	\fBimageMenuLoadCommand\fR
+Class:	\fBCommand\fR
+Command-Line Switch:	\fB-imagemenuloadcommand\fR
+.fi
+.IP
+Specifies a command to be executed upon user selection via mouse button three,
+on the image or icon, that will dynamically load the itemMenu for the widget.
 .LP
 .nf
 Name:	\fBmarkBackground\fR
@@ -246,6 +300,16 @@ the scrollbars in any of the forms acceptable to \fBTk_GetPixels\fR.  The
 default is 3 pixels.
 .LP
 .nf
+Name:	\fBselectCommand\fR
+Class:	\fBCommand\fR
+Command-Line Switch:	\fB-selectcommand\fR
+.fi
+.IP
+Specifies a Tcl command to be evaluated when you select a node in the
+hierarchy via left mouse click.  If "%n" is included in the command, it is
+substituted with the node name.  Similarly, "%s" is substituted with the
+node's current selection status: 1 for selected, 0 otherwise.
+.LP
 Name:	\fBtextBackground\fR
 Class:	\fBBackground\fR
 Command-Line Switch:	\fB-textbackground\fR
@@ -261,6 +325,15 @@ Command-Line Switch:	\fB-textfont\fR
 .fi
 .IP
 Specifies the font to be used in the text portion of the hierarchy.
+.LP
+.nf
+Name:	\fBtextMenuLoadCommand\fR
+Class:	\fBCommand\fR
+Command-Line Switch:	\fB-textmenuloadcommand\fR
+.fi
+.IP
+Specifies a command to be executed upon user selection via mouse button three,
+that will dynamically load the itemMenu for the widget.
 .LP
 .nf
 Name:	\fBvisibleitems\fR
@@ -308,11 +381,13 @@ the height causes the value given for the visibleitems option
 to be applied which administers geometry constraints in a different
 manner.  The default width is zero.
 .LP
+
+
 .BE
 
 .SH DESCRIPTION
 .PP
-The \fBhierarchy\fR command creates a hierarchical data view widget.  
+The \fBiwidgets::hierarchy\fR command creates a hierarchical data view widget.  
 It allows the graphical management of a a list of nodes that can be
 expanded or collapsed.  Individual nodes can be highlighted.
 Clicking with the right mouse button on any item brings up a
@@ -326,7 +401,7 @@ label to the hierarchy and controlling its position.
 
 .SH "METHODS"
 .PP
-The \fBhierarchy\fR command creates a new Tcl command whose
+The \fBiwidgets::hierarchy\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -353,7 +428,7 @@ See the "text" manual entry for details on the standard methods.
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBhierarchy\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::hierarchy\fR
 command.
 .TP
 \fIpathName \fBclear\fR
@@ -379,7 +454,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBhierarchy\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::hierarchy\fR
 command.
 .TP
 \fIpathName \fBcurrent\fR
@@ -395,6 +470,13 @@ or -eventually where the latter means the draw can be performed after idle.
 Expands the hierarchy beneath the node with the specified unique id by
 one level.  Since this can take a moment for large hierarchies, the cursor 
 will be changed to a watch during the expansion.
+.TP
+\fIpathName \fBexpanded\fR \fIuid\fR
+Returns the current state of expansion for the node with the specified unique
+id.
+.TP
+\fIpathName \fBexpState\fR
+Returns a list of all expanded nodes in the tree.
 .TP
 \fIpathName \fBmark\fR \fIoption ?arg arg ...?\fR
 This command is used to manipulate marks which is quite similar to 
@@ -512,6 +594,7 @@ manual entry for details on the vertsb component item.
 
 .SH EXAMPLE
 .DS
+package require Iwidgets 4.0
 proc get_files {file} {
     global env
 
@@ -534,7 +617,7 @@ proc get_files {file} {
     return $rlist
 }
 
-hierarchy .h -querycommand "get_files %n" -visibleitems 30x15 \
+iwidgets::hierarchy .h -querycommand "get_files %n" -visibleitems 30x15 \
     -labeltext $env(HOME)
 pack .h -side left -expand yes -fill both
 .DE

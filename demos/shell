@@ -1,12 +1,7 @@
-#!/bin/sh
-# \
-	exec itkwish -f "$0" ${1+"$@"}
-
-package require Iwidgets 3.0
-
-#
-# Demo script for the Shell class
-#
+# ----------------------------------------------------------------------
+#  DEMO: selectiondialog in [incr Widgets]
+# ----------------------------------------------------------------------
+package require Iwidgets 4.0
 
 iwidgets::shell .sh -modality none -padx 20 -pady 20 -title Shell
 
@@ -14,8 +9,3 @@ pack [label [.sh childsite].l -text SHELL]
 
 .sh center
 .sh activate
-
-
-
-
-

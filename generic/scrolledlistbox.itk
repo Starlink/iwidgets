@@ -9,7 +9,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts             EMAIL: mulferts@austin.dsccc.com
 #
-#  @(#) $Id: scrolledlistbox.itk,v 1.5 1996/12/09 20:10:23 mulferts Exp $
+#  @(#) $Id: scrolledlistbox.itk,v 1.9 2002/03/16 16:25:44 mgbacke Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -39,15 +39,15 @@
 #
 itk::usual Scrolledlistbox {
     keep -activebackground -activerelief -background -borderwidth -cursor \
-	 -elementborderwidth -foreground -highlightcolor -highlightthickness \
-	 -jump -labelfont -selectbackground -selectborderwidth \
-	 -selectforeground -textbackground -textfont -troughcolor 
+     -elementborderwidth -foreground -highlightcolor -highlightthickness \
+     -jump -labelfont -selectbackground -selectborderwidth \
+     -selectforeground -textbackground -textfont -troughcolor 
 }
 
 # ------------------------------------------------------------------
 #                          SCROLLEDLISTBOX
 # ------------------------------------------------------------------
-class iwidgets::Scrolledlistbox {
+itcl::class iwidgets::Scrolledlistbox {
     inherit iwidgets::Scrolledwidget
 
     constructor {args} {}
@@ -69,7 +69,7 @@ class iwidgets::Scrolledlistbox {
     public method delete {first {last {}}} 
     public method get {first {last {}}} 
     public method getcurselection {} 
-    public method insert {index string args} 
+    public method insert {index args} 
     public method nearest {y} 
     public method scan {option args} 
     public method selection {option first {last {}}} 
@@ -79,6 +79,7 @@ class iwidgets::Scrolledlistbox {
     public method sort {{mode ascending}} 
     public method xview {args} 
     public method yview {args} 
+    public method itemconfigure {args}
 
     protected method _makeSelection {} 
     protected method _dblclick {} 
@@ -90,29 +91,28 @@ class iwidgets::Scrolledlistbox {
     # change here too.
     #
     common doubleSelectSeq { \
-	<Double-1> 
+    <Double-1> 
     }
 
     common singleSelectSeq { \
         <Control-Key-backslash> \
-	<Control-Key-slash> \
-	<Key-Escape> \
-	<Shift-Key-Select> \
-	<Control-Shift-Key-space> \
-	<Key-Select> \
-	<Key-space> \
-	<Control-Shift-Key-End> \
-	<Control-Key-End> \
-	<Control-Shift-Key-Home> \
-	<Control-Key-Home> \
-	<Key-Down> \
-	<Key-Up> \
-	<Shift-Key-Down> \
-	<Shift-Key-Up> \
-	<Control-Button-1> \
-	<Shift-Button-1> \
-	<ButtonRelease-1> \
-	<B1-Motion>
+    <Control-Key-slash> \
+    <Key-Escape> \
+    <Shift-Key-Select> \
+    <Control-Shift-Key-space> \
+    <Key-Select> \
+    <Key-space> \
+    <Control-Shift-Key-End> \
+    <Control-Key-End> \
+    <Control-Shift-Key-Home> \
+    <Control-Key-Home> \
+    <Key-Down> \
+    <Key-Up> \
+    <Shift-Key-Down> \
+    <Shift-Key-Up> \
+    <Control-Button-1> \
+    <Shift-Button-1> \
+    <ButtonRelease-1> \
     }
 }
 
@@ -131,7 +131,7 @@ option add *Scrolledlistbox.labelPos n widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::constructor {args} {
+itcl::body iwidgets::Scrolledlistbox::constructor {args} {
     #
     # Our -width and -height options are slightly different than
     # those implemented by our base class, so we're going to
@@ -144,20 +144,21 @@ body iwidgets::Scrolledlistbox::constructor {args} {
     # Create the listbox.
     #
     itk_component add listbox {
-	listbox $itk_interior.listbox \
-		-width 1 -height 1 \
-	        -xscrollcommand \
-		[code $this _scrollWidget $itk_interior.horizsb] \
-		-yscrollcommand \
-		[code $this _scrollWidget $itk_interior.vertsb]
+    listbox $itk_interior.listbox \
+        -width 1 -height 1 \
+            -xscrollcommand \
+        [itcl::code $this _scrollWidget $itk_interior.horizsb] \
+        -yscrollcommand \
+        [itcl::code $this _scrollWidget $itk_interior.vertsb]
     } {
-	usual
+    usual
 
-	keep -borderwidth -exportselection -relief -selectmode
-	
-	rename -font -textfont textFont Font
-	rename -background -textbackground textBackground Background
-	rename -highlightbackground -background background Background
+    keep -borderwidth -exportselection -relief -selectmode
+    keep -listvariable
+    
+    rename -font -textfont textFont Font
+    rename -background -textbackground textBackground Background
+    rename -highlightbackground -background background Background
     }
     grid $itk_component(listbox) -row 0 -column 0 -sticky nsew
     grid rowconfigure $_interior 0 -weight 1
@@ -167,28 +168,28 @@ body iwidgets::Scrolledlistbox::constructor {args} {
     # Configure the command on the vertical scroll bar in the base class.
     #
     $itk_component(vertsb) configure \
-	-command [code $itk_component(listbox) yview]
+    -command [itcl::code $itk_component(listbox) yview]
 
     #
     # Configure the command on the horizontal scroll bar in the base class.
     #
     $itk_component(horizsb) configure \
-		-command [code $itk_component(listbox) xview]
+        -command [itcl::code $itk_component(listbox) xview]
     
     # 
     # Create a set of bindings for monitoring the selection and install
     # them on the listbox component.
     #
     foreach seq $singleSelectSeq {
-	bind SLBSelect$this $seq [code $this _makeSelection]
+        bind SLBSelect$this $seq [itcl::code $this _makeSelection]
     }
 
     foreach seq $doubleSelectSeq {
-	bind SLBSelect$this $seq [code $this _dblclick]
+        bind SLBSelect$this $seq [itcl::code $this _dblclick]
     }
 
     bindtags $itk_component(listbox) \
-	[linsert [bindtags $itk_component(listbox)] end SLBSelect$this]
+            [linsert [bindtags $itk_component(listbox)] end SLBSelect$this]
 
     #
     # Also create a set of bindings for disabling the scrolledlistbox.
@@ -196,15 +197,15 @@ body iwidgets::Scrolledlistbox::constructor {args} {
     # they don't need to be unique to the object level.
     #
     if {[bind SLBDisabled] == {}} {
-	foreach seq $singleSelectSeq {
-	    bind SLBDisabled $seq break
-	}
+        foreach seq $singleSelectSeq {
+            bind SLBDisabled $seq break
+        }
 
-	bind SLBDisabled <Button-1> break
+        bind SLBDisabled <Button-1> break
 
-	foreach seq $doubleSelectSeq {
-	    bind SLBDisabled $seq break
-	}
+        foreach seq $doubleSelectSeq {
+            bind SLBDisabled $seq break
+        }
     }
 
     #
@@ -216,7 +217,7 @@ body iwidgets::Scrolledlistbox::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTURCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::destructor {} {
+itcl::body iwidgets::Scrolledlistbox::destructor {} {
 }
 
 # ------------------------------------------------------------------
@@ -230,7 +231,7 @@ body iwidgets::Scrolledlistbox::destructor {} {
 # item.  Also, create a couple of bindings used for specific
 # selection modes
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledlistbox::dblclickcommand {}
+itcl::configbody iwidgets::Scrolledlistbox::dblclickcommand {}
 
 # ------------------------------------------------------------------
 # OPTION: -selectioncommand
@@ -239,7 +240,7 @@ configbody iwidgets::Scrolledlistbox::dblclickcommand {}
 # item.  The command will be called upon each selection regardless 
 # of selection mode..
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledlistbox::selectioncommand {}
+itcl::configbody iwidgets::Scrolledlistbox::selectioncommand {}
 
 # ------------------------------------------------------------------
 # OPTION: -width
@@ -253,24 +254,24 @@ configbody iwidgets::Scrolledlistbox::selectioncommand {}
 # to be applied which administers geometry constraints in a different
 # manner.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledlistbox::width {
+itcl::configbody iwidgets::Scrolledlistbox::width {
     if {$itk_option(-width) != 0} {
-	set shell [lindex [grid info $itk_component(listbox)] 1]
+        set shell [lindex [grid info $itk_component(listbox)] 1]
 
-	#
-	# Due to a bug in the tk4.2 grid, we have to check the 
-	# propagation before setting it.  Setting it to the same
-	# value it already is will cause it to toggle.
-	#
-	if {[grid propagate $shell]} {
-	    grid propagate $shell no
-	}
-	
-	$itk_component(listbox) configure -width 1
-	$shell configure \
-		-width [winfo pixels $shell $itk_option(-width)] 
+        #
+        # Due to a bug in the tk4.2 grid, we have to check the 
+        # propagation before setting it.  Setting it to the same
+        # value it already is will cause it to toggle.
+        #
+        if {[grid propagate $shell]} {
+            grid propagate $shell no
+        }
+    
+        $itk_component(listbox) configure -width 1
+        $shell configure \
+                -width [winfo pixels $shell $itk_option(-width)] 
     } else {
-	configure -visibleitems $itk_option(-visibleitems)
+        configure -visibleitems $itk_option(-visibleitems)
     }
 }
 
@@ -286,24 +287,24 @@ configbody iwidgets::Scrolledlistbox::width {
 # to be applied which administers geometry constraints in a different
 # manner.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledlistbox::height {
+itcl::configbody iwidgets::Scrolledlistbox::height {
     if {$itk_option(-height) != 0} {
-	set shell [lindex [grid info $itk_component(listbox)] 1]
+        set shell [lindex [grid info $itk_component(listbox)] 1]
 
-	#
-	# Due to a bug in the tk4.2 grid, we have to check the 
-	# propagation before setting it.  Setting it to the same
-	# value it already is will cause it to toggle.
-	#
-	if {[grid propagate $shell]} {
-	    grid propagate $shell no
-	}
-	
-	$itk_component(listbox) configure -height 1
-	$shell configure \
-		-height [winfo pixels $shell $itk_option(-height)] 
+        #
+        # Due to a bug in the tk4.2 grid, we have to check the 
+        # propagation before setting it.  Setting it to the same
+        # value it already is will cause it to toggle.
+        #
+        if {[grid propagate $shell]} {
+            grid propagate $shell no
+        }
+    
+        $itk_component(listbox) configure -height 1
+        $shell configure \
+                -height [winfo pixels $shell $itk_option(-height)] 
     } else {
-	configure -visibleitems $itk_option(-visibleitems)
+        configure -visibleitems $itk_option(-visibleitems)
     }
 }
 
@@ -321,31 +322,31 @@ configbody iwidgets::Scrolledlistbox::height {
 # are applied to the scrolled list box as a whole.  The listbox 
 # is compressed or expanded to maintain the geometry constraints.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledlistbox::visibleitems {
+itcl::configbody iwidgets::Scrolledlistbox::visibleitems {
     if {[regexp {^[0-9]+x[0-9]+$} $itk_option(-visibleitems)]} {
-	if {($itk_option(-width) == 0) && \
-		($itk_option(-height) == 0)} {
-	    set chars [lindex [split $itk_option(-visibleitems) x] 0]
-	    set lines [lindex [split $itk_option(-visibleitems) x] 1]
-	    
-	    set shell [lindex [grid info $itk_component(listbox)] 1]
+        if {($itk_option(-width) == 0) && \
+                ($itk_option(-height) == 0)} {
+            set chars [lindex [split $itk_option(-visibleitems) x] 0]
+            set lines [lindex [split $itk_option(-visibleitems) x] 1]
+        
+            set shell [lindex [grid info $itk_component(listbox)] 1]
 
-	    #
-	    # Due to a bug in the tk4.2 grid, we have to check the 
-	    # propagation before setting it.  Setting it to the same
-	    # value it already is will cause it to toggle.
-	    #
-	    if {! [grid propagate $shell]} {
-		grid propagate $shell yes
-	    }
-	    
-	    $itk_component(listbox) configure -width $chars -height $lines
-	}
-	
+            #
+            # Due to a bug in the tk4.2 grid, we have to check the 
+            # propagation before setting it.  Setting it to the same
+            # value it already is will cause it to toggle.
+            #
+            if {! [grid propagate $shell]} {
+                grid propagate $shell yes
+            }
+        
+            $itk_component(listbox) configure -width $chars -height $lines
+        }
+    
     } else {
-	error "bad visibleitems option\
-		\"$itk_option(-visibleitems)\": should be\
-		widthxheight"
+        error "bad visibleitems option\
+                \"$itk_option(-visibleitems)\": should be\
+        widthxheight"
     }
 }
 
@@ -356,7 +357,7 @@ configbody iwidgets::Scrolledlistbox::visibleitems {
 # disabled or normal.  In a disabled state, the scrolledlistbox 
 # does not accept user selection.  The default is normal.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledlistbox::state {
+itcl::configbody iwidgets::Scrolledlistbox::state {
     set tags [bindtags $itk_component(listbox)]
 
     #
@@ -365,23 +366,31 @@ configbody iwidgets::Scrolledlistbox::state {
     # to install the disabled bindings if they haven't been already.
     #
     switch -- $itk_option(-state) {
-	normal {
-	    if {[set index [lsearch $tags SLBDisabled]] != -1} {
-		bindtags $itk_component(listbox) \
-		    [lreplace $tags $index $index]
-	    }
-	}
+        normal {
+                $itk_component(listbox) configure \
+                    -foreground $itk_option(-foreground)
+                $itk_component(listbox) configure \
+                    -selectforeground $itk_option(-selectforeground)
+            if {[set index [lsearch $tags SLBDisabled]] != -1} {
+                bindtags $itk_component(listbox) \
+                        [lreplace $tags $index $index]
+            }
+        }
 
-	disabled {
-	    if {[set index [lsearch $tags SLBDisabled]] == -1} {
-		bindtags $itk_component(listbox) \
-		    [linsert $tags 1 SLBDisabled]
-	    }
-	}
-	default {
-	    error "bad state value \"$itk_option(-state)\":\
-                   must be normal or disabled"
-	}
+        disabled {
+                $itk_component(listbox) configure \
+                    -foreground $itk_option(-disabledforeground)
+                $itk_component(listbox) configure \
+                    -selectforeground $itk_option(-disabledforeground)
+            if {[set index [lsearch $tags SLBDisabled]] == -1} {
+                bindtags $itk_component(listbox) \
+                        [linsert $tags 1 SLBDisabled]
+            }
+        }
+        default {
+            error "bad state value \"$itk_option(-state)\":\
+                    must be normal or disabled"
+        }
     }
 }
 
@@ -395,7 +404,7 @@ configbody iwidgets::Scrolledlistbox::state {
 # Returns a list containing the indices of all the elements in the 
 # listbox that are currently selected.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::curselection {} {
+itcl::body iwidgets::Scrolledlistbox::curselection {} {
     return [$itk_component(listbox) curselection]
 }
 
@@ -404,7 +413,7 @@ body iwidgets::Scrolledlistbox::curselection {} {
 #
 # Sets the active element to the one indicated by index.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::activate {index} {
+itcl::body iwidgets::Scrolledlistbox::activate {index} {
     return [$itk_component(listbox) activate [_fixIndex $index]]
 }
 
@@ -414,7 +423,7 @@ body iwidgets::Scrolledlistbox::activate {index} {
 # Returns four element list describing the bounding box for the list
 # item at index
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::bbox {index} {
+itcl::body iwidgets::Scrolledlistbox::bbox {index} {
     return [$itk_component(listbox) bbox [_fixIndex $index]]
 }
 
@@ -423,7 +432,7 @@ body iwidgets::Scrolledlistbox::bbox {index} {
 #
 # Clear the listbox area of all items.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::clear {} {
+itcl::body iwidgets::Scrolledlistbox::clear {} {
     delete 0 end
 }
 
@@ -432,7 +441,7 @@ body iwidgets::Scrolledlistbox::clear {} {
 #
 # Adjusts the view such that the element given by index is visible.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::see {index} {
+itcl::body iwidgets::Scrolledlistbox::see {index} {
     $itk_component(listbox) see [_fixIndex $index]
 }
 
@@ -443,18 +452,17 @@ body iwidgets::Scrolledlistbox::see {index} {
 # to index.  The index value may be a integer number, active,
 # anchor, end, @x,y, or a pattern.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::index {index} {
-    if {[regexp {(^[0-9]+$)|(active)|(anchor)|(end)|(^@-?[0-9]+,-?[0-9]+$)} $index]} {
-	return [$itk_component(listbox) index $index]
-	
+itcl::body iwidgets::Scrolledlistbox::index {index} {
+    if {[regexp {(^[0-9]+$)|(^active$)|(^anchor$)|(^end$)|(^@-?[0-9]+,-?[0-9]+$)} $index]} {
+    return [$itk_component(listbox) index $index]
+    
     } else {
-	set indexValue [lsearch -glob [get 0 end] $index]
-	
-	if {$indexValue == -1} {
-	    error "bad Scrolledlistbox index \"$index\": must be active, anchor, end, @x,y, number, or a pattern"
-	}
-	
-	return $indexValue
+        set indexValue [lsearch -glob [get 0 end] $index]
+        if {$indexValue == -1} {
+            error "bad Scrolledlistbox index \"$index\": must be active,\
+                    anchor, end, @x,y, number, or a pattern"
+        }
+        return $indexValue
     }
 }
 
@@ -467,17 +475,18 @@ body iwidgets::Scrolledlistbox::index {index} {
 # it is left alone.  This fixes problems associated with converting
 # an index such as "end" to a numerical value.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::_fixIndex {index} {
-    if {[regexp {(^[0-9]+$)|(active)|(anchor)|(end)|(^@[0-9]+,[0-9]+$)} $index]} {
+itcl::body iwidgets::Scrolledlistbox::_fixIndex {index} {
+    if {[regexp {(^[0-9]+$)|(^active$)|(^anchor$)|(^end$)|(^@[0-9]+,[0-9]+$)} \
+            $index]} {
         return $index
 
     } else {
         set indexValue [lsearch -glob [get 0 end] $index]
 
         if {$indexValue == -1} {
-            error "bad Scrolledlistbox index \"$index\": must be active, anchor, end, @x,y, number, or a pattern"
+            error "bad Scrolledlistbox index \"$index\": must be active,\
+                    anchor, end, @x,y, number, or a pattern"
         }
-
         return $indexValue
     }
 }
@@ -489,13 +498,13 @@ body iwidgets::Scrolledlistbox::_fixIndex {index} {
 # last index values.  Indexes may be a number, active, anchor, end,
 # @x,y, or a pattern.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::delete {first {last {}}} {
+itcl::body iwidgets::Scrolledlistbox::delete {first {last {}}} {
     set first [_fixIndex $first]
     
     if {$last != {}} {
-	set last [_fixIndex $last]
+        set last [_fixIndex $last]
     } else {
-	set last $first
+        set last $first
     }
     
     eval $itk_component(listbox) delete $first $last
@@ -507,17 +516,17 @@ body iwidgets::Scrolledlistbox::delete {first {last {}}} {
 # Returns the elements of the listbox indicated by the indexes. 
 # Indexes may be a number, active, anchor, end, @x,y, ora pattern.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::get {first {last {}}} {
+itcl::body iwidgets::Scrolledlistbox::get {first {last {}}} {
     set first [_fixIndex $first]
     
     if {$last != {}} {
-	set last [_fixIndex $last]
+        set last [_fixIndex $last]
     }
     
     if {$last == {}} {
-	return [$itk_component(listbox) get $first]
+        return [$itk_component(listbox) get $first]
     } else {
-	return [$itk_component(listbox) get $first $last]
+        return [$itk_component(listbox) get $first $last]
     }
 }
 
@@ -528,25 +537,25 @@ body iwidgets::Scrolledlistbox::get {first {last {}}} {
 # selection indexes.  Short cut version of get and curselection 
 # command combination.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::getcurselection {} {
+itcl::body iwidgets::Scrolledlistbox::getcurselection {} {
     set rlist {}
 
     if {[selecteditemcount] > 0} {
-	set cursels [$itk_component(listbox) curselection]
+        set cursels [$itk_component(listbox) curselection]
     
-	switch $itk_option(-selectmode) {
-	    single -
-	    browse {
-		set rlist [$itk_component(listbox) get $cursels]
-	    }
+        switch $itk_option(-selectmode) {
+            single -
+            browse {
+                set rlist [$itk_component(listbox) get $cursels]
+            }
 
-	    multiple -
-	    extended {
-		foreach sel $cursels {
-		    lappend rlist [$itk_component(listbox) get $sel]
-		}
-	    }
-	}
+            multiple -
+            extended {
+                foreach sel $cursels {
+                    lappend rlist [$itk_component(listbox) get $sel]
+                }
+            }
+        }
     }
     
     return $rlist
@@ -558,9 +567,8 @@ body iwidgets::Scrolledlistbox::getcurselection {} {
 # Insert zero or more elements in the list just before the element 
 # given by index.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::insert {index string args} {
+itcl::body iwidgets::Scrolledlistbox::insert {index args} {
     set index [_fixIndex $index]
-    set args [linsert $args 0 $string]
 
     eval $itk_component(listbox) insert $index $args
 }
@@ -571,7 +579,7 @@ body iwidgets::Scrolledlistbox::insert {index string args} {
 # Given a y-coordinate within the listbox, this command returns the 
 # index of the visible listbox element nearest to that y-coordinate.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::nearest {y} {
+itcl::body iwidgets::Scrolledlistbox::nearest {y} {
     $itk_component(listbox) nearest $y
 }
 
@@ -580,7 +588,7 @@ body iwidgets::Scrolledlistbox::nearest {y} {
 #
 # Implements scanning on listboxes.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::scan {option args} {
+itcl::body iwidgets::Scrolledlistbox::scan {option args} {
     eval $itk_component(listbox) scan $option $args
 }
 
@@ -590,14 +598,14 @@ body iwidgets::Scrolledlistbox::scan {option args} {
 # Adjusts the selection within the listbox.  The index value may be 
 # a integer number, active, anchor, end, @x,y, or a pattern.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::selection {option first {last {}}} {
+itcl::body iwidgets::Scrolledlistbox::selection {option first {last {}}} {
     set first [_fixIndex $first]
     
     if {$last != {}} {
-	set last [_fixIndex $last]
-	$itk_component(listbox) selection $option $first $last
+        set last [_fixIndex $last]
+        $itk_component(listbox) selection $option $first $last
     } else {
-	$itk_component(listbox) selection $option $first 
+        $itk_component(listbox) selection $option $first 
     }
 }
 
@@ -607,7 +615,7 @@ body iwidgets::Scrolledlistbox::selection {option first {last {}}} {
 # Returns a decimal string indicating the total number of elements 
 # in the listbox.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::size {} {
+itcl::body iwidgets::Scrolledlistbox::size {} {
     return [$itk_component(listbox) size]
 }
 
@@ -617,7 +625,7 @@ body iwidgets::Scrolledlistbox::size {} {
 # Returns a decimal string indicating the total number of selected 
 # elements in the listbox.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::selecteditemcount {} {
+itcl::body iwidgets::Scrolledlistbox::selecteditemcount {} {
     return [llength [$itk_component(listbox) curselection]]
 }
 
@@ -627,58 +635,53 @@ body iwidgets::Scrolledlistbox::selecteditemcount {} {
 # Justifies the list scrolled region in one of four directions: top,
 # bottom, left, or right.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::justify {direction} {
+itcl::body iwidgets::Scrolledlistbox::justify {direction} {
     switch $direction {
-	left { 
-	    $itk_component(listbox) xview moveto 0
-	}
-	right {
-	    $itk_component(listbox) xview moveto 1
-	}
-	top {
-	    $itk_component(listbox) yview moveto 0
-	}
-	bottom {
-	    $itk_component(listbox) yview moveto 1
-	}
-	default {
-	    error "bad justify argument \"$direction\": should\
-		    be left, right, top, or bottom"
-	}
+        left { 
+            $itk_component(listbox) xview moveto 0
+        }
+        right {
+            $itk_component(listbox) xview moveto 1
+        }
+        top {
+            $itk_component(listbox) yview moveto 0
+        }
+        bottom {
+            $itk_component(listbox) yview moveto 1
+        }
+        default {
+            error "bad justify argument \"$direction\": should\
+                be left, right, top, or bottom"
+        }
     }
 }
 
 # ------------------------------------------------------------------
 # METHOD: sort mode
 #
-# Sort the current list in either "ascending/increasing" or 
-# "descending/decreasing" order.
+# Sort the current list. This can take any sort switch from
+# the lsort command: ascii, integer, real, command, 
+# increasing/ascending, decreasing/descending, etc.
+#     
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::sort {{mode ascending}} {
+itcl::body iwidgets::Scrolledlistbox::sort {{mode ascending}} {
+
+    set vals [$itk_component(listbox) get 0 end]
+    if {[llength $vals] == 0} {return}
+
     switch $mode {
-	ascending -
-	increasing {
-	    set vals [$itk_component(listbox) get 0 end]
-	    if {[llength $vals] != 0} {
-		$itk_component(listbox) delete 0 end
-		eval $itk_component(listbox) insert end \
-		    [lsort -increasing $vals]
-	    }
-	}
-	descending -
-	decreasing {
-	    set vals [$itk_component(listbox) get 0 end]
-	    if {[llength $vals] != 0} {
-		$itk_component(listbox) delete 0 end
-		eval $itk_component(listbox) insert end \
-		    [lsort -decreasing $vals]
-	    }
-	}
-	default {
-	    error "bad sort argument \"$mode\": should be\
-		    ascending, descending, increasing, or decreasing"
-	}
+        ascending   {set mode increasing}
+        descending  {set mode decreasing}
     }
+
+    $itk_component(listbox) delete 0 end
+    if {[catch {eval $itk_component(listbox) insert end \
+            [lsort -${mode} $vals]} errorstring]} {
+        error "bad sort argument \"$mode\": must be a valid argument to the\
+                Tcl lsort command"
+    }
+
+    return
 }
 
 # ------------------------------------------------------------------
@@ -686,7 +689,7 @@ body iwidgets::Scrolledlistbox::sort {{mode ascending}} {
 #
 # Change or query the vertical position of the text in the list box.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::xview {args} {
+itcl::body iwidgets::Scrolledlistbox::xview {args} {
     return [eval $itk_component(listbox) xview $args]
 }
 
@@ -695,8 +698,18 @@ body iwidgets::Scrolledlistbox::xview {args} {
 #
 # Change or query the horizontal position of the text in the list box.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::yview {args} {
+itcl::body iwidgets::Scrolledlistbox::yview {args} {
     return [eval $itk_component(listbox) yview $args]
+}
+
+# ------------------------------------------------------------------
+# METHOD: itemconfigure args
+#
+# This is a wrapper method around the new tk8.3 itemconfigure command
+# for the listbox.
+# ------------------------------------------------------------------
+itcl::body iwidgets::Scrolledlistbox::itemconfigure {args} {
+    return [eval $itk_component(listbox) itemconfigure $args]
 }
 
 # ------------------------------------------------------------------
@@ -704,7 +717,7 @@ body iwidgets::Scrolledlistbox::yview {args} {
 #
 # Evaluate the selection command.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::_makeSelection {} {
+itcl::body iwidgets::Scrolledlistbox::_makeSelection {} {
     uplevel #0 $itk_option(-selectioncommand)
 }
 
@@ -713,7 +726,7 @@ body iwidgets::Scrolledlistbox::_makeSelection {} {
 #
 # Evaluate the double click command option if not empty.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledlistbox::_dblclick {} {
+itcl::body iwidgets::Scrolledlistbox::_dblclick {} {
     uplevel #0 $itk_option(-dblclickcommand)
-}	
+}   
 

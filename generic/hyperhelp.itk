@@ -6,7 +6,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Kris Raney                   EMAIL: kraney@spd.dsccc.com
 #
-#  @(#) $Id: hyperhelp.itk,v 2.4 1997/06/13 17:57:45 kraney Exp $
+#  @(#) $Id: hyperhelp.itk,v 1.5 2002/03/16 05:26:19 mgbacke Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1996 DSC Technologies Corporation
 # ======================================================================
@@ -60,7 +60,7 @@ itk::usual Hyperhelp {
 # ------------------------------------------------------------------
 #                          HYPERHELP
 # ------------------------------------------------------------------
-class iwidgets::Hyperhelp {
+itcl::class iwidgets::Hyperhelp {
     inherit iwidgets::Shell
 
     constructor {args} {}
@@ -109,7 +109,7 @@ proc ::iwidgets::hyperhelp {pathName args} {
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::constructor {args} {
+itcl::body iwidgets::Hyperhelp::constructor {args} {
     itk_option remove iwidgets::Shell::padx iwidgets::Shell::pady
 
     #
@@ -157,13 +157,13 @@ body iwidgets::Hyperhelp::constructor {args} {
     }
     set m $itk_component(navmenu)
     $m add command -label "Forward" -underline 0 -state disabled \
-         -command [code $this forward] -accelerator f
+         -command [itcl::code $this forward] -accelerator f
     $m add command -label "Back" -underline 0 -state disabled \
-         -command [code $this back] -accelerator b
+         -command [itcl::code $this back] -accelerator b
     $m add cascade -label "Go" -underline 0 -menu $m.go
 
     itk_component add -private navgo {
-      menu $itk_component(navmenu).go -postcommand [code $this _fill_go_menu]
+      menu $itk_component(navmenu).go -postcommand [itcl::code $this _fill_go_menu]
     } {
       keep -background -cursor -font -foreground \
               -activebackground -activeforeground
@@ -189,23 +189,23 @@ body iwidgets::Hyperhelp::constructor {args} {
     #
     # Bind shortcut keys
     #
-    bind $itk_component(hull) <Key-f> [code $this forward]
-    bind $itk_component(hull) <Key-b> [code $this back]
-    bind $itk_component(hull) <Alt-Right> [code $this forward]
-    bind $itk_component(hull) <Alt-Left> [code $this back]
-    bind $itk_component(hull) <Key-space> [code $this _pageforward]
-    bind $itk_component(hull) <Key-Next> [code $this _pageforward]
-    bind $itk_component(hull) <Key-BackSpace> [code $this _pageback]
-    bind $itk_component(hull) <Key-Prior> [code $this _pageback]
-    bind $itk_component(hull) <Key-Delete> [code $this _pageback]
-    bind $itk_component(hull) <Key-Down> [code $this _lineforward]
-    bind $itk_component(hull) <Key-Up> [code $this _lineback]
+    bind $itk_component(hull) <Key-f> [itcl::code $this forward]
+    bind $itk_component(hull) <Key-b> [itcl::code $this back]
+    bind $itk_component(hull) <Alt-Right> [itcl::code $this forward]
+    bind $itk_component(hull) <Alt-Left> [itcl::code $this back]
+    bind $itk_component(hull) <Key-space> [itcl::code $this _pageforward]
+    bind $itk_component(hull) <Key-Next> [itcl::code $this _pageforward]
+    bind $itk_component(hull) <Key-BackSpace> [itcl::code $this _pageback]
+    bind $itk_component(hull) <Key-Prior> [itcl::code $this _pageback]
+    bind $itk_component(hull) <Key-Delete> [itcl::code $this _pageback]
+    bind $itk_component(hull) <Key-Down> [itcl::code $this _lineforward]
+    bind $itk_component(hull) <Key-Up> [itcl::code $this _lineback]
 
     wm title $itk_component(hull) "Help"
 
     eval itk_initialize $args
     if {[lsearch -exact $args -closecmd] == -1} {
-      configure -closecmd [code $this deactivate]
+      configure -closecmd [itcl::code $this deactivate]
     }
 }
 
@@ -219,7 +219,7 @@ body iwidgets::Hyperhelp::constructor {args} {
 # Specifies the topics to display on the menu. For each topic, there should
 # be a file named <helpdir>/<topic>.html
 # ------------------------------------------------------------------
-configbody iwidgets::Hyperhelp::topics {
+itcl::configbody iwidgets::Hyperhelp::topics {
     set m $itk_component(topicmenu)
     $m delete 0 last
     foreach topic $itk_option(-topics) {
@@ -251,7 +251,7 @@ configbody iwidgets::Hyperhelp::topics {
 #
 # Specify the window title.
 # ------------------------------------------------------------------
-configbody iwidgets::Hyperhelp::title {
+itcl::configbody iwidgets::Hyperhelp::title {
     wm title $itk_component(hull) $itk_option(-title)
 }
 
@@ -260,7 +260,7 @@ configbody iwidgets::Hyperhelp::title {
 #
 # Set location of help files
 # ------------------------------------------------------------------
-configbody iwidgets::Hyperhelp::helpdir {
+itcl::configbody iwidgets::Hyperhelp::helpdir {
     if {[file pathtype $itk_option(-helpdir)] == "relative"} {
       configure -helpdir [file join [pwd] $itk_option(-helpdir)]
     } else {
@@ -278,7 +278,7 @@ configbody iwidgets::Hyperhelp::helpdir {
 #
 # Specify the command to execute when close is selected from the menu
 # ------------------------------------------------------------------
-configbody iwidgets::Hyperhelp::closecmd {
+itcl::configbody iwidgets::Hyperhelp::closecmd {
   $itk_component(topicmenu) entryconfigure last -command $itk_option(-closecmd) 
 }
 
@@ -292,7 +292,7 @@ configbody iwidgets::Hyperhelp::closecmd {
 # render text of help topic <topic>. The text is expected to be found in
 # <helpdir>/<topic>.html
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::showtopic {topic} {
+itcl::body iwidgets::Hyperhelp::showtopic {topic} {
   if ![regexp {(.*)#(.*)} $topic dummy topicname anchorpart] {
     set topicname $topic
     set anchorpart {}
@@ -304,12 +304,12 @@ body iwidgets::Hyperhelp::showtopic {topic} {
     set filepath $itk_option(-helpdir)/$topicname.html
   }
   if {[incr _history_ndx] < $itk_option(-maxhistory)} {
-    set _history [lrange $_history 0 [expr $_history_ndx - 1]]
-    set _history_len [expr $_history_ndx + 1]
+    set _history [lrange $_history 0 [expr {$_history_ndx - 1}]]
+    set _history_len [expr {$_history_ndx + 1}]
   } else {
     incr _history_ndx -1
     set _history [lrange $_history 1 $_history_ndx]
-    set _history_len [expr $_history_ndx + 1]
+    set _history_len [expr {$_history_ndx + 1}]
   }
   lappend _history [list $topicname $filepath $anchorpart]
   _readtopic $filepath $anchorpart
@@ -320,7 +320,7 @@ body iwidgets::Hyperhelp::showtopic {topic} {
 #
 # Callback for click on a link. Shows new topic.
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::followlink {link} {
+itcl::body iwidgets::Hyperhelp::followlink {link} {
   if {[string compare $beforelink ""] != 0} {
     eval $beforelink $link
   }
@@ -336,8 +336,8 @@ body iwidgets::Hyperhelp::followlink {link} {
     set hfile $_file
   }
   incr _history_ndx
-  set _history [lrange $_history 0 [expr $_history_ndx - 1]]
-  set _history_len [expr $_history_ndx + 1]
+  set _history [lrange $_history 0 [expr {$_history_ndx - 1}]]
+  set _history_len [expr {$_history_ndx + 1}]
   lappend _history [list [file rootname [file tail $hfile]] $hfile $anchorpart]
   set ret [_readtopic $filepart $anchorpart]
   if {[string compare $afterlink ""] != 0} {
@@ -351,7 +351,7 @@ body iwidgets::Hyperhelp::followlink {link} {
 #
 # Show topic one forward in history list
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::forward {} {
+itcl::body iwidgets::Hyperhelp::forward {} {
     if {$_rendering || ($_history_ndx+1) >= $_history_len} return
     incr _history_ndx
     eval _readtopic [lrange [lindex $_history $_history_ndx] 1 end]
@@ -362,7 +362,7 @@ body iwidgets::Hyperhelp::forward {} {
 #
 # Show topic one back in history list
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::back {} {
+itcl::body iwidgets::Hyperhelp::back {} {
     if {$_rendering || $_history_ndx <= 0} return
     incr _history_ndx -1
     set _histdir 1
@@ -374,9 +374,9 @@ body iwidgets::Hyperhelp::back {} {
 #
 # Callback from text to update feedback widget
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::updatefeedback {n} {
+itcl::body iwidgets::Hyperhelp::updatefeedback {n} {
     if {($_remaining - $n) > .1*$_len} {
-      [$itk_interior.feedbackshell childsite].helpfeedback step [expr $_remaining - $n]
+      [$itk_interior.feedbackshell childsite].helpfeedback step [expr {$_remaining - $n}]
       update idletasks
       set _remaining $n
     }
@@ -387,67 +387,71 @@ body iwidgets::Hyperhelp::updatefeedback {n} {
 #
 # Read in file, render it in text area, and jump to anchorpoint
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::_readtopic {file {anchorpoint {}}} {
-  if {$file != ""} {
-    if {[string compare $file $_file] != 0} {
-      if {[catch {set f [open $file r]} err]} {
-        incr _history_ndx $_histdir
-        set _history_len [expr $_history_ndx + 1]
-        set _histdir -1
-        set m $itk_component(navmenu)
-        if {($_history_ndx+1) < $_history_len} {
-          $m entryconfig 0 -state normal
-        } else {
-          $m entryconfig 0 -state disabled
+itcl::body iwidgets::Hyperhelp::_readtopic {file {anchorpoint {}}} {
+    if {$file != ""} {
+        if {[string compare $file $_file] != 0} {
+            if {[catch {set f [open $file r]} err]} {
+                incr _history_ndx $_histdir
+                set _history_len [expr {$_history_ndx + 1}]
+                set _histdir -1
+                set m $itk_component(navmenu)
+                if {($_history_ndx+1) < $_history_len} {
+                    $m entryconfig 0 -state normal
+                } else {
+                    $m entryconfig 0 -state disabled
+                }
+                if {$_history_ndx > 0} {
+                    $m entryconfig 1 -state normal
+                } else {
+                    $m entryconfig 1 -state disabled
+                }
+                return
+            }
+            set _file $file
+            set txt [read $f]
+            iwidgets::shell $itk_interior.feedbackshell -title \
+                    "Rendering HTML" -padx 1 -pady 1
+            iwidgets::Feedback [$itk_interior.feedbackshell \
+                    childsite].helpfeedback \
+            -steps [set _len [string length $txt]] \
+                    -labeltext "Rendering HTML" -labelpos n
+            pack [$itk_interior.feedbackshell childsite].helpfeedback
+            $itk_interior.feedbackshell center $itk_interior
+            $itk_interior.feedbackshell activate
+            set _remaining $_len
+            set _rendering 1
+            if {[catch {$itk_component(scrtxt) render $txt [file dirname \
+                    $file]} err]} {
+                if [regexp "</pre>" $err] {
+                    $itk_component(scrtxt) render "<tt>$err</tt>"
+                } else {
+                    $itk_component(scrtxt) render "<pre>$err</pre>"
+                }
+            }
+            wm title $itk_component(hull) "Help: $file"
+            itcl::delete object [$itk_interior.feedbackshell \
+                    childsite].helpfeedback
+            itcl::delete object $itk_interior.feedbackshell
+            set _rendering 0
         }
-        if {$_history_ndx > 0} {
-          $m entryconfig 1 -state normal
-        } else {
-          $m entryconfig 1 -state disabled
-        }
-        error $err
-      }
-      set _file $file
-      set txt [read $f]
-      iwidgets::shell $itk_interior.feedbackshell -title "Rendering HTML" -padx 1 -pady 1
-      iwidgets::Feedback [$itk_interior.feedbackshell childsite].helpfeedback \
-          -steps [set _len [string length $txt]] \
-          -labeltext "Rendering HTML" -labelpos n
-      pack [$itk_interior.feedbackshell childsite].helpfeedback
-      $itk_interior.feedbackshell center $itk_interior
-      $itk_interior.feedbackshell activate
-      set _remaining $_len
-      set _rendering 1
-      if [catch {$itk_component(scrtxt) render $txt [file dirname $file]} err] {
-          if [regexp "</pre>" $err] {
-            $itk_component(scrtxt) render "<tt>$err</tt>"
-          } else {
-            $itk_component(scrtxt) render "<pre>$err</pre>"
-          }
-      }
-      wm title $itk_component(hull) "Help: $file"
-      delete object [$itk_interior.feedbackshell childsite].helpfeedback
-      delete object $itk_interior.feedbackshell
-      set _rendering 0
     }
-  }
-  set m $itk_component(navmenu)
-  if {($_history_ndx+1) < $_history_len} {
-    $m entryconfig 0 -state normal
-  } else {
-    $m entryconfig 0 -state disabled
-  }
-  if {$_history_ndx > 0} {
-    $m entryconfig 1 -state normal
-  } else {
-    $m entryconfig 1 -state disabled
-  }
-  if {$anchorpoint != "{}"} {
-    $itk_component(scrtxt) import -link #$anchorpoint
-  } else {
-    $itk_component(scrtxt) import -link #
-  }
-  set _histdir -1
+    set m $itk_component(navmenu)
+    if {($_history_ndx+1) < $_history_len} {
+        $m entryconfig 0 -state normal
+    } else {
+        $m entryconfig 0 -state disabled
+    }
+    if {$_history_ndx > 0} {
+        $m entryconfig 1 -state normal
+    } else {
+        $m entryconfig 1 -state disabled
+    }
+    if {$anchorpoint != {}} {
+        $itk_component(scrtxt) import -link #$anchorpoint
+    } else {
+        $itk_component(scrtxt) import -link #
+    }
+    set _histdir -1
 }
 
 # ------------------------------------------------------------------
@@ -455,15 +459,15 @@ body iwidgets::Hyperhelp::_readtopic {file {anchorpoint {}}} {
 #
 # update go submenu with current history
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::_fill_go_menu {} {
+itcl::body iwidgets::Hyperhelp::_fill_go_menu {} {
     set m $itk_component(navgo)
     catch {$m delete 0 last}
-    for {set i [expr $_history_len - 1]} {$i >= 0} {incr i -1} {
-      set topic [lindex [lindex $_history $i] 0]
-      set filepath [lindex [lindex $_history $i] 1]
-      set anchor [lindex [lindex $_history $i] 2]
-      $m add command -label $topic \
-         -command [list $this followlink $filepath#$anchor]
+    for {set i [expr {$_history_len - 1}]} {$i >= 0} {incr i -1} {
+        set topic [lindex [lindex $_history $i] 0]
+        set filepath [lindex [lindex $_history $i] 1]
+        set anchor [lindex [lindex $_history $i] 2]
+        $m add command -label $topic \
+                -command [list $this followlink $filepath#$anchor]
     }
 }
 
@@ -472,7 +476,7 @@ body iwidgets::Hyperhelp::_fill_go_menu {} {
 #
 # Callback for page forward shortcut key
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::_pageforward {} {
+itcl::body iwidgets::Hyperhelp::_pageforward {} {
     $itk_component(scrtxt) yview scroll 1 pages
 }
 
@@ -481,7 +485,7 @@ body iwidgets::Hyperhelp::_pageforward {} {
 #
 # Callback for page back shortcut key
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::_pageback {} {
+itcl::body iwidgets::Hyperhelp::_pageback {} {
     $itk_component(scrtxt) yview scroll -1 pages
 }
 
@@ -490,7 +494,7 @@ body iwidgets::Hyperhelp::_pageback {} {
 #
 # Callback for line forward shortcut key
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::_lineforward {} { 
+itcl::body iwidgets::Hyperhelp::_lineforward {} { 
     $itk_component(scrtxt) yview scroll 1 units 
 }
 
@@ -499,6 +503,6 @@ body iwidgets::Hyperhelp::_lineforward {} {
 #
 # Callback for line back shortcut key
 # ------------------------------------------------------------------
-body iwidgets::Hyperhelp::_lineback {} { 
+itcl::body iwidgets::Hyperhelp::_lineback {} { 
     $itk_component(scrtxt) yview scroll -1 units 
 }

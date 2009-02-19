@@ -13,7 +13,20 @@
 #
 # @(#) $Id: hyperhelp.test
 
-package require Iwidgets 3.0
+package require tcltest
+namespace import -force ::tcltest::*
+
+if [catch {package require Iwidgets 4.0}] {
+  # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
+  # env var is initialized in the Makefile when doing a 'make test'.
+  # If sourcing this file independently, this variable must be set manually.
+  if ![info exists env(IWIDGETS_LIBRARY)] {
+    error "Unable to locate Iwidgets package.  Set your IWIDGETS_LIBRARY\
+      environment\nvariable to the directory that contains iwidgets.tcl"
+  }
+  lappend auto_path $env(IWIDGETS_LIBRARY)
+  package require Iwidgets 4.0
+}
 
 if {[string compare test [info procs test]] == 1} {
     source defs
@@ -160,3 +173,6 @@ test Hyperhelp-1.$c {Hyperhelp destruction} {
     destroy .h
     update 
 } {}
+
+::tcltest::cleanupTests
+exit

@@ -29,7 +29,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Bill W. Scott                 EMAIL: bscott@spd.dsccc.com
 #
-#  @(#) $Id: toolbar.itk,v 1.5 1996/12/13 20:46:25 mulferts Exp $
+#  @(#) $Id: toolbar.itk,v 1.5 2001/08/17 19:05:54 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -79,7 +79,7 @@ itk::usual Toolbar {
 # ------------------------------------------------------------------
 #                            TOOLBAR
 # ------------------------------------------------------------------
-class iwidgets::Toolbar {
+itcl::class iwidgets::Toolbar {
     inherit itk::Widget
     
     constructor {args} {}
@@ -190,7 +190,7 @@ class iwidgets::Toolbar {
 # ------------------------------------------------------------------
 #                            CONSTRUCTOR 
 # ------------------------------------------------------------------
-body iwidgets::Toolbar::constructor {args} {
+itcl::body iwidgets::Toolbar::constructor {args} {
     component hull configure -borderwidth 0
     set _interior $itk_interior
 
@@ -212,20 +212,20 @@ body iwidgets::Toolbar::constructor {args} {
     
     # ... Attach help handler to this widget
     bind toolbar-help-$itk_component(hull) \
-	    <Enter> "+[code $this showHelp %W]"
+	    <Enter> "+[itcl::code $this showHelp %W]"
     bind toolbar-help-$itk_component(hull) \
-	    <Leave> "+[code $this hideHelp]"
+	    <Leave> "+[itcl::code $this hideHelp]"
     
     # ... Set up Microsoft style balloon help display.
     set _balloonTimer $itk_option(-balloondelay1)
     bind $_interior \
-	    <Leave> "+[code $this _resetBalloonTimer]"
+	    <Leave> "+[itcl::code $this _resetBalloonTimer]"
     bind toolbar-balloon-$itk_component(hull) \
-	    <Enter> "+[code $this _startBalloonDelay %W]"
+	    <Enter> "+[itcl::code $this _startBalloonDelay %W]"
     bind toolbar-balloon-$itk_component(hull) \
-	    <Leave> "+[code $this _stopBalloonDelay %W false]"
+	    <Leave> "+[itcl::code $this _stopBalloonDelay %W false]"
     bind toolbar-balloon-$itk_component(hull) \
-	    <Button-1> "+[code $this _stopBalloonDelay %W true]"
+	    <Button-1> "+[itcl::code $this _stopBalloonDelay %W true]"
 }
 
 #
@@ -238,7 +238,7 @@ proc ::iwidgets::toolbar {pathName args} {
 # ------------------------------------------------------------------
 #                           DESTURCTOR
 # ------------------------------------------------------------------
-body iwidgets::Toolbar::destructor {} {
+itcl::body iwidgets::Toolbar::destructor {} {
     if {$_balloonAfterID != 0} {after cancel $_balloonAfterID}
 }
 
@@ -249,7 +249,7 @@ body iwidgets::Toolbar::destructor {} {
 # ------------------------------------------------------------------
 # OPTION -balloonbackground
 # ------------------------------------------------------------------
-configbody iwidgets::Toolbar::balloonbackground {
+itcl::configbody iwidgets::Toolbar::balloonbackground {
     if { $_hintWindow != {} } {
 	if { $itk_option(-balloonbackground) != {} } {
 	    $_hintWindow.label configure \
@@ -261,7 +261,7 @@ configbody iwidgets::Toolbar::balloonbackground {
 # ------------------------------------------------------------------
 # OPTION -balloonforeground
 # ------------------------------------------------------------------
-configbody iwidgets::Toolbar::balloonforeground {
+itcl::configbody iwidgets::Toolbar::balloonforeground {
     if { $_hintWindow != {} } {
 	if { $itk_option(-balloonforeground) != {} } {
 	    $_hintWindow.label configure \
@@ -273,7 +273,7 @@ configbody iwidgets::Toolbar::balloonforeground {
 # ------------------------------------------------------------------
 # OPTION -balloonfont
 # ------------------------------------------------------------------
-configbody iwidgets::Toolbar::balloonfont {
+itcl::configbody iwidgets::Toolbar::balloonfont {
     if { $_hintWindow != {} } {
 	if { $itk_option(-balloonfont) != {} } {
 	    $_hintWindow.label configure \
@@ -287,7 +287,7 @@ configbody iwidgets::Toolbar::balloonfont {
 #
 # Position buttons either horizontally or vertically.
 # ------------------------------------------------------------------
-configbody iwidgets::Toolbar::orient {
+itcl::configbody iwidgets::Toolbar::orient {
     switch $itk_option(-orient) {
 	"horizontal" - "vertical" {
 	    _packToolbar
@@ -310,7 +310,7 @@ configbody iwidgets::Toolbar::orient {
 # or checkbutton, its packing is slightly padded to match the 
 # geometry of button widgets.
 # -------------------------------------------------------------
-body iwidgets::Toolbar::add { widgetCommand name args } {
+itcl::body iwidgets::Toolbar::add { widgetCommand name args } {
     
     eval "_addWidget $widgetCommand $name $args"
     
@@ -339,7 +339,7 @@ body iwidgets::Toolbar::add { widgetCommand name args } {
 # to index. Returns an empty string
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::delete { args } {
+itcl::body iwidgets::Toolbar::delete { args } {
     # empty toolbar
     if { $_toolList == {} } {
 	error "can't delete widget, no widgets in the Toolbar \
@@ -353,7 +353,7 @@ body iwidgets::Toolbar::delete { args } {
 	    
 	    if { $fromWidget < 0 || $fromWidget >= [llength $_toolList] } {
 		error "bad Toolbar widget index in delete method: \
-			should be between 0 and [expr [llength $_toolList] - 1]"
+		  should be between 0 and [expr {[llength $_toolList] - 1} ]"
 	    }
 	    
 	    set toWidget $fromWidget
@@ -365,14 +365,14 @@ body iwidgets::Toolbar::delete { args } {
 	    
 	    if { $fromWidget < 0 || $fromWidget >= [llength $_toolList] } {
 		error "bad Toolbar widget index1 in delete method: \
-			should be between 0 and [expr [llength $_toolList] - 1]"
+		  should be between 0 and [expr {[llength $_toolList] - 1} ]"
 	    }
 	    
 	    set toWidget [_index $_toolList [lindex $args 1]]
 	    
 	    if { $toWidget < 0 || $toWidget >= [llength $_toolList] } {
 		error "bad Toolbar widget index2 in delete method: \
-			should be between 0 and [expr [llength $_toolList] - 1]"
+		  should be between 0 and [expr {[llength $_toolList] - 1} ]"
 	    }
 	    
 	    if { $fromWidget > $toWidget } {
@@ -402,7 +402,7 @@ body iwidgets::Toolbar::delete { args } {
 # to index. If index is not found, -1 is returned
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::index { index } {
+itcl::body iwidgets::Toolbar::index { index } {
     
     return [_index $_toolList $index]
     
@@ -418,7 +418,7 @@ body iwidgets::Toolbar::index { index } {
 # is slightly padded to match the geometry of button widgets.
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::insert {  beforeIndex widgetCommand name args } {
+itcl::body iwidgets::Toolbar::insert {  beforeIndex widgetCommand name args } {
     
     set beforeIndex [_index $_toolList $beforeIndex]
     
@@ -445,7 +445,7 @@ body iwidgets::Toolbar::insert {  beforeIndex widgetCommand name args } {
 # index can be numeric or widget name
 #
 # ----------------------------------------------------------------------
-body iwidgets::Toolbar::itemcget { index args} {
+itcl::body iwidgets::Toolbar::itemcget { index args} {
     
     return [lindex [eval itemconfigure $index $args] 4]
 }
@@ -468,7 +468,7 @@ body iwidgets::Toolbar::itemcget { index args} {
 # The component type of index determines the valid available options.
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::itemconfigure { index args } {
+itcl::body iwidgets::Toolbar::itemconfigure { index args } {
     
     # Get a numeric index.
     set index [_index $_toolList $index]
@@ -563,7 +563,7 @@ body iwidgets::Toolbar::itemconfigure { index args } {
 # up to balloonDelay1
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_resetBalloonTimer {} {
+itcl::body iwidgets::Toolbar::_resetBalloonTimer {} {
     set _balloonTimer $itk_option(-balloondelay1)
     
     # reset the <1> longer delay
@@ -577,8 +577,11 @@ body iwidgets::Toolbar::_resetBalloonTimer {} {
 # Starts waiting to pop up a balloon id
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_startBalloonDelay {window} {
-    set _balloonAfterID [after $_balloonTimer [code $this showBalloon $window]]
+itcl::body iwidgets::Toolbar::_startBalloonDelay {window} {
+    if {$_balloonAfterID != 0} {
+	after cancel $_balloonAfterID
+    }
+    set _balloonAfterID [after $_balloonTimer [itcl::code $this showBalloon $window]]
 }
 
 # -------------------------------------------------------------
@@ -590,7 +593,7 @@ body iwidgets::Toolbar::_startBalloonDelay {window} {
 # it will hide the balloon window and set timing to delay 2 stage.
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_stopBalloonDelay { window balloonClick } {
+itcl::body iwidgets::Toolbar::_stopBalloonDelay { window balloonClick } {
     
     # If <1> then got a click cancel
     if { $balloonClick } {
@@ -626,7 +629,7 @@ body iwidgets::Toolbar::_stopBalloonDelay { window balloonClick } {
 # Returns the path of the widget added.
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_addWidget { widgetCommand name args } {
+itcl::body iwidgets::Toolbar::_addWidget { widgetCommand name args } {
     
     # ,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,,
     # Add the widget to the tool bar
@@ -662,15 +665,15 @@ body iwidgets::Toolbar::_addWidget { widgetCommand name args } {
 	# clean up
 	if {![catch {set _opts($_interior.$name,-helpstr)}]} {
 	    set lastIndex [\
-		    expr [llength \
-		    $_opts($_interior.$name,-helpstr) ]-1]
+		    expr {[llength \
+		    $_opts($_interior.$name,-helpstr) ]-1}]
 	    lreplace $_opts($_interior.$name,-helpstr) \
 		    $lastIndex $lastIndex ""
 	}
 	if {![catch {set _opts($_interior.$name,-balloonstr)}]} {
 	    set lastIndex [\
-		    expr [llength \
-		    $_opts($_interior.$name,-balloonstr) ]-1]
+		    expr {[llength \
+		    $_opts($_interior.$name,-balloonstr) ]-1}]
 	    lreplace $_opts($_interior.$name,-balloonstr) \
 		    $lastIndex $lastIndex ""
 	}
@@ -702,7 +705,7 @@ body iwidgets::Toolbar::_addWidget { widgetCommand name args } {
 # deletes widget range by numerical index numbers.
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_deleteWidgets { index1 index2 } {
+itcl::body iwidgets::Toolbar::_deleteWidgets { index1 index2 } {
     
     for { set index $index1 } { $index <= $index2 } { incr index } {
 	
@@ -730,11 +733,11 @@ body iwidgets::Toolbar::_deleteWidgets { index1 index2 } {
 # If it fails it returns -1
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_index { toolList index } {
+itcl::body iwidgets::Toolbar::_index { toolList index } {
     
     switch -- $index {
 	end - last {
-	    set number [expr [llength $toolList] -1]
+	    set number [expr {[llength $toolList] -1}]
 	}
 	default {
 	    # is it a number already? Then just use the number
@@ -770,7 +773,7 @@ body iwidgets::Toolbar::_index { toolList index } {
 # status widget help area and resets the help entry.
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::hideHelp {} {
+itcl::body iwidgets::Toolbar::hideHelp {} {
     if { $itk_option(-helpvariable) != {} } {
         upvar #0 $itk_option(-helpvariable) helpvar
 	set helpvar {}
@@ -788,7 +791,7 @@ body iwidgets::Toolbar::hideHelp {} {
 # entry, the status widget is cleared.
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::showHelp { window } {
+itcl::body iwidgets::Toolbar::showHelp { window } {
     
     set widgetPath $window
     # already on this item?
@@ -821,7 +824,7 @@ body iwidgets::Toolbar::showHelp { window } {
 # PUBLIC METHOD: showBalloon
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::showBalloon {window} {
+itcl::body iwidgets::Toolbar::showBalloon {window} {
     set _balloonClick false
     set _balloonAfterID 0
     # Are we still inside the window?
@@ -838,9 +841,9 @@ body iwidgets::Toolbar::showBalloon {window} {
 	    
 	    # Coordinates of the balloon
 	    set balloonLeft \
-		    [expr [winfo rootx $window] + round(([winfo width $window]/2.0))]
+		    [expr {[winfo rootx $window] + round(([winfo width $window]/2.0))}]
 	    set balloonTop \
-		    [expr [winfo rooty $window] + [winfo height $window]]
+		    [expr {[winfo rooty $window] + [winfo height $window]}]
 	    
 	    # put up balloon window
 	    wm overrideredirect $_hintWindow 0
@@ -862,7 +865,7 @@ body iwidgets::Toolbar::showBalloon {window} {
 # PUBLIC METHOD: hideBalloon
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::hideBalloon {} {
+itcl::body iwidgets::Toolbar::hideBalloon {} {
     wm withdraw $_hintWindow
 }
 
@@ -881,7 +884,7 @@ body iwidgets::Toolbar::hideBalloon {} {
 #
 # expects to be called only if the $option is length 1
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_getAttachedOption { optionListName widget args retValue} {
+itcl::body iwidgets::Toolbar::_getAttachedOption { optionListName widget args retValue} {
     
     # get a reference to the option, so we can change it.
     upvar $args argsRef
@@ -917,7 +920,7 @@ body iwidgets::Toolbar::_getAttachedOption { optionListName widget args retValue
 # Returns boolean indicating the success of the method
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_setAttachedOption {optionListName widget option args} {
+itcl::body iwidgets::Toolbar::_setAttachedOption {optionListName widget option args} {
     
     upvar args argsRef
     
@@ -930,10 +933,10 @@ body iwidgets::Toolbar::_setAttachedOption {optionListName widget option args} {
     if { $optPos != -1 } {
 	# grab a copy of the option from arg list
 	set [subst [set optionListName]]($widget,$option) \
-		[eval lindex $args [expr $optPos + 1]]
+		[eval lindex $args [expr {$optPos + 1}]]
 	
 	# remove the option argument and value from the arg list
-	set argsRef [eval lreplace $args $optPos [expr $optPos + 1]]
+	set argsRef [eval lreplace $args $optPos [expr {$optPos + 1}]]
 	set success true
     }
     # ... if not found, will leave args alone
@@ -951,7 +954,7 @@ body iwidgets::Toolbar::_setAttachedOption {optionListName widget option args} {
 #
 #
 # -------------------------------------------------------------
-body iwidgets::Toolbar::_packToolbar {} {
+itcl::body iwidgets::Toolbar::_packToolbar {} {
 
     # forget the previous locations
     foreach tool $_toolList {

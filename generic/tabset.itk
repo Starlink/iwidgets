@@ -22,7 +22,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Bill W. Scott                 EMAIL: bscott@spd.dsccc.com
 #
-#  @(#) $Id: tabset.itk,v 1.3 1996/07/12 16:21:05 mulferts Exp $
+#  @(#) $Id: tabset.itk,v 1.7 2002/02/25 04:47:17 mgbacke Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -76,13 +76,13 @@ option add *Tabset.selectBackground #ececec    widgetDefault
 #
 itk::usual Tabset {
     keep -backdrop -background -cursor -disabledforeground -font -foreground \
-	 -selectbackground -selectforeground
+     -selectbackground -selectforeground
 }
 
 # ------------------------------------------------------------------
 #                              TABSET
 # ------------------------------------------------------------------
-class iwidgets::Tabset {
+itcl::class iwidgets::Tabset {
     inherit itk::Widget
     
     constructor {args} {} 
@@ -104,7 +104,7 @@ class iwidgets::Tabset {
     itk_option define -font font Font fixed
     itk_option define -state state State normal
     itk_option define \
-	    -disabledforeground disabledForeground DisabledForeground #a3a3a3
+        -disabledforeground disabledForeground DisabledForeground #a3a3a3
     itk_option define -foreground foreground Foreground black
     itk_option define -background background Background #d9d9d9 
     itk_option define -selectforeground selectForeground Background black
@@ -122,6 +122,7 @@ class iwidgets::Tabset {
     public method select {index} 
     public method tabcget {index args} 
     public method tabconfigure {index args} 
+    public method bbox {}
     
     protected method _selectName {tabName} 
     
@@ -178,40 +179,43 @@ proc ::iwidgets::tabset {pathName args} {
 # ----------------------------------------------------------------------
 #                              CONSTRUCTOR
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::constructor {args} {
+itcl::body iwidgets::Tabset::constructor {args} {
     global tcl_platform
 
     #
     # Create the canvas that holds the tabs
     #
     itk_component add canvas {
-	canvas $itk_interior.canvas -highlightthickness 0
+    canvas $itk_interior.canvas -highlightthickness 0
     } {
-	keep -cursor -width -height
+    keep -cursor -width -height
     }
     pack $itk_component(canvas) -fill both -expand yes -anchor nw
     
     # ... This gives us a chance to redraw our bevel borders, etc when
     # the size of our canvas changes...
     bind $itk_component(canvas) <Configure> \
-	    [code $this _canvasReconfigure %w %h]
+        [itcl::code $this _canvasReconfigure %w %h]
+    bind $itk_component(canvas) <Map> \
+           [itcl::code $this _relayoutTabs]
+
     
     # ... Allow button 2 scrolling as in label widget.
     if {$tcl_platform(os) != "HP-UX"} {
-	bind $itk_component(canvas) <2>               \
-	    [code $this _startMove %x %y]
-	bind $itk_component(canvas) <B2-Motion>       \
-	    [code $this _moveTabs %x %y]
-	bind $itk_component(canvas) <ButtonRelease-2> \
-	    [code $this _endMove %x %y]
+    bind $itk_component(canvas) <2>               \
+        [itcl::code $this _startMove %x %y]
+    bind $itk_component(canvas) <B2-Motion>       \
+        [itcl::code $this _moveTabs %x %y]
+    bind $itk_component(canvas) <ButtonRelease-2> \
+        [itcl::code $this _endMove %x %y]
     }
     
     # @@@ 
     # @@@ Is there a better way?
     # @@@
-    bind $itk_component(hull) <Any-Enter> "focus $itk_component(hull)"
-    bind $itk_component(hull) <Tab> [code $this next]
-    bind $itk_component(hull) <Shift-Tab> [code $this prev]
+
+    bind $itk_component(hull) <Tab> [itcl::code $this next]
+    bind $itk_component(hull) <Shift-Tab> [itcl::code $this prev]
     
     eval itk_initialize $args
     
@@ -221,9 +225,9 @@ body iwidgets::Tabset::constructor {args} {
     
 }
 
-body iwidgets::Tabset::destructor {} {
+itcl::body iwidgets::Tabset::destructor {} {
     foreach tab $_tabs {
-	itcl::delete object $tab
+    itcl::delete object $tab
     }
 }
 
@@ -236,7 +240,7 @@ body iwidgets::Tabset::destructor {} {
 #
 # Sets the width explicitly for the canvas of the tabset
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::width {
+itcl::configbody iwidgets::Tabset::width {
     if {$itk_option(-width) != {}} {
     }
     set _width [winfo pixels $itk_interior $itk_option(-width)]
@@ -248,9 +252,9 @@ configbody iwidgets::Tabset::width {
 # If set to true, causes horizontal tabs to be equal in
 # in width and vertical tabs to equal in height.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::equaltabs {
+itcl::configbody iwidgets::Tabset::equaltabs {
     if {$itk_option(-equaltabs) != {}} {
-	set _relayout true
+    set _relayout true
     }
 }
 
@@ -259,7 +263,7 @@ configbody iwidgets::Tabset::equaltabs {
 #
 # Sets the height explicitly for the canvas of the tabset
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::height {
+itcl::configbody iwidgets::Tabset::height {
     set _height [winfo pixels $itk_interior $itk_option(-height)]
 }
 
@@ -268,26 +272,26 @@ configbody iwidgets::Tabset::height {
 #
 # Sets the tab position of tabs, n, s, e, w
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::tabpos {
+itcl::configbody iwidgets::Tabset::tabpos {
     if {$itk_option(-tabpos) != {}} {
-	switch $itk_option(-tabpos) {
-	    n {
-		_tabConfigure -invert true -orient horizontal
-	    }
-	    s {
-		_tabConfigure -invert false -orient horizontal
-	    }
-	    w {
-		_tabConfigure -invert false -orient vertical
-	    }
-	    e {
-		_tabConfigure -invert true -orient vertical
-	    }
-	    default {
-		error "bad anchor position\
-			\"$itk_option(-tabpos)\" must be n, s, e, or w"
-	    }
-	}
+    switch $itk_option(-tabpos) {
+        n {
+        _tabConfigure -invert true -orient horizontal
+        }
+        s {
+        _tabConfigure -invert false -orient horizontal
+        }
+        w {
+        _tabConfigure -invert false -orient vertical
+        }
+        e {
+        _tabConfigure -invert true -orient vertical
+        }
+        default {
+        error "bad anchor position\
+            \"$itk_option(-tabpos)\" must be n, s, e, or w"
+        }
+    }
     }
 }
 
@@ -296,9 +300,9 @@ configbody iwidgets::Tabset::tabpos {
 #
 # Sets whether to raise selected tabs slightly
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::raiseselect {
+itcl::configbody iwidgets::Tabset::raiseselect {
     if {$itk_option(-raiseselect) != {}} {
-	set _relayout true
+    set _relayout true
     }
 }
 
@@ -307,12 +311,12 @@ configbody iwidgets::Tabset::raiseselect {
 #
 # Sets the offset to start of tab set
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::start {
+itcl::configbody iwidgets::Tabset::start {
     if {$itk_option(-start) != {}} {
-	set _start [winfo pixels $itk_interior $itk_option(-start)]
-	set _relayout true
+    set _start [winfo pixels $itk_interior $itk_option(-start)]
+    set _relayout true
     } else {
-	set _start 4
+    set _start 4
     }
 }
 
@@ -322,12 +326,12 @@ configbody iwidgets::Tabset::start {
 # Sets the margin used above n tabs, below s tabs, left of e
 # tabs, right of w tabs
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::margin {
+itcl::configbody iwidgets::Tabset::margin {
     if {$itk_option(-margin) != {}} {
-	set _margin [winfo pixels $itk_interior $itk_option(-margin)]
-	set _relayout true
+    set _margin [winfo pixels $itk_interior $itk_option(-margin)]
+    set _relayout true
     } else {
-	set _margin 5
+    set _margin 5
     }
 }
 
@@ -337,9 +341,9 @@ configbody iwidgets::Tabset::margin {
 # Boolean that specifies whether to draw the borders of
 # the unselected tabs (tabs in background)
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::tabborders {
+itcl::configbody iwidgets::Tabset::tabborders {
     if {$itk_option(-tabborders) != {}} {
-	_tabConfigure -tabborders $itk_option(-tabborders)
+    _tabConfigure -tabborders $itk_option(-tabborders)
     }
 }
 
@@ -348,9 +352,9 @@ configbody iwidgets::Tabset::tabborders {
 #
 # Specifies pixel size of tab corners. 0 means no corners.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::bevelamount {
+itcl::configbody iwidgets::Tabset::bevelamount {
     if {$itk_option(-bevelamount) != {}} {
-	_tabConfigure -bevelamount $itk_option(-bevelamount)
+    _tabConfigure -bevelamount $itk_option(-bevelamount)
     }
 }
 
@@ -360,9 +364,9 @@ configbody iwidgets::Tabset::bevelamount {
 # Sets the padding in each tab to the left and right of label
 # I don't convert for fpixels, since Tab does it for me.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::padx {
+itcl::configbody iwidgets::Tabset::padx {
     if {$itk_option(-padx) != {}} {
-	_tabConfigure -padx $itk_option(-padx)
+    _tabConfigure -padx $itk_option(-padx)
     }
 }
 
@@ -372,9 +376,9 @@ configbody iwidgets::Tabset::padx {
 # Sets the padding in each tab to the left and right of label
 # I don't convert for fpixels, since Tab does it for me.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::pady {
+itcl::configbody iwidgets::Tabset::pady {
     if {$itk_option(-pady) != {}} {
-	_tabConfigure -pady $itk_option(-pady)
+    _tabConfigure -pady $itk_option(-pady)
     }
 }
 
@@ -383,16 +387,16 @@ configbody iwidgets::Tabset::pady {
 #
 # Sets the amount of spacing between tabs in pixels
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::gap {
+itcl::configbody iwidgets::Tabset::gap {
     if {$itk_option(-gap) != {}} {
-	if {$itk_option(-gap) != "overlap"} {
-	    set _gap [winfo pixels $itk_interior $itk_option(-gap)]
-	} else {
-	    set _gap overlap
-	}
-	set _relayout true 
+    if {$itk_option(-gap) != "overlap"} {
+        set _gap [winfo pixels $itk_interior $itk_option(-gap)]
     } else {
-	set _gap overlap
+        set _gap overlap
+    }
+    set _relayout true 
+    } else {
+    set _gap overlap
     }
 }
 
@@ -401,9 +405,9 @@ configbody iwidgets::Tabset::gap {
 #
 # Sets the angle of the tab's sides
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::angle {
+itcl::configbody iwidgets::Tabset::angle {
     if {$itk_option(-angle) != {}} {
-	_tabConfigure -angle $itk_option(-angle)
+    _tabConfigure -angle $itk_option(-angle)
     }
 }
 
@@ -412,28 +416,28 @@ configbody iwidgets::Tabset::angle {
 #
 # Sets the font of the tab (SELECTED and UNSELECTED)
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::font {
+itcl::configbody iwidgets::Tabset::font {
     if {$itk_option(-font) != {}} {
-	_tabConfigure -font $itk_option(-font)
+    _tabConfigure -font $itk_option(-font)
     }
 }
 
 # ----------------------------------------------------------------------
 # OPTION -state
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::state {
+itcl::configbody iwidgets::Tabset::state {
     if {$itk_option(-state) != {}} {
-	_tabConfigure -state $itk_option(-state)
+    _tabConfigure -state $itk_option(-state)
     }
 }
 
 # ----------------------------------------------------------------------
 # OPTION -disabledforeground
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::disabledforeground {
+itcl::configbody iwidgets::Tabset::disabledforeground {
     if {$itk_option(-disabledforeground) != {}} {
-	_tabConfigure \
-		-disabledforeground $itk_option(-disabledforeground)
+    _tabConfigure \
+        -disabledforeground $itk_option(-disabledforeground)
     }
 }
 
@@ -442,7 +446,7 @@ configbody iwidgets::Tabset::disabledforeground {
 #
 # Sets the foreground label color of UNSELECTED tabs
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::foreground {
+itcl::configbody iwidgets::Tabset::foreground {
     _tabConfigure -foreground $itk_option(-foreground)
 }
 
@@ -451,12 +455,12 @@ configbody iwidgets::Tabset::foreground {
 #
 # Sets the background color of UNSELECTED tabs
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::background {
+itcl::configbody iwidgets::Tabset::background {
     if {$itk_option(-background) != {}} {
-	_tabConfigure -background $itk_option(-background)
+    _tabConfigure -background $itk_option(-background)
     } else {
-	_tabConfigure -background \
-		[$itk_component(canvas) cget -background]
+    _tabConfigure -background \
+        [$itk_component(canvas) cget -background]
     }
 }
 
@@ -465,7 +469,7 @@ configbody iwidgets::Tabset::background {
 #
 # Sets the foreground label color of SELECTED tabs
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::selectforeground {
+itcl::configbody iwidgets::Tabset::selectforeground {
     _tabConfigure -selectforeground $itk_option(-selectforeground)
 }
 
@@ -474,10 +478,10 @@ configbody iwidgets::Tabset::selectforeground {
 #
 # Sets the background color of the Tabset backdrop (behind the tabs)
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::backdrop {
+itcl::configbody iwidgets::Tabset::backdrop {
     if {$itk_option(-backdrop) != {}} {
-	$itk_component(canvas) configure \
-		-background $itk_option(-backdrop)
+    $itk_component(canvas) configure \
+        -background $itk_option(-backdrop)
     }
 }
 
@@ -486,11 +490,11 @@ configbody iwidgets::Tabset::backdrop {
 #
 # Sets the background color of SELECTED tabs
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::selectbackground {
+itcl::configbody iwidgets::Tabset::selectbackground {
     if {$itk_option(-selectbackground) != {}} {
     } else {
-	#set _selectBackground \
-		[$itk_component(canvas) cget -background]
+    #set _selectBackground \
+        [$itk_component(canvas) cget -background]
     }
     _tabConfigure -selectbackground $itk_option(-selectbackground)
 }
@@ -500,9 +504,9 @@ configbody iwidgets::Tabset::selectbackground {
 #
 # The command to invoke when a tab is hit.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tabset::command {
+itcl::configbody iwidgets::Tabset::command {
     if {$itk_option(-command) != {}} {
-	set _cmdStr $itk_option(-command)
+    set _cmdStr $itk_option(-command)
     }
 }
 
@@ -512,7 +516,7 @@ configbody iwidgets::Tabset::command {
 # Creates a tab and appends it to the list of tabs.
 # processes tabconfigure for the tab added.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::add {args} {
+itcl::body iwidgets::Tabset::add {args} {
     set tabName [eval _createTab $args]
     lappend _tabs $tabName
     
@@ -532,7 +536,7 @@ body iwidgets::Tabset::add {args} {
 # _skipRelayout is set in the MB2 scroll methods, to avoid constant
 # relayout of tabs while dragging the mouse.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::configure {args} {
+itcl::body iwidgets::Tabset::configure {args} {
     set result [eval itk::Archetype::configure $args]
 
     _configRelayout
@@ -540,14 +544,14 @@ body iwidgets::Tabset::configure {args} {
     return $result
 }
 
-body iwidgets::Tabset::_configRelayout {} {
+itcl::body iwidgets::Tabset::_configRelayout {} {
     # then relayout tabs if necessary
     if { $_relayout } {
-	if { $_skipRelayout } {
-	} else {
-	    _relayoutTabs
-	}
-	set _relayout false
+    if { $_skipRelayout } {
+    } else {
+        _relayoutTabs
+    }
+    set _relayout false
     }
 }
 
@@ -556,48 +560,48 @@ body iwidgets::Tabset::_configRelayout {} {
 #
 # Deletes a tab or range of tabs from the tabset
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::delete {args} {
+itcl::body iwidgets::Tabset::delete {args} {
     if { $_tabs == {} } {
-	error "can't delete tabs,\
-		no tabs in the tabset named $itk_component(hull)"
+    error "can't delete tabs,\
+        no tabs in the tabset named $itk_component(hull)"
     }
     
     set len [llength $args]
     switch $len {
-	0 {
-	    error "wrong # args: should be\
-		    \"$itk_component(hull) delete index1 ?index2?\""
-	}
-	
-	1 {
-	    set fromTab [index [lindex $args 0]]
-	    if { $fromTab == -1 } {
-		error "bad value for index1:\
-			[lindex $args 0] in call to delete"
-	    }
-	    set toTab $fromTab
-	    _deleteTabs $fromTab $toTab
-	}
-	
-	2 {
-	    set fromTab [index [lindex $args 0]]
-	    if { $fromTab == -1 } {
-		error "bad value for index1:\
-			[lindex $args 0] in call to delete"
-	    }
-	    set toTab [index [lindex $args 1]]
-	    
-	    if { $toTab == -1 } {
-		error "bad value for index2:\
-			[lindex $args 1] in call to delete"
-	    }
-	    _deleteTabs $fromTab $toTab
-	}
-	
-	default {
-	    error "wrong # args: should be\
-		    \"$itk_component(hull) delete index1 ?index2?\""
-	}
+    0 {
+        error "wrong # args: should be\
+            \"$itk_component(hull) delete index1 ?index2?\""
+    }
+    
+    1 {
+        set fromTab [index [lindex $args 0]]
+        if { $fromTab == -1 } {
+        error "bad value for index1:\
+            [lindex $args 0] in call to delete"
+        }
+        set toTab $fromTab
+        _deleteTabs $fromTab $toTab
+    }
+    
+    2 {
+        set fromTab [index [lindex $args 0]]
+        if { $fromTab == -1 } {
+        error "bad value for index1:\
+            [lindex $args 0] in call to delete"
+        }
+        set toTab [index [lindex $args 1]]
+        
+        if { $toTab == -1 } {
+        error "bad value for index2:\
+            [lindex $args 1] in call to delete"
+        }
+        _deleteTabs $fromTab $toTab
+    }
+    
+    default {
+        error "wrong # args: should be\
+            \"$itk_component(hull) delete index1 ?index2?\""
+    }
     }
 }
 
@@ -606,7 +610,7 @@ body iwidgets::Tabset::delete {args} {
 #
 # Given an index identifier returns the numeric index of the tab
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::index {index} {
+itcl::body iwidgets::Tabset::index {index} {
     return [_index $_tabs $index $_currTab]
 }
 
@@ -616,10 +620,10 @@ body iwidgets::Tabset::index {index} {
 # Inserts a tab before a index. The before tab may
 # be specified as a label or a tab position.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::insert {index args} {
+itcl::body iwidgets::Tabset::insert {index args} {
     if { $_tabs == {} } {
-	error "no tab to insert before,\
-		tabset '$itk_component(hull)' is empty"
+    error "no tab to insert before,\
+        tabset '$itk_component(hull)' is empty"
     }
     
     # get the tab
@@ -627,8 +631,8 @@ body iwidgets::Tabset::insert {index args} {
     
     # catch bad value for before tab.
     if { $tab < 0 || $tab >= [llength $_tabs] } {
-	error "bad value $tab for index:\
-		should be between 0 and [expr [llength $_tabs] - 1]"
+    error "bad value $tab for index:\
+        should be between 0 and [expr {[llength $_tabs] - 1}]"
     }
     
     # create the new tab and get its name...
@@ -653,16 +657,16 @@ body iwidgets::Tabset::insert {index args} {
 #
 # Selects the prev tab. Wraps at first back to last tab.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::prev {} {
+itcl::body iwidgets::Tabset::prev {} {
     if { $_tabs == {} } {
-	error "can't goto previous tab,\
-		no tabs in the tabset: $itk_component(hull)"
+    error "can't goto previous tab,\
+        no tabs in the tabset: $itk_component(hull)"
     }
     
     # bump to the previous tab and wrap if necessary
-    set prev [expr $_currTab - 1]
+    set prev [expr {$_currTab - 1}]
     if { $prev < 0 } {
-	set prev [expr [llength $_tabs] - 1]
+    set prev [expr {[llength $_tabs] - 1}]
     }
     
     select $prev
@@ -674,16 +678,16 @@ body iwidgets::Tabset::prev {} {
 #
 # Selects the next tab. Wraps at last back to first tab.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::next {} {
+itcl::body iwidgets::Tabset::next {} {
     if { $_tabs == {} } {
-	error "can't goto next tab,\
-		no tabs in the tabset: $itk_component(hull)"
+    error "can't goto next tab,\
+        no tabs in the tabset: $itk_component(hull)"
     }
     
     # bump to the next tab and wrap if necessary
-    set next [expr $_currTab + 1]
+    set next [expr {$_currTab + 1}]
     if { $next >= [llength $_tabs] } {
-	set next 0
+    set next 0
     }
     
     select $next
@@ -699,45 +703,45 @@ body iwidgets::Tabset::next {} {
 #
 # Returns numeric index of selection, -1 if failed.
 # -------------------------------------------------------------
-body iwidgets::Tabset::select {index} {
+itcl::body iwidgets::Tabset::select {index} {
     if { $_tabs == {} } {
-	error "can't activate a tab,\
-		no tabs in the tabset: $itk_component(hull)"
+    error "can't activate a tab,\
+        no tabs in the tabset: $itk_component(hull)"
     }
     
     # if there is not current selection just ignore trying this selection
     if { $index == "select" && $_currTab == -1 } {
-	return -1
+    return -1
     }
     
     # is selection request in range ? 
     set reqTab [index $index]
     if { $reqTab == -1 } {
-	error "bad value $index for index:\
-		should be from 0 to [expr [llength $_tabs] - 1]"
+    error "bad value $index for index:\
+        should be from 0 to [expr {[llength $_tabs] - 1}]"
     }
     
     # If already selected then ignore and return...
     if { $reqTab == $_currTab } {
-	return $reqTab
+    return $reqTab
     }
     
     # ---- Deselect
     if { $_currTab != -1 } {
-	set currTabName [lindex $_tabs $_currTab]
-	$currTabName deselect
-	
-	# handle different orientations...
-	if { $itk_option(-tabpos) == "n" || $itk_option(-tabpos) == "s"} {
-	    $currTabName configure -top $_deselectedTop
-	} else {
-	    $currTabName configure -left $_deselectedLeft
-	}
+    set currTabName [lindex $_tabs $_currTab]
+    $currTabName deselect
+    
+    # handle different orientations...
+    if { $itk_option(-tabpos) == "n" || $itk_option(-tabpos) == "s"} {
+        $currTabName configure -top $_deselectedTop
+    } else {
+        $currTabName configure -left $_deselectedLeft
+    }
     }
     
     # get the stacking order correct...
     foreach tab $_tabs {
-	$tab lower
+    $tab lower
     }
     
     # set this now so that the -command cmd can do an 'index select'
@@ -748,17 +752,17 @@ body iwidgets::Tabset::select {index} {
     set reqTabName [lindex $_tabs $reqTab]
     $reqTabName select
     if { $itk_option(-tabpos) == "n" || $itk_option(-tabpos) == "s"} {
-	$reqTabName configure -top $_selectedTop
+    $reqTabName configure -top $_selectedTop
     } else {
-	$reqTabName configure -left $_selectedLeft
+    $reqTabName configure -left $_selectedLeft
     }
     
     set _currTab $reqTab
     
     # invoke any user command string, appended with tab index number
     if { $_cmdStr != {} } {
-	set newCmd $_cmdStr
-	eval [lappend newCmd $reqTab]
+    set newCmd $_cmdStr
+    eval [lappend newCmd $reqTab]
     }
     
     return $reqTab
@@ -769,7 +773,7 @@ body iwidgets::Tabset::select {index} {
 #
 # Returns the value for the option setting of the tab at index $index.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::tabcget {index args} {
+itcl::body iwidgets::Tabset::tabcget {index args} {
     return [lindex [eval tabconfigure $index $args] 2]
 }
 
@@ -786,32 +790,42 @@ body iwidgets::Tabset::tabcget {index args} {
 # Index may be a tab number or a pattern matching the label
 # associated with a tab.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::tabconfigure {index args} {
+itcl::body iwidgets::Tabset::tabconfigure {index args} {
     # convert index to numeric
     set tab [index $index]
     
     if { $tab == -1 } {
-	error "bad index value:\
-		$index for $itk_component(hull) tabconfigure"
+    error "bad index value:\
+        $index for $itk_component(hull) tabconfigure"
     }
     
     set tabName [lindex $_tabs $tab]
     
     set len [llength $args]
     switch $len {
-	0 {
-	    return [eval $tabName configure]
-	}
-	1 {
-	    return [eval $tabName configure $args]
-	}
-	default {
-	    eval $tabName configure $args
-	    _relayoutTabs
-	    select select
-	}
+    0 {
+        return [eval $tabName configure]
+    }
+    1 {
+        return [eval $tabName configure $args]
+    }
+    default {
+        eval $tabName configure $args
+        _relayoutTabs
+        select select
+    }
     }
     return ""
+}
+
+# ----------------------------------------------------------------------
+# METHOD: bbox
+# 
+# calculates the bounding box that will completely enclose 
+# all the tabs.
+# ----------------------------------------------------------------------
+itcl::body iwidgets::Tabset::bbox {} {
+    return [_tabBounds]
 }
 
 # ----------------------------------------------------------------------
@@ -820,10 +834,10 @@ body iwidgets::Tabset::tabconfigure {index args} {
 # internal method to allow selection by internal tab name 
 # rather than index. This is used by the bind methods
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_selectName {tabName} {
+itcl::body iwidgets::Tabset::_selectName {tabName} {
     # if the tab is disabled, then ignore this selection...
     if { [$tabName cget -state] == "disabled" } {
-	return
+    return
     }
     
     set tab [lsearch -exact $_tabs $tabName]
@@ -836,7 +850,7 @@ body iwidgets::Tabset::_selectName {tabName} {
 # Creates a tab, using unique tab naming, propagates background
 # and keeps unique id up to date.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_createTab {args} {
+itcl::body iwidgets::Tabset::_createTab {args} {
     #
     # create an internal name for the tab: tab0, tab1, etc.
     # these are one-up numbers they do not 
@@ -845,59 +859,59 @@ body iwidgets::Tabset::_createTab {args} {
     set tabName $this-tab$_uniqueID
     
     switch $itk_option(-tabpos) {
-	n {
-	    set invert true
-	    set orient horizontal
-	    set x 0
-	    set y [expr $_margin + 1]
-	}
-	s {
-	    set invert false
-	    set orient horizontal
-	    set x 0
-	    set y 0
-	}
-	w {
-	    set invert false
-	    set orient vertical
-	    set x 0 
-	    set y 0
-	}
-	e {
-	    set invert true
-	    set orient vertical
-	    set x [expr $_margin + 1]
-	    set y 0
-	}
-	default {
-	    error "bad anchor position\
-		    \"$itk_option(-tabpos)\" must be n, s, e, or w"
-	}
+    n {
+        set invert true
+        set orient horizontal
+        set x 0
+        set y [expr {$_margin + 1}]
+    }
+    s {
+        set invert false
+        set orient horizontal
+        set x 0
+        set y 0
+    }
+    w {
+        set invert false
+        set orient vertical
+        set x 0 
+        set y 0
+    }
+    e {
+        set invert true
+        set orient vertical
+        set x [expr {$_margin + 1}]
+        set y 0
+    }
+    default {
+        error "bad anchor position\
+            \"$itk_option(-tabpos)\" must be n, s, e, or w"
+    }
     }
     
     eval iwidgets::Tab $tabName $itk_component(canvas) \
-	    -left             $x \
-	    -top              $y \
-	    -font             [list $itk_option(-font)] \
-	    -background       $itk_option(-background) \
-	    -foreground       $itk_option(-foreground) \
-	    -selectforeground $itk_option(-selectforeground) \
-	    -disabledforeground $itk_option(-disabledforeground) \
-	    -selectbackground $itk_option(-selectbackground) \
-	    -angle            $itk_option(-angle) \
-	    -padx             $itk_option(-padx) \
-	    -pady             $itk_option(-pady) \
-	    -bevelamount      $itk_option(-bevelamount) \
-	    -state            $itk_option(-state) \
-	    -tabborders       $itk_option(-tabborders) \
-	    -invert           $invert \
-	    -orient           $orient \
-	    $args
+        -left             $x \
+        -top              $y \
+        -font             [list $itk_option(-font)] \
+        -background       $itk_option(-background) \
+        -foreground       $itk_option(-foreground) \
+        -selectforeground $itk_option(-selectforeground) \
+        -disabledforeground $itk_option(-disabledforeground) \
+        -selectbackground $itk_option(-selectbackground) \
+        -angle            $itk_option(-angle) \
+        -padx             $itk_option(-padx) \
+        -pady             $itk_option(-pady) \
+        -bevelamount      $itk_option(-bevelamount) \
+        -state            $itk_option(-state) \
+        -tabborders       $itk_option(-tabborders) \
+        -invert           $invert \
+        -orient           $orient \
+        $args
     
     $tabName lower
     
     $itk_component(canvas) \
-	    bind $tabName <Button-1> [code $this _selectName $tabName]
+        bind $tabName <Button-1> [itcl::code $this _selectName $tabName]
     
     incr _uniqueID
     
@@ -914,15 +928,15 @@ body iwidgets::Tabset::_createTab {args} {
 #
 # Also keeps the current selection in bounds.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_deleteTabs {fromTab toTab} {
+itcl::body iwidgets::Tabset::_deleteTabs {fromTab toTab} {
     for { set tab $fromTab } { $tab <= $toTab } { incr tab } {
-	set tabName [lindex $_tabs $tab]
-	
-	# unbind Button-1 from this window name
-	$itk_component(canvas) bind $tabName <Button-1> {}
-	
-	# Destroy the Tab class...
-	itcl::delete object $tabName 
+    set tabName [lindex $_tabs $tab]
+    
+    # unbind Button-1 from this window name
+    $itk_component(canvas) bind $tabName <Button-1> {}
+    
+    # Destroy the Tab class...
+    itcl::delete object $tabName 
     }
     
     # physically remove the tab
@@ -930,23 +944,23 @@ body iwidgets::Tabset::_deleteTabs {fromTab toTab} {
     
     # If we deleted a selected tab set our selection to none
     if { $_currTab >= $fromTab && $_currTab <= $toTab } {
-	set _currTab -1
-	_drawBevelBorder
+    set _currTab -1
+    _drawBevelBorder
     }
     
     # make sure _currTab stays in sync with new numbering...
     if { $_tabs == {} } {
-	# if deleted only remaining tab,
-	# reset current tab to undefined
-	set _currTab -1
-	
-	# or if the current tab was the last tab, it needs come back
+    # if deleted only remaining tab,
+    # reset current tab to undefined
+    set _currTab -1
+    
+    # or if the current tab was the last tab, it needs come back
     } elseif { $_currTab >= [llength $_tabs] } {
-	incr _currTab -1
-	if { $_currTab < 0 } {
-	    # but only to zero
-	    set _currTab 0
-	}
+    incr _currTab -1
+    if { $_currTab < 0 } {
+        # but only to zero
+        set _currTab 0
+    }
     }
     
     _relayoutTabs
@@ -964,41 +978,41 @@ body iwidgets::Tabset::_deleteTabs {fromTab toTab} {
 # an integer it looks it up in the $pathList array.
 # If it fails it returns -1
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_index {pathList index select} {
+itcl::body iwidgets::Tabset::_index {pathList index select} {
     switch $index {
-	select {
-	    set number $select
-	}
-	end {
-	    set number [expr [llength $pathList] -1]
-	}
-	default {
-	    # is it an number already?
-	    if { [regexp {^[0-9]+$} $index] } {
-		set number $index
-		if { $number < 0 || $number >= [llength $pathList] } {
-		    set number -1
-		}
-		
-		# otherwise it is a label
-	    } else {
-		# look thru the pathList of pathNames and
-		# get each label and compare with index.
-		# if we get a match then set number to postion in $pathList
-		# and break out.
-		# otherwise number is still -1
-		set i 0
-		set number -1
-		foreach pathName $pathList {
-		    set label [$pathName cget -label]
-		    if { $label == $index } {
-			set number $i
-			break
-		    }
-		    incr i
-		}
-	    }
-	}
+    select {
+        set number $select
+    }
+    end {
+        set number [expr {[llength $pathList] -1}]
+    }
+    default {
+        # is it an number already?
+        if { [regexp {^[0-9]+$} $index] } {
+        set number $index
+        if { $number < 0 || $number >= [llength $pathList] } {
+            set number -1
+        }
+        
+        # otherwise it is a label
+        } else {
+        # look thru the pathList of pathNames and
+        # get each label and compare with index.
+        # if we get a match then set number to postion in $pathList
+        # and break out.
+        # otherwise number is still -1
+        set i 0
+        set number -1
+        foreach pathName $pathList {
+            set label [$pathName cget -label]
+            if { $label == $index } {
+            set number $i
+            break
+            }
+            incr i
+        }
+        }
+    }
     }
     
     return $number
@@ -1007,15 +1021,15 @@ body iwidgets::Tabset::_index {pathList index select} {
 # ----------------------------------------------------------------------
 # PRIVATE METHOD: _tabConfigure
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_tabConfigure {args} {
+itcl::body iwidgets::Tabset::_tabConfigure {args} {
     foreach tab $_tabs {
-	eval $tab configure $args
+    eval $tab configure $args
     }
     
     set _relayout true
     
     if { $_tabs != {} } {
-	select select
+    select select
     }
 }
 
@@ -1024,27 +1038,27 @@ body iwidgets::Tabset::_tabConfigure {args} {
 # 
 # relays out the tabs with correct spacing...
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_relayoutTabs {} {
-    if { [llength $_tabs] == 0 } {
-	return
+itcl::body iwidgets::Tabset::_relayoutTabs {} {
+    if { [llength $_tabs] == 0 || ![winfo viewable $itk_component(hull)]} {
+    return
     }
     
     # get the max width for fixed width tabs...
     set maxWidth 0
     foreach tab $_tabs {
-	set width [$tab labelwidth]
-	if { $width > $maxWidth } {
-	    set maxWidth $width
-	}
+    set width [$tab labelwidth]
+    if { $width > $maxWidth } {
+        set maxWidth $width
+    }
     }
     
     # get the max height for fixed height tabs...
     set maxHeight 0
     foreach tab $_tabs {
-	set height [$tab labelheight]
-	if { $height > $maxHeight } {
-	    set maxHeight $height
-	}
+    set height [$tab labelheight]
+    if { $height > $maxHeight } {
+        set maxHeight $height
+    }
     }
     
     # get curr tab's name
@@ -1054,9 +1068,9 @@ body iwidgets::Tabset::_relayoutTabs {} {
     set tabStart $_start
     
     if { $itk_option(-raiseselect) } {
-	set raiseAmt 2
+    set raiseAmt 2
     } else {
-	set raiseAmt 0
+    set raiseAmt 0
     }
     
     #
@@ -1064,102 +1078,102 @@ body iwidgets::Tabset::_relayoutTabs {} {
     # according to orientation, raise, margins, etc.
     #
     switch $itk_option(-tabpos) {
-	n {
-	    set _selectedTop [expr $_margin + 1]
-	    set _deselectedTop [expr $_selectedTop + $raiseAmt]
-	    
-	    if { $itk_option(-equaltabs) } {
-		set tabWidth $maxWidth
-	    } else {
-		set tabWidth 0
-	    }
-	    
-	    foreach tab $_tabs {
-		if { $tab == $currTabName } {
-		    $tab configure -left $tabStart -top $_selectedTop \
-			    -height $maxHeight -width $tabWidth -anchor c
-		} else {
-		    $tab configure -left $tabStart -top $_deselectedTop \
-			    -height $maxHeight -width $tabWidth -anchor c
-		}
-		set tabStart [expr $tabStart + [_calcNextTabOffset $tab]]
-	    }
-	    
-	}
-	s {
-	    set _selectedTop 0
-	    set _deselectedTop [expr $_selectedTop - $raiseAmt]
-	    
-	    if { $itk_option(-equaltabs) } {
-		set tabWidth $maxWidth
-	    } else {
-		set tabWidth 0
-	    }
-	    
-	    foreach tab $_tabs {
-		if { $tab == $currTabName } {
-		    $tab configure -left $tabStart -top $_selectedTop \
-			    -height $maxHeight -width $tabWidth -anchor c
-		} else {
-		    $tab configure -left $tabStart -top $_deselectedTop \
-			    -height $maxHeight -width $tabWidth -anchor c
-		}
-		set tabStart [expr $tabStart + [_calcNextTabOffset $tab]]
-	    }
-	    
-	}
-	w {
-	    set _selectedLeft [expr $_margin + 1]
-	    set _deselectedLeft [expr $_selectedLeft + $raiseAmt]
-	    
-	    if { $itk_option(-equaltabs) } {
-		set tabHeight $maxHeight
-	    } else {
-		set tabHeight 0
-	    }
-	    
-	    foreach tab $_tabs {
-		# selected
-		if { $tab == $currTabName } {
-		    $tab configure -top $tabStart -left $_selectedLeft \
-			    -height $tabHeight -width $maxWidth -anchor e
-		    # deselected
-		} else {
-		    $tab configure -top $tabStart -left $_deselectedLeft \
-			    -height $tabHeight -width $maxWidth -anchor e
-		}
-		set tabStart [expr $tabStart + [_calcNextTabOffset $tab]]
-	    }
-	    
-	}
-	e {
-	    set _selectedLeft 0
-	    set _deselectedLeft [expr $_selectedLeft - $raiseAmt]
-	    
-	    if { $itk_option(-equaltabs) } {
-		set tabHeight $maxHeight
-	    } else {
-		set tabHeight 0
-	    }
-	    
-	    foreach tab $_tabs {
-		# selected
-		if { $tab == $currTabName } {
-		    $tab configure -top $tabStart -left $_selectedLeft \
-			    -height $tabHeight -width $maxWidth -anchor w
-		    # deselected
-		} else {
-		    $tab configure -top $tabStart -left $_deselectedLeft \
-			    -height $tabHeight -width $maxWidth -anchor w
-		}
-		set tabStart [expr $tabStart + [_calcNextTabOffset $tab]]
-	    }
-	    
-	}
-	default {
-	    error "bad anchor position\
-		    \"$itk_option(-tabpos)\" must be n, s, e, or w"
-	}
+    n {
+        set _selectedTop [expr {$_margin + 1}]
+        set _deselectedTop [expr {$_selectedTop + $raiseAmt}]
+        
+        if { $itk_option(-equaltabs) } {
+        set tabWidth $maxWidth
+        } else {
+        set tabWidth 0
+        }
+        
+        foreach tab $_tabs {
+        if { $tab == $currTabName } {
+            $tab configure -left $tabStart -top $_selectedTop \
+                -height $maxHeight -width $tabWidth -anchor c
+        } else {
+            $tab configure -left $tabStart -top $_deselectedTop \
+                -height $maxHeight -width $tabWidth -anchor c
+        }
+        set tabStart [expr {$tabStart + [_calcNextTabOffset $tab]}]
+        }
+        
+    }
+    s {
+        set _selectedTop 0
+        set _deselectedTop [expr {$_selectedTop - $raiseAmt}]
+        
+        if { $itk_option(-equaltabs) } {
+        set tabWidth $maxWidth
+        } else {
+        set tabWidth 0
+        }
+        
+        foreach tab $_tabs {
+        if { $tab == $currTabName } {
+            $tab configure -left $tabStart -top $_selectedTop \
+                -height $maxHeight -width $tabWidth -anchor c
+        } else {
+            $tab configure -left $tabStart -top $_deselectedTop \
+                -height $maxHeight -width $tabWidth -anchor c
+        }
+        set tabStart [expr {$tabStart + [_calcNextTabOffset $tab]}]
+        }
+        
+    }
+    w {
+        set _selectedLeft [expr {$_margin + 1}]
+        set _deselectedLeft [expr {$_selectedLeft + $raiseAmt}]
+        
+        if { $itk_option(-equaltabs) } {
+        set tabHeight $maxHeight
+        } else {
+        set tabHeight 0
+        }
+        
+        foreach tab $_tabs {
+        # selected
+        if { $tab == $currTabName } {
+            $tab configure -top $tabStart -left $_selectedLeft \
+                -height $tabHeight -width $maxWidth -anchor e
+            # deselected
+        } else {
+            $tab configure -top $tabStart -left $_deselectedLeft \
+                -height $tabHeight -width $maxWidth -anchor e
+        }
+        set tabStart [expr {$tabStart + [_calcNextTabOffset $tab]}]
+        }
+        
+    }
+    e {
+        set _selectedLeft 0
+        set _deselectedLeft [expr {$_selectedLeft - $raiseAmt}]
+        
+        if { $itk_option(-equaltabs) } {
+        set tabHeight $maxHeight
+        } else {
+        set tabHeight 0
+        }
+        
+        foreach tab $_tabs {
+        # selected
+        if { $tab == $currTabName } {
+            $tab configure -top $tabStart -left $_selectedLeft \
+                -height $tabHeight -width $maxWidth -anchor w
+            # deselected
+        } else {
+            $tab configure -top $tabStart -left $_deselectedLeft \
+                -height $tabHeight -width $maxWidth -anchor w
+        }
+        set tabStart [expr {$tabStart + [_calcNextTabOffset $tab]}]
+        }
+        
+    }
+    default {
+        error "bad anchor position\
+            \"$itk_option(-tabpos)\" must be n, s, e, or w"
+    }
     }
     
     # put border on & calc our new canvas size...
@@ -1173,66 +1187,66 @@ body iwidgets::Tabset::_relayoutTabs {} {
 # 
 # draws the bevel border along tab edge (below selected tab)
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_drawBevelBorder {} {
+itcl::body iwidgets::Tabset::_drawBevelBorder {} {
     $itk_component(canvas) delete bevelBorder
     
     switch $itk_option(-tabpos) {
-	n {
-	    $itk_component(canvas) create line \
-		    0 [expr $_canvasHeight - 1] \
-		    $_canvasWidth [expr $_canvasHeight - 1] \
-		    -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
-		    -tags bevelBorder
-	    $itk_component(canvas) create line \
-		    0 $_canvasHeight \
-		    $_canvasWidth $_canvasHeight \
-		    -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
-		    -tags bevelBorder
-	}
-	s {
-	    $itk_component(canvas) create line \
-		    0 0 \
-		    $_canvasWidth 0 \
-		    -fill [iwidgets::colors::bottomShadow $itk_option(-selectbackground)] \
-		    -tags bevelBorder
-	    $itk_component(canvas) create line \
-		    0 1 \
-		    $_canvasWidth 1 \
-		    -fill black \
-		    -tags bevelBorder
-	}
-	w {
-	    $itk_component(canvas) create line \
-		    $_canvasWidth 0 \
-		    $_canvasWidth [expr $_canvasHeight - 1] \
-		    -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
-		    -tags bevelBorder
-	    $itk_component(canvas) create line \
-		    [expr $_canvasWidth - 1] 0 \
-		    [expr $_canvasWidth - 1] [expr $_canvasHeight - 1] \
-		    -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
-		    -tags bevelBorder
-	    
-	}
-	e {
-	    $itk_component(canvas) create line \
-		    0 0 \
-		    0 [expr $_canvasHeight - 1] \
-		    -fill black \
-		    -tags bevelBorder
-	    $itk_component(canvas) create line \
-		    1 0 \
-		    1 [expr $_canvasHeight - 1] \
-		    -fill [iwidgets::colors::bottomShadow $itk_option(-selectbackground)] \
-		    -tags bevelBorder
-	    
-	}
+    n {
+        $itk_component(canvas) create line \
+            0 [expr {$_canvasHeight - 1}] \
+            $_canvasWidth [expr {$_canvasHeight - 1}] \
+            -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
+            -tags bevelBorder
+        $itk_component(canvas) create line \
+            0 $_canvasHeight \
+            $_canvasWidth $_canvasHeight \
+            -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
+            -tags bevelBorder
+    }
+    s {
+        $itk_component(canvas) create line \
+            0 0 \
+            $_canvasWidth 0 \
+            -fill [iwidgets::colors::bottomShadow $itk_option(-selectbackground)] \
+            -tags bevelBorder
+        $itk_component(canvas) create line \
+            0 1 \
+            $_canvasWidth 1 \
+            -fill black \
+            -tags bevelBorder
+    }
+    w {
+        $itk_component(canvas) create line \
+            $_canvasWidth 0 \
+            $_canvasWidth [expr {$_canvasHeight - 1}] \
+            -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
+            -tags bevelBorder
+        $itk_component(canvas) create line \
+            [expr {$_canvasWidth - 1}] 0 \
+            [expr {$_canvasWidth - 1}] [expr {$_canvasHeight - 1}] \
+            -fill [iwidgets::colors::topShadow $itk_option(-selectbackground)] \
+            -tags bevelBorder
+        
+    }
+    e {
+        $itk_component(canvas) create line \
+            0 0 \
+            0 [expr {$_canvasHeight - 1}] \
+            -fill black \
+            -tags bevelBorder
+        $itk_component(canvas) create line \
+            1 0 \
+            1 [expr {$_canvasHeight - 1}] \
+            -fill [iwidgets::colors::bottomShadow $itk_option(-selectbackground)] \
+            -tags bevelBorder
+        
+    }
     }
     
     $itk_component(canvas) raise bevelBorder
     if { $_currTab != -1 } {
-	set currTabName [lindex $_tabs $_currTab]
-	$currTabName raise
+    set currTabName [lindex $_tabs $_currTab]
+    $currTabName raise
     }
 }
 
@@ -1242,11 +1256,11 @@ body iwidgets::Tabset::_drawBevelBorder {} {
 # given $tabName, determines the offset in pixels to place
 # the next tab's start edge at.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_calcNextTabOffset {tabName} {
+itcl::body iwidgets::Tabset::_calcNextTabOffset {tabName} {
     if { $_gap == "overlap" } {
-	return [$tabName offset]
+    return [$tabName offset]
     } else {
-	return [expr [$tabName majordim] + $_gap]
+    return [expr {[$tabName majordim] + $_gap}]
     }
 }
 
@@ -1256,27 +1270,27 @@ body iwidgets::Tabset::_calcNextTabOffset {tabName} {
 # calculates the bounding box that will completely enclose 
 # all the tabs.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_tabBounds {} {
+itcl::body iwidgets::Tabset::_tabBounds {} {
     set bbox { 100000 100000 -10000 -10000 }
     foreach tab $_tabs {
-	set tabBBox [$tab bbox]
-	# if this left is less use it
-	if { [lindex $tabBBox 0] < [lindex $bbox 0] } {
-	    set bbox [lreplace $bbox 0 0 [lindex $tabBBox 0]]
-	}
-	# if this top is greater use it
-	if { [lindex $tabBBox 1] < [lindex $bbox 1] } {
-	    set bbox [lreplace $bbox 1 1 [lindex $tabBBox 1]]
-	}
-	# if this right is less use it
-	if { [lindex $tabBBox 2] > [lindex $bbox 2] } {
-	    set bbox [lreplace $bbox 2 2 [lindex $tabBBox 2]]
-	}
-	# if this bottom is greater use it
-	if { [lindex $tabBBox 3] > [lindex $bbox 3] } {
-	    set bbox [lreplace $bbox 3 3 [lindex $tabBBox 3]]
-	}
-	
+    set tabBBox [$tab bbox]
+    # if this left is less use it
+    if { [lindex $tabBBox 0] < [lindex $bbox 0] } {
+        set bbox [lreplace $bbox 0 0 [lindex $tabBBox 0]]
+    }
+    # if this top is greater use it
+    if { [lindex $tabBBox 1] < [lindex $bbox 1] } {
+        set bbox [lreplace $bbox 1 1 [lindex $tabBBox 1]]
+    }
+    # if this right is less use it
+    if { [lindex $tabBBox 2] > [lindex $bbox 2] } {
+        set bbox [lreplace $bbox 2 2 [lindex $tabBBox 2]]
+    }
+    # if this bottom is greater use it
+    if { [lindex $tabBBox 3] > [lindex $bbox 3] } {
+        set bbox [lreplace $bbox 3 3 [lindex $tabBBox 3]]
+    }
+    
     }
     return $bbox
 }
@@ -1287,9 +1301,9 @@ body iwidgets::Tabset::_tabBounds {} {
 # Based on size of tabs, recalculates the canvas geometry that
 # will hold the tabs.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_recalcCanvasGeom {} {
+itcl::body iwidgets::Tabset::_recalcCanvasGeom {} {
     if { [llength $_tabs] == 0 } {
-	return
+    return
     }
     
     set bbox [_tabBounds]
@@ -1301,30 +1315,30 @@ body iwidgets::Tabset::_recalcCanvasGeom {} {
     
     
     switch $itk_option(-tabpos) {
-	n {
-	    # height already includes margin
-	    $itk_component(canvas) configure \
-		    -width $width \
-		    -height $height
-	}
-	s {
-	    $itk_component(canvas) configure \
-		    -width $width \
-		    -height [expr $height + $_margin]
-	}
-	w {
-	    # width already includes margin
-	    $itk_component(canvas) configure \
-		    -width $width \
-		    -height [expr $height + 1]
-	}
-	e {
-	    $itk_component(canvas) configure \
-		    -width [expr $width + $_margin] \
-		    -height [expr $height + 1]
-	}
-	default {
-	}
+    n {
+        # height already includes margin
+        $itk_component(canvas) configure \
+            -width $width \
+            -height $height
+    }
+    s {
+        $itk_component(canvas) configure \
+            -width $width \
+            -height [expr {$height + $_margin}]
+    }
+    w {
+        # width already includes margin
+        $itk_component(canvas) configure \
+            -width $width \
+            -height [expr {$height + 1}]
+    }
+    e {
+        $itk_component(canvas) configure \
+            -width [expr {$width + $_margin}] \
+            -height [expr {$height + 1}]
+    }
+    default {
+    }
     }
 }
 
@@ -1336,12 +1350,12 @@ body iwidgets::Tabset::_recalcCanvasGeom {} {
 # and redraws the beveled edge border.
 # will hold the tabs.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_canvasReconfigure {width height} {
+itcl::body iwidgets::Tabset::_canvasReconfigure {width height} {
     set _canvasWidth $width
     set _canvasHeight $height
     
     if { [llength $_tabs] > 0 } {
-	_drawBevelBorder
+    _drawBevelBorder
     }
 }
 
@@ -1352,11 +1366,11 @@ body iwidgets::Tabset::_canvasReconfigure {width height} {
 # tab set. This starts animated scrolling of the tabs along their
 # major axis.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_startMove {x y} {
+itcl::body iwidgets::Tabset::_startMove {x y} {
     if { $itk_option(-tabpos) == "n" || $itk_option(-tabpos) == "s" } {
-	set _anchorX $x
+    set _anchorX $x
     } else {
-	set _anchorY $y
+    set _anchorY $y
     }
 }
 
@@ -1366,19 +1380,19 @@ body iwidgets::Tabset::_startMove {x y} {
 # This method is bound to the MB2 motion in the canvas area of the
 # tab set. This causes the tabset to move with the mouse.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_moveTabs {x y} {
+itcl::body iwidgets::Tabset::_moveTabs {x y} {
     if { $itk_option(-tabpos) == "n" || $itk_option(-tabpos) == "s" } {
-	set startX [expr $_start + $x - $_anchorX]
-	foreach tab $_tabs {
-	    $tab configure -left $startX 
-	    set startX [expr $startX + [_calcNextTabOffset $tab]]
-	}
+    set startX [expr {$_start + $x - $_anchorX}]
+    foreach tab $_tabs {
+        $tab configure -left $startX 
+        set startX [expr {$startX + [_calcNextTabOffset $tab]}]
+    }
     } else {
-	set startY [expr $_start + $y - $_anchorY]
-	foreach tab $_tabs {
-	    $tab configure -top $startY 
-	    set startY [expr $startY + [_calcNextTabOffset $tab]]
-	}
+    set startY [expr {$_start + $y - $_anchorY}]
+    foreach tab $_tabs {
+        $tab configure -top $startY 
+        set startY [expr {$startY + [_calcNextTabOffset $tab]}]
+    }
     }
 }
 
@@ -1388,17 +1402,17 @@ body iwidgets::Tabset::_moveTabs {x y} {
 # This method is bound to the MB2 release in the canvas area of the
 # tab set. This causes the tabset to end moving tabs.
 # ----------------------------------------------------------------------
-body iwidgets::Tabset::_endMove {x y} {
+itcl::body iwidgets::Tabset::_endMove {x y} {
     if { $itk_option(-tabpos) == "n" || $itk_option(-tabpos) == "s" } {
-	set startX [expr $_start + $x - $_anchorX]
-	set _skipRelayout true
-	configure -start $startX
-	set _skipRelayout false
+    set startX [expr {$_start + $x - $_anchorX}]
+    set _skipRelayout true
+    configure -start $startX
+    set _skipRelayout false
     } else {
-	set startY [expr $_start + $y - $_anchorY]
-	set _skipRelayout true
-	configure -start $startY
-	set _skipRelayout false
+    set startY [expr {$_start + $y - $_anchorY}]
+    set _skipRelayout true
+    configure -start $startY
+    set _skipRelayout false
     }
 }
 
@@ -1407,7 +1421,7 @@ body iwidgets::Tabset::_endMove {x y} {
 # CLASS: Tab
 #==============================================================
 
-class iwidgets::Tab {
+itcl::class iwidgets::Tab {
     constructor {args} {}
     
     destructor {}
@@ -1433,7 +1447,7 @@ class iwidgets::Tab {
     public variable invert false {}
     public variable angle 20 {}
     public variable font \
-	   "-adobe-helvetica-bold-r-normal--34-240-100-100-p-182-iso8859-1" {}
+       "-adobe-helvetica-bold-r-normal--34-240-100-100-p-182-iso8859-1" {}
     public variable tabborders true {}
     
     public method configure {args} 
@@ -1558,7 +1572,7 @@ class iwidgets::Tab {
 # ----------------------------------------------------------------------
 #                              CONSTRUCTOR
 # ----------------------------------------------------------------------
-body iwidgets::Tab::constructor {args} {
+itcl::body iwidgets::Tab::constructor {args} {
     
     set _canvas [lindex $args 0]
     set args [lrange $args 1 [llength $args]]
@@ -1567,16 +1581,16 @@ body iwidgets::Tab::constructor {args} {
     set _lightShadow [iwidgets::colors::topShadow $selectbackground]
     
     if { $args != "" } {
-	eval configure $args
+    eval configure $args
     }
 }
 
 # ----------------------------------------------------------------------
 #                              DESTRUCTOR
 # ----------------------------------------------------------------------
-body iwidgets::Tab::destructor {} {
+itcl::body iwidgets::Tab::destructor {} {
     if { [winfo exists $_canvas] } {
-	$_canvas delete $this
+    $_canvas delete $this
     }
 }
 
@@ -1595,7 +1609,7 @@ body iwidgets::Tab::destructor {} {
 # tab will be drawn with angled corners that cut in 4 pixels from 
 # the edge of the tab. The default is 0.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::bevelamount { 
+itcl::configbody iwidgets::Tab::bevelamount { 
 }
 
 # ----------------------------------------------------------------------
@@ -1606,7 +1620,7 @@ configbody iwidgets::Tab::bevelamount {
 # causing its image, bitmap, or label to be drawn with the 
 # disabledForeground color.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::state { 
+itcl::configbody iwidgets::Tab::state { 
 }
 
 # ----------------------------------------------------------------------
@@ -1614,7 +1628,7 @@ configbody iwidgets::Tab::state {
 #
 # the height of the tab. if 0, uses the font label height.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::height {
+itcl::configbody iwidgets::Tab::height {
     set _height [winfo pixels $_canvas $height]
     set _configTripped true
 }
@@ -1624,7 +1638,7 @@ configbody iwidgets::Tab::height {
 #
 # The width of the tab. If 0, uses the font label width.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::width {
+itcl::configbody iwidgets::Tab::width {
     set _width [winfo pixels $_canvas $width]
     set _configTripped true
 }
@@ -1634,7 +1648,7 @@ configbody iwidgets::Tab::width {
 #
 # Where the text in the tab will be anchored: n,nw,ne,s,sw,se,e,w,center
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::anchor { 
+itcl::configbody iwidgets::Tab::anchor { 
 }
 
 # ----------------------------------------------------------------------
@@ -1643,13 +1657,13 @@ configbody iwidgets::Tab::anchor {
 # Specifies the left edge of the tab's bounding box. This value 
 # may have any of the forms acceptable to Tk_GetPixels.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::left {
+itcl::configbody iwidgets::Tab::left {
     
     # get into pixels
     set _left [winfo pixels $_canvas $left]
     
     # move by offset from last setting
-    $_canvas move $this [expr $_left - $_oldLeft] 0
+    $_canvas move $this [expr {$_left - $_oldLeft}] 0
     
     # update old for next time
     set _oldLeft $_left
@@ -1661,13 +1675,13 @@ configbody iwidgets::Tab::left {
 # Specifies the topedge of the tab's bounding box. This value may 
 # have any of the forms acceptable to Tk_GetPixels.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::top {
+itcl::configbody iwidgets::Tab::top {
     
     # get into pixels
     set _top [winfo pixels $_canvas $top]
     
     # move by offset from last setting
-    $_canvas move $this 0 [expr $_top - $_oldTop]
+    $_canvas move $this 0 [expr {$_top - $_oldTop}]
     
     # update old for next time
     set _oldTop $_top
@@ -1679,7 +1693,7 @@ configbody iwidgets::Tab::top {
 # Specifies the imageto display in the tab. 
 # Images are created with the image create command. 
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::image { 
+itcl::configbody iwidgets::Tab::image { 
     set _configTripped true
 }
 
@@ -1689,7 +1703,7 @@ configbody iwidgets::Tab::image {
 # If bitmap is an empty string, specifies the bitmap to display in 
 # the tab. Bitmap may be of any of the forms accepted by Tk_GetBitmap. 
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::bitmap { 
+itcl::configbody iwidgets::Tab::bitmap { 
     set _configTripped true
 }
 
@@ -1701,7 +1715,7 @@ configbody iwidgets::Tab::bitmap {
 # This label serves as an additional identifier used to reference 
 # the tab. Label may be used for the index value in widget commands.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::label { 
+itcl::configbody iwidgets::Tab::label { 
     set _configTripped true
 }
 
@@ -1710,7 +1724,7 @@ configbody iwidgets::Tab::label {
 #
 # Horizontal padding around the label (text, image, or bitmap).
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::padx {
+itcl::configbody iwidgets::Tab::padx {
     set _configTripped true
     set _padX [winfo pixels $_canvas $padx]
 }
@@ -1720,7 +1734,7 @@ configbody iwidgets::Tab::padx {
 #
 # Vertical padding around the label (text, image, or bitmap).
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::pady {
+itcl::configbody iwidgets::Tab::pady {
     set _configTripped true
     set _padY [winfo pixels $_canvas $pady]
 }
@@ -1728,14 +1742,14 @@ configbody iwidgets::Tab::pady {
 # ----------------------------------------------------------------------
 # OPTION -selectbackground
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::selectbackground {
+itcl::configbody iwidgets::Tab::selectbackground {
     set _darkShadow  [iwidgets::colors::bottomShadow $selectbackground]
     set _lightShadow [iwidgets::colors::topShadow $selectbackground]
     
     if { $_selected } {
-	_selectNoRaise
+    _selectNoRaise
     } else {
-	_deselectNoLower
+    _deselectNoLower
     }
 }
 
@@ -1744,11 +1758,11 @@ configbody iwidgets::Tab::selectbackground {
 #
 # Foreground of tab when selected
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::selectforeground { 
+itcl::configbody iwidgets::Tab::selectforeground { 
     if { $_selected } {
-	_selectNoRaise
+    _selectNoRaise
     } else {
-	_deselectNoLower
+    _deselectNoLower
     }
 }
 
@@ -1757,11 +1771,11 @@ configbody iwidgets::Tab::selectforeground {
 #
 # Background of tab when -state is disabled
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::disabledforeground { 
+itcl::configbody iwidgets::Tab::disabledforeground { 
     if { $_selected } {
-	_selectNoRaise
+    _selectNoRaise
     } else {
-	_deselectNoLower
+    _deselectNoLower
     }
 }
 
@@ -1770,12 +1784,12 @@ configbody iwidgets::Tab::disabledforeground {
 #
 # Normal background of tab.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::background { 
+itcl::configbody iwidgets::Tab::background { 
     
     if { $_selected } {
-	_selectNoRaise
+    _selectNoRaise
     } else {
-	_deselectNoLower
+    _deselectNoLower
     }
     
 }
@@ -1785,11 +1799,11 @@ configbody iwidgets::Tab::background {
 #
 # Foreground of tabs when in normal unselected state
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::foreground { 
+itcl::configbody iwidgets::Tab::foreground { 
     if { $_selected } {
-	_selectNoRaise
+    _selectNoRaise
     } else {
-	_deselectNoLower
+    _deselectNoLower
     }
 }
 
@@ -1799,7 +1813,7 @@ configbody iwidgets::Tab::foreground {
 # Specifies the orientation of the tab. Orient can be either 
 # horizontal or vertical. 
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::orient { 
+itcl::configbody iwidgets::Tab::orient { 
     set _configTripped true
 }
 
@@ -1812,7 +1826,7 @@ configbody iwidgets::Tab::orient {
 # forms accepted by the Tcl_GetBoolean, such as true, 
 # false, 0, 1, yes, or no.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::invert { 
+itcl::configbody iwidgets::Tab::invert { 
     set _configTripped true
 }
 
@@ -1825,9 +1839,9 @@ configbody iwidgets::Tab::invert {
 # is specified as an empty string (the default), then the angle 
 # option for the overall Tabset is used.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::angle {
+itcl::configbody iwidgets::Tab::angle {
     if {$angle < 0 || $angle > 45 } {
-	error "bad angle: must be between 0 and 45"
+    error "bad angle: must be between 0 and 45"
     }
     set _configTripped true
 }
@@ -1837,7 +1851,7 @@ configbody iwidgets::Tab::angle {
 #
 # Font for tab text.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::font { 
+itcl::configbody iwidgets::Tab::font { 
 }
 
 
@@ -1851,7 +1865,7 @@ configbody iwidgets::Tab::font {
 # The value may have any of the forms accepted by the 
 # Tcl_GetBoolean, such as true, false, 0, 1, yes, or no.
 # ----------------------------------------------------------------------
-configbody iwidgets::Tab::tabborders { 
+itcl::configbody iwidgets::Tab::tabborders { 
     set _configTripped true
 }
 
@@ -1862,26 +1876,26 @@ configbody iwidgets::Tab::tabborders {
 # needs to be remade. We take the easy way since it is so inexpensive
 # to delete canvas items and remake them.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::configure {args} {
+itcl::body iwidgets::Tab::configure {args} {
     set len [llength $args]
     
     switch $len {
-	0 {
-	    set result [_itk_config]
-	    return $result
-	}
-	1 {
-	    set result [eval _itk_config $args]
-	    return $result
-	}
-	default {
-	    eval _itk_config $args
-	    if { $_configTripped } {
-		_makeTab 
-		set _configTripped false
-	    }
-	    return ""
-	}
+    0 {
+        set result [_itk_config]
+        return $result
+    }
+    1 {
+        set result [eval _itk_config $args]
+        return $result
+    }
+    default {
+        eval _itk_config $args
+        if { $_configTripped } {
+        _makeTab 
+        set _configTripped false
+        }
+        return ""
+    }
     }
 }
 
@@ -1890,7 +1904,7 @@ body iwidgets::Tab::configure {args} {
 #
 # Returns the bounding box of the tab
 # ----------------------------------------------------------------------
-body iwidgets::Tab::bbox {} {
+itcl::body iwidgets::Tab::bbox {} {
     return [lappend bbox $_left $_top $_right $_bottom]
 }
 # ----------------------------------------------------------------------
@@ -1898,12 +1912,12 @@ body iwidgets::Tab::bbox {} {
 #
 # Causes the given tab to be drawn as deselected and lowered
 # ----------------------------------------------------------------------
-body iwidgets::Tab::deselect {} {
+itcl::body iwidgets::Tab::deselect {} {
     global tcl_platform
     $_canvas lower $this
 
     if {$tcl_platform(os) == "HP-UX"} {
-	update idletasks
+    update idletasks
     }
 
     _deselectNoLower
@@ -1916,7 +1930,7 @@ body iwidgets::Tab::deselect {} {
 #
 # This is used as our tag name on the canvas.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::lower {} {
+itcl::body iwidgets::Tab::lower {} {
     $_canvas lower $this
 }
 
@@ -1926,7 +1940,7 @@ body iwidgets::Tab::lower {} {
 # Returns the width for horizontal tabs and the height for
 # vertical tabs.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::majordim {} {
+itcl::body iwidgets::Tab::majordim {} {
     return $_majorDim  
 }
 
@@ -1936,7 +1950,7 @@ body iwidgets::Tab::majordim {} {
 # Returns the height for horizontal tabs and the width for
 # vertical tabs.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::minordim {} {
+itcl::body iwidgets::Tab::minordim {} {
     return $_minorDim  
 }
 
@@ -1946,7 +1960,7 @@ body iwidgets::Tab::minordim {} {
 # Returns the width less the angle offset. This allows a 
 # geometry manager to ask where to place a sibling tab.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::offset {} {
+itcl::body iwidgets::Tab::offset {} {
     return $_offset  
 }
 
@@ -1957,7 +1971,7 @@ body iwidgets::Tab::offset {} {
 #
 # This is used as our tag name on the canvas.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::raise {} {
+itcl::body iwidgets::Tab::raise {} {
     $_canvas raise $this
 }
 
@@ -1968,12 +1982,12 @@ body iwidgets::Tab::raise {} {
 # turned on and top line and top line shadow are drawn in sel
 # bg color to hide them.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::select {} {
+itcl::body iwidgets::Tab::select {} {
     global tcl_platform
     $_canvas raise $this
 
     if {$tcl_platform(os) == "HP-UX"} {
-	update idletasks
+    update idletasks
     }
 
     _selectNoRaise
@@ -1984,12 +1998,12 @@ body iwidgets::Tab::select {} {
 #
 # Returns the height of the tab's label in its current font.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::labelheight {} {
+itcl::body iwidgets::Tab::labelheight {} {
     if {$_gLabel != 0} {
-	set labelBBox [$_canvas bbox $_gLabel]
-	set labelHeight [expr [lindex $labelBBox 3] - [lindex $labelBBox 1]]
+    set labelBBox [$_canvas bbox $_gLabel]
+    set labelHeight [expr {[lindex $labelBBox 3] - [lindex $labelBBox 1]}]
     } else {
-	set labelHeight 0
+    set labelHeight 0
     }
     return $labelHeight
 }
@@ -1999,12 +2013,12 @@ body iwidgets::Tab::labelheight {} {
 #
 # Returns the width of the tab's label in its current font.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::labelwidth {} {
+itcl::body iwidgets::Tab::labelwidth {} {
     if {$_gLabel != 0} {
-	set labelBBox [$_canvas bbox $_gLabel]
-	set labelWidth [expr [lindex $labelBBox 2] - [lindex $labelBBox 0]]
+    set labelBBox [$_canvas bbox $_gLabel]
+    set labelWidth [expr {[lindex $labelBBox 2] - [lindex $labelBBox 0]}]
     } else {
-	set labelWidth 0
+    set labelWidth 0
     }
     return $labelWidth
 }
@@ -2014,9 +2028,9 @@ body iwidgets::Tab::labelwidth {} {
 #
 # Draws tab as selected without raising it.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_selectNoRaise {} {
+itcl::body iwidgets::Tab::_selectNoRaise {} {
     if { ! [info exists _gRegion] } {
-	return
+    return
     }
     
     $_canvas itemconfigure $_gRegion -fill $selectbackground
@@ -2026,32 +2040,32 @@ body iwidgets::Tab::_selectNoRaise {} {
     $_canvas itemconfigure $_gDarkShadow -fill $_darkShadow
     
     if { $_gLightOutline != {} } {
-	$_canvas itemconfigure $_gLightOutline -fill $_lightShadow
+    $_canvas itemconfigure $_gLightOutline -fill $_lightShadow
     }
     if { $_gBlackOutline != {} } {
-	$_canvas itemconfigure $_gBlackOutline -fill black
+    $_canvas itemconfigure $_gBlackOutline -fill black
     }
     
     if { $state == "normal" } {
-	if { $image != {}} {
-	    # do nothing for now
-	} elseif { $bitmap != {}} {
-	    $_canvas itemconfigure $_gLabel \
-		    -foreground $selectforeground \
-		    -background $selectbackground 
-	} else {
-	    $_canvas itemconfigure $_gLabel -fill $selectforeground
-	}
+    if { $image != {}} {
+        # do nothing for now
+    } elseif { $bitmap != {}} {
+        $_canvas itemconfigure $_gLabel \
+            -foreground $selectforeground \
+            -background $selectbackground 
     } else {
-	if { $image != {}} {
-	    # do nothing for now
-	} elseif { $bitmap != {}} {
-	    $_canvas itemconfigure $_gLabel \
-		    -foreground $disabledforeground \
-		    -background $selectbackground 
-	} else {
-	    $_canvas itemconfigure $_gLabel -fill $disabledforeground
-	}
+        $_canvas itemconfigure $_gLabel -fill $selectforeground
+    }
+    } else {
+    if { $image != {}} {
+        # do nothing for now
+    } elseif { $bitmap != {}} {
+        $_canvas itemconfigure $_gLabel \
+            -foreground $disabledforeground \
+            -background $selectbackground 
+    } else {
+        $_canvas itemconfigure $_gLabel -fill $disabledforeground
+    }
     }
     
     set _selected true
@@ -2064,9 +2078,9 @@ body iwidgets::Tab::_selectNoRaise {} {
 # removed and top line and top line shadow are drawn in visible
 # colors to reveal them.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_deselectNoLower {} {
+itcl::body iwidgets::Tab::_deselectNoLower {} {
     if { ! [info exists _gRegion] } {
-	return
+    return
     }
     
     $_canvas itemconfigure $_gRegion -fill $background
@@ -2076,42 +2090,42 @@ body iwidgets::Tab::_deselectNoLower {} {
     $_canvas itemconfigure $_gDarkShadow -fill $background
     
     if { $tabborders } {
-	if { $_gLightOutline != {} } {
-	    $_canvas itemconfigure $_gLightOutline -fill $_lightShadow
-	}
-	if { $_gBlackOutline != {} } {
-	    $_canvas itemconfigure $_gBlackOutline -fill black
-	}
+    if { $_gLightOutline != {} } {
+        $_canvas itemconfigure $_gLightOutline -fill $_lightShadow
+    }
+    if { $_gBlackOutline != {} } {
+        $_canvas itemconfigure $_gBlackOutline -fill black
+    }
     } else {
-	if { $_gLightOutline != {} } {
-	    $_canvas itemconfigure $_gLightOutline -fill $background
-	}
-	if { $_gBlackOutline != {} } {
-	    $_canvas itemconfigure $_gBlackOutline -fill $background
-	}
+    if { $_gLightOutline != {} } {
+        $_canvas itemconfigure $_gLightOutline -fill $background
+    }
+    if { $_gBlackOutline != {} } {
+        $_canvas itemconfigure $_gBlackOutline -fill $background
+    }
     }
     
     
     if { $state == "normal" } {
-	if { $image != {}} {
-	    # do nothing for now
-	} elseif { $bitmap != {}} {
-	    $_canvas itemconfigure $_gLabel \
-		    -foreground $foreground \
-		    -background $background 
-	} else {
-	    $_canvas itemconfigure $_gLabel -fill $foreground
-	}
+    if { $image != {}} {
+        # do nothing for now
+    } elseif { $bitmap != {}} {
+        $_canvas itemconfigure $_gLabel \
+            -foreground $foreground \
+            -background $background 
     } else {
-	if { $image != {}} {
-	    # do nothing for now
-	} elseif { $bitmap != {}} {
-	    $_canvas itemconfigure $_gLabel \
-		    -foreground $disabledforeground \
-		    -background $background 
-	} else {
-	    $_canvas itemconfigure $_gLabel -fill $disabledforeground
-	}
+        $_canvas itemconfigure $_gLabel -fill $foreground
+    }
+    } else {
+    if { $image != {}} {
+        # do nothing for now
+    } elseif { $bitmap != {}} {
+        $_canvas itemconfigure $_gLabel \
+            -foreground $disabledforeground \
+            -background $background 
+    } else {
+        $_canvas itemconfigure $_gLabel -fill $disabledforeground
+    }
     }
     
     set _selected false
@@ -2120,21 +2134,21 @@ body iwidgets::Tab::_deselectNoLower {} {
 # ----------------------------------------------------------------------
 # PRIVATE METHOD: _makeTab
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_makeTab {} {
+itcl::body iwidgets::Tab::_makeTab {} {
     if { $orient == "horizontal" } {
-	if { $invert } {
-	    _makeNorthTab $_canvas
-	} else {
-	    _makeSouthTab $_canvas
-	}
-    } elseif { $orient == "vertical" } {
-	if { $invert } {
-	    _makeEastTab $_canvas
-	} else {
-	    _makeWestTab $_canvas
-	}
+    if { $invert } {
+        _makeNorthTab $_canvas
     } else {
-	error "bad value for option -orient"
+        _makeSouthTab $_canvas
+    }
+    } elseif { $orient == "vertical" } {
+    if { $invert } {
+        _makeEastTab $_canvas
+    } else {
+        _makeWestTab $_canvas
+    }
+    } else {
+    error "bad value for option -orient"
     }
 }
 
@@ -2144,29 +2158,29 @@ body iwidgets::Tab::_makeTab {} {
 # Creates the label for the tab. Can be either a text label
 # or a bitmap label.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_createLabel {canvas tagList} {
+itcl::body iwidgets::Tab::_createLabel {canvas tagList} {
     if { $image != {}} {
-	set _gLabel [$canvas create image \
-		0 0 \
-		-image $image \
-		-anchor nw \
-		-tags $tagList \
-		]
+    set _gLabel [$canvas create image \
+        0 0 \
+        -image $image \
+        -anchor nw \
+        -tags $tagList \
+        ]
     } elseif { $bitmap != {}} {
-	set _gLabel [$canvas create bitmap \
-		0 0 \
-		-bitmap $bitmap \
-		-anchor nw \
-		-tags $tagList \
-		]
+    set _gLabel [$canvas create bitmap \
+        0 0 \
+        -bitmap $bitmap \
+        -anchor nw \
+        -tags $tagList \
+        ]
     } else {
-	set _gLabel [$canvas create text \
-		0 0 \
-		-text $label \
-		-font $font \
-		-anchor nw \
-		-tags $tagList \
-		]
+    set _gLabel [$canvas create text \
+        0 0 \
+        -text $label \
+        -font $font \
+        -anchor nw \
+        -tags $tagList \
+        ]
     }
 }
 
@@ -2175,7 +2189,7 @@ body iwidgets::Tab::_createLabel {canvas tagList} {
 #
 # Makes a tab that hangs to the east and opens to the west.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_makeEastTab {canvas} {
+itcl::body iwidgets::Tab::_makeEastTab {canvas} {
     $canvas delete $this
     set _gLightOutline {}
     set _gBlackOutline {}
@@ -2187,18 +2201,17 @@ body iwidgets::Tab::_makeEastTab {canvas} {
     _calcLabelDim $_gLabel
     
     
-    set right  [expr $_left + $_labelWidth]
+    set right  [expr {$_left + $_labelWidth}]
     # now have _left, _top, right...
     
     # Turn off calculating angle tabs on Vertical orientations
-    #set angleOffset [expr $_labelHeight * $_tan($angle)]
     set angleOffset 0
     
     set outerTop $_top
     set outerBottom \
-	    [expr $outerTop + $angleOffset + $_labelHeight + $angleOffset]
-    set innerTop [expr $outerTop + $angleOffset]
-    set innerBottom [expr $outerTop + $angleOffset + $_labelHeight]
+        [expr {$outerTop + $angleOffset + $_labelHeight + $angleOffset}]
+    set innerTop [expr {$outerTop + $angleOffset}]
+    set innerBottom [expr {$outerTop + $angleOffset + $_labelHeight}]
     
     # now have _left, _top, right, outerTop, innerTop,
     # innerBottom, outerBottom, width, height
@@ -2207,90 +2220,90 @@ body iwidgets::Tab::_makeEastTab {canvas} {
     # tab area... gets filled either white or selected
     # done
     set _gRegion [$canvas create polygon \
-	    $_left $outerTop \
-	    [expr $right - $bevelamount] $innerTop \
-	    $right [expr $innerTop + $bevelamount] \
-	    $right [expr $innerBottom - $bevelamount] \
-	    [expr $right - $bevelamount] $innerBottom \
-	    $_left $outerBottom \
-	    $_left $outerTop \
-	    -tags $tagList  \
-	    ]
+        $_left $outerTop \
+        [expr {$right - $bevelamount}] $innerTop \
+        $right [expr {$innerTop + $bevelamount}] \
+        $right [expr {$innerBottom - $bevelamount}] \
+        [expr {$right - $bevelamount}] $innerBottom \
+        $_left $outerBottom \
+        $_left $outerTop \
+        -tags $tagList  \
+        ]
     
     # lighter shadow (left edge)
     set _gLightShadow [$canvas create line \
-	    [expr $_left - 3] [expr $outerTop + 1] \
-	    [expr $right - $bevelamount] [expr $innerTop + 1] \
-	    -tags $tagList \
-	    ]
+        [expr {$_left - 3}] [expr {$outerTop + 1}] \
+        [expr {$right - $bevelamount}] [expr {$innerTop + 1}] \
+        -tags $tagList \
+        ]
     
     # darker shadow (bottom and right edges)
     set _gDarkShadow [$canvas create line \
-	    [expr $right - $bevelamount] [expr $innerTop + 1] \
-	    [expr $right - 1] [expr $innerTop + $bevelamount] \
-	    [expr $right - 1] [expr $innerBottom - $bevelamount] \
-	    [expr $right - $bevelamount] [expr $innerBottom - 1] \
-	    [expr $_left - 3] [expr $outerBottom - 1] \
-	    -tags $tagList \
-	    ]
+        [expr {$right - $bevelamount}] [expr {$innerTop + 1}] \
+        [expr {$right - 1}] [expr {$innerTop + $bevelamount}] \
+        [expr {$right - 1}] [expr {$innerBottom - $bevelamount}] \
+        [expr {$right - $bevelamount}] [expr {$innerBottom - 1}] \
+        [expr {$_left - 3}] [expr {$outerBottom - 1}] \
+        -tags $tagList \
+        ]
     
     # outline of tab
     set _gLightOutline [$canvas create line \
-	    $_left $outerTop \
-	    [expr $right - $bevelamount] $innerTop \
-	    -tags $tagList \
-	    ]
+        $_left $outerTop \
+        [expr {$right - $bevelamount}] $innerTop \
+        -tags $tagList \
+        ]
     # outline of tab
     set _gBlackOutline [$canvas create line \
-	    [expr $right - $bevelamount] $innerTop \
-	    $right [expr $innerTop + $bevelamount] \
-	    $right [expr $innerBottom - $bevelamount] \
-	    [expr $right - $bevelamount] $innerBottom \
-	    $_left $outerBottom \
-	    $_left $outerTop \
-	    -tags $tagList \
-	    ]
+        [expr {$right - $bevelamount}] $innerTop \
+        $right [expr {$innerTop + $bevelamount}] \
+        $right [expr {$innerBottom - $bevelamount}] \
+        [expr {$right - $bevelamount}] $innerBottom \
+        $_left $outerBottom \
+        $_left $outerTop \
+        -tags $tagList \
+        ]
     
     # line closest to the edge
     set _gTopLineShadow [$canvas create line \
-	    $_left $outerTop \
-	    $_left $outerBottom \
-	    -tags $tagList \
-	    ]
+        $_left $outerTop \
+        $_left $outerBottom \
+        -tags $tagList \
+        ]
     
     # next line down
     set _gTopLine [$canvas create line \
-	    [expr $_left + 1] [expr $outerTop + 2] \
-	    [expr $_left + 1] [expr $outerBottom - 1] \
-	    -tags $tagList  \
-	    ]
+        [expr {$_left + 1}] [expr {$outerTop + 2}] \
+        [expr {$_left + 1}] [expr {$outerBottom - 1}] \
+        -tags $tagList  \
+        ]
     
-    $canvas coords $_gLabel [expr $_left + $_labelXOrigin] \
-	    [expr $innerTop + $_labelYOrigin]
+    $canvas coords $_gLabel [expr {$_left + $_labelXOrigin}] \
+        [expr {$innerTop + $_labelYOrigin}]
     
     if { $image != {} || $bitmap != {} } {
-	$canvas itemconfigure $_gLabel -anchor $anchor
+    $canvas itemconfigure $_gLabel -anchor $anchor
     } else {
-	$canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
+    $canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
     }
     
     $canvas raise $_gLabel $_gRegion
     
     
-    set _offset    [expr $innerBottom - $outerTop]
+    set _offset    [expr {$innerBottom - $outerTop}]
     # height
-    set _majorDim  [expr $outerBottom - $outerTop]
+    set _majorDim  [expr {$outerBottom - $outerTop}]
     # width
-    set _minorDim [expr $right - $_left]
+    set _minorDim [expr {$right - $_left}]
     
     set _right   $right 
     set _bottom  $outerBottom
     
     # draw in correct state...
     if { $_selected } {
-	select
+    select
     } else {
-	deselect
+    deselect
     }
 }
 
@@ -2299,7 +2312,7 @@ body iwidgets::Tab::_makeEastTab {canvas} {
 #
 # Makes a tab that hangs to the west and opens to the east.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_makeWestTab {canvas} {
+itcl::body iwidgets::Tab::_makeWestTab {canvas} {
     $canvas delete $this
     set _gLightOutline {}
     set _gBlackOutline {}
@@ -2309,18 +2322,17 @@ body iwidgets::Tab::_makeWestTab {canvas} {
     _createLabel $canvas $tagList
     _calcLabelDim $_gLabel
     
-    set right  [expr $_left + $_labelWidth]
+    set right  [expr {$_left + $_labelWidth}]
     # now have _left, _top, right...
     
     # Turn off calculating angle tabs on Vertical orientations
-    #set angleOffset [expr $_labelHeight * $_tan($angle)]
     set angleOffset 0
     
     set outerTop $_top
     set outerBottom \
-	    [expr $outerTop + $angleOffset + $_labelHeight + $angleOffset]
-    set innerTop [expr $outerTop + $angleOffset]
-    set innerBottom [expr $outerTop + $angleOffset + $_labelHeight]
+        [expr {$outerTop + $angleOffset + $_labelHeight + $angleOffset}]
+    set innerTop [expr {$outerTop + $angleOffset}]
+    set innerBottom [expr {$outerTop + $angleOffset + $_labelHeight}]
     
     # now have _left, _top, right, outerTop, innerTop,
     # innerBottom, outerBottom, width, height
@@ -2328,88 +2340,88 @@ body iwidgets::Tab::_makeWestTab {canvas} {
     # tab area... gets filled either white or selected
     # done
     set _gRegion [$canvas create polygon \
-	    $right $outerTop \
-	    [expr $_left + $bevelamount] $innerTop \
-	    $_left [expr $innerTop + $bevelamount] \
-	    $_left [expr $innerBottom - $bevelamount]\
-	    [expr $_left + $bevelamount] $innerBottom \
-	    $right $outerBottom \
-	    $right $outerTop \
-	    -tags $tagList  \
-	    ]
+        $right $outerTop \
+        [expr {$_left + $bevelamount}] $innerTop \
+        $_left [expr {$innerTop + $bevelamount}] \
+        $_left [expr {$innerBottom - $bevelamount}]\
+        [expr {$_left + $bevelamount}] $innerBottom \
+        $right $outerBottom \
+        $right $outerTop \
+        -tags $tagList  \
+        ]
     # lighter shadow (left edge)
     set _gLightShadow [$canvas create line \
-	    $right [expr $outerTop+1] \
-	    [expr $_left + $bevelamount] [expr $innerTop + 1] \
-	    [expr $_left + 1] [expr $innerTop + $bevelamount] \
-	    [expr $_left + 1] [expr $innerBottom - $bevelamount] \
-	    -tags $tagList \
-	    ]
+        $right [expr {$outerTop+1}] \
+        [expr {$_left + $bevelamount}] [expr {$innerTop + 1}] \
+        [expr {$_left + 1}] [expr {$innerTop + $bevelamount}] \
+        [expr {$_left + 1}] [expr {$innerBottom - $bevelamount}] \
+        -tags $tagList \
+        ]
     
     # darker shadow (bottom and right edges)
     set _gDarkShadow [$canvas create line \
-	    [expr $_left + 1] [expr $innerBottom - $bevelamount] \
-	    [expr $_left + $bevelamount] [expr $innerBottom - 1] \
-	    $right [expr $outerBottom - 1] \
-	    -tags $tagList \
-	    ]
+        [expr {$_left + 1}] [expr {$innerBottom - $bevelamount}] \
+        [expr {$_left + $bevelamount}] [expr {$innerBottom - 1}] \
+        $right [expr {$outerBottom - 1}] \
+        -tags $tagList \
+        ]
     
     # outline of tab -- lighter top left sides
     set _gLightOutline [$canvas create line \
-	    $right $outerTop \
-	    [expr $_left + $bevelamount] $innerTop \
-	    $_left [expr $innerTop + $bevelamount] \
-	    $_left [expr $innerBottom - $bevelamount]\
-	    -tags $tagList \
-	    ]
+        $right $outerTop \
+        [expr {$_left + $bevelamount}] $innerTop \
+        $_left [expr {$innerTop + $bevelamount}] \
+        $_left [expr {$innerBottom - $bevelamount}]\
+        -tags $tagList \
+        ]
     # outline of tab -- darker bottom side
     set _gBlackOutline [$canvas create line \
-	    $_left [expr $innerBottom - $bevelamount]\
-	    [expr $_left + $bevelamount] $innerBottom \
-	    $right $outerBottom \
-	    $right $outerTop \
-	    -tags $tagList \
-	    ]
+        $_left [expr {$innerBottom - $bevelamount}]\
+        [expr {$_left + $bevelamount}] $innerBottom \
+        $right $outerBottom \
+        $right $outerTop \
+        -tags $tagList \
+        ]
     
     # top of tab
     set _gTopLine [$canvas create line \
-	    [expr $right + 1] $outerTop \
-	    [expr $right + 1] $outerBottom \
-	    -tags $tagList  \
-	    ]
+        [expr {$right + 1}] $outerTop \
+        [expr {$right + 1}] $outerBottom \
+        -tags $tagList  \
+        ]
     
     # line below top of tab
     set _gTopLineShadow [$canvas create line \
-	    $right $outerTop \
-	    $right $outerBottom \
-	    -tags $tagList \
-	    ]
+        $right $outerTop \
+        $right $outerBottom \
+        -tags $tagList \
+        ]
     
-    $canvas coords $_gLabel [expr $_left + $_labelXOrigin] \
-	    [expr $innerTop + $_labelYOrigin]
+    $canvas coords $_gLabel [expr {$_left + $_labelXOrigin}] \
+        [expr {$innerTop + $_labelYOrigin}]
     if { $image != {} || $bitmap != {} } {
-	$canvas itemconfigure $_gLabel -anchor $anchor 
+    $canvas itemconfigure $_gLabel -anchor $anchor 
     } else {
-	$canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
+    $canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
     }
     
     $canvas raise $_gLabel $_gRegion
     
     
-    set _offset    [expr $innerBottom - $outerTop]
+    set _offset    [expr {$innerBottom - $outerTop}]
     # height
-    set _majorDim  [expr $outerBottom - $outerTop]
+    set _majorDim  [expr {$outerBottom - $outerTop}]
     # width
-    set _minorDim [expr $right - $_left]
+    set _minorDim [expr {$right - $_left}]
     
     set _right   $right 
     set _bottom  $outerBottom
     
     # draw in correct state...
     if { $_selected } {
-	select
+    select
     } else {
-	deselect
+    deselect
     }
     
 }
@@ -2419,7 +2431,7 @@ body iwidgets::Tab::_makeWestTab {canvas} {
 #
 # Makes a tab that hangs to the north and opens to the south.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_makeNorthTab {canvas} {
+itcl::body iwidgets::Tab::_makeNorthTab {canvas} {
     $canvas delete $this
     set _gLightOutline {}
     set _gBlackOutline {}
@@ -2431,103 +2443,99 @@ body iwidgets::Tab::_makeNorthTab {canvas} {
     # first get the label width and height
     _calcLabelDim $_gLabel
     
-    set bottom [expr $_top + $_labelHeight]
+    set bottom [expr {$_top + $_labelHeight}]
     
-    set angleOffset [expr $_labelHeight * $_tan($angle)]
+    set angleOffset [expr {$_labelHeight * $_tan($angle)}]
     
     set outerLeft $_left
     set outerRight \
-	    [expr $outerLeft + $angleOffset + $_labelWidth + $angleOffset]
-    set innerLeft [expr $outerLeft + $angleOffset]
-    set innerRight [expr $outerLeft + $angleOffset + $_labelWidth]
+        [expr {$outerLeft + $angleOffset + $_labelWidth + $angleOffset}]
+    set innerLeft [expr {$outerLeft + $angleOffset}]
+    set innerRight [expr {$outerLeft + $angleOffset + $_labelWidth}]
     
     # tab area... gets filled either white or selected
     set _gRegion [$canvas create polygon \
-	    $outerLeft [expr $bottom + 3]  \
-	    $innerLeft [expr $_top + $bevelamount] \
-	    [expr $innerLeft +  $bevelamount] $_top \
-	    [expr $innerRight - $bevelamount] $_top \
-	    $innerRight [expr $_top + $bevelamount]\
-	    $outerRight [expr $bottom + 3] \
-	    $outerLeft [expr $bottom + 3] \
-	    -tags $tagList  \
-	    ]
+            $outerLeft [expr {$bottom + 3}]  \
+            $innerLeft [expr {$_top + $bevelamount}] \
+            [expr {$innerLeft +  $bevelamount}] $_top \
+            [expr {$innerRight - $bevelamount}] $_top \
+            $innerRight [expr {$_top + $bevelamount}]\
+            $outerRight [expr {$bottom + 3}] \
+            $outerLeft [expr {$bottom + 3}] \
+        -tags $tagList  \
+        ]
     
     # lighter shadow (left edge)
     set _gLightShadow [$canvas create line \
-	    [expr $outerLeft + 1] [expr $bottom + 3]  \
-	    [expr $innerLeft + 1] [expr $_top + $bevelamount] \
-	    [expr $innerLeft + $bevelamount] [expr $_top + 1]\
-	    [expr $innerRight - $bevelamount] [expr $_top + 1]\
-	    -tags $tagList \
-	    ]
+            [expr {$outerLeft + 1}] [expr {$bottom + 3}]  \
+            [expr {$innerLeft + 1}] [expr {$_top + $bevelamount}] \
+            [expr {$innerLeft + $bevelamount}] [expr {$_top + 1}]\
+            [expr {$innerRight - $bevelamount}] [expr {$_top + 1}]\
+        -tags $tagList \
+        ]
     
     # darker shadow (bottom and right edges)
     set _gDarkShadow [$canvas create line \
-	    [expr $innerRight - $bevelamount] [expr $_top + 1]\
-	    [expr $innerRight - 1] [expr $_top + $bevelamount]\
-	    [expr $outerRight - 1] [expr $bottom + 3]\
-	    -tags $tagList \
-	    ]
+            [expr {$innerRight - $bevelamount}] [expr {$_top + 1}]\
+            [expr {$innerRight - 1}] [expr {$_top + $bevelamount}]\
+            [expr {$outerRight - 1}] [expr {$bottom + 3}]\
+        -tags $tagList \
+        ]
     
     set _gLightOutline [$canvas create line \
-	    $outerLeft [expr $bottom + 3]  \
-	    $innerLeft [expr $_top + $bevelamount] \
-	    [expr $innerLeft +  $bevelamount] $_top \
-	    [expr $innerRight - $bevelamount] $_top \
-	    -tags $tagList \
-	    ]
+            $outerLeft [expr {$bottom + 3}]  \
+            $innerLeft [expr {$_top + $bevelamount}] \
+            [expr {$innerLeft +  $bevelamount}] $_top \
+            [expr {$innerRight - $bevelamount}] $_top \
+        -tags $tagList \
+        ]
     
     set _gBlackOutline [$canvas create line \
-	    [expr $innerRight - $bevelamount] $_top \
-	    $innerRight [expr $_top + $bevelamount]\
-	    $outerRight [expr $bottom + 3] \
-	    $outerLeft [expr $bottom + 3] \
-	    -tags $tagList \
-	    ]
+            [expr {$innerRight - $bevelamount}] $_top \
+            $innerRight [expr {$_top + $bevelamount}]\
+            $outerRight [expr {$bottom + 3}] \
+            $outerLeft [expr {$bottom + 3}] \
+        -tags $tagList \
+        ]
     
     # top of tab... to make it closed off
     set _gTopLine [$canvas create line \
-	    0 0 0 0\
-	    -tags $tagList  \
-	    ]
-    #[expr $outerLeft + 2] [expr $_top + 1] \
-	    [expr $outerRight - 2] [expr $_top + 1]
+        0 0 0 0\
+        -tags $tagList  \
+        ]
     
     # top of tab... to make it closed off
     set _gTopLineShadow [$canvas create line \
-	    0 0 0 0 \
-	    -tags $tagList \
-	    ]
-    #$outerLeft $_top \
-	    $outerRight $_top 
+        0 0 0 0 \
+        -tags $tagList \
+        ]
     
-    $canvas coords $_gLabel [expr $innerLeft + $_labelXOrigin] \
-	    [expr $_top + $_labelYOrigin]
+    $canvas coords $_gLabel [expr {$innerLeft + $_labelXOrigin}] \
+        [expr {$_top + $_labelYOrigin}]
     
     if { $image != {} || $bitmap != {} } {
-	$canvas itemconfigure $_gLabel -anchor $anchor 
+    $canvas itemconfigure $_gLabel -anchor $anchor 
     } else {
-	$canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
+    $canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
     }
     
     $canvas raise $_gLabel $_gRegion
     
     
-    set _offset    [expr $innerRight - $outerLeft]
+    set _offset    [expr {$innerRight - $outerLeft}]
     # width
-    set _majorDim  [expr $outerRight - $outerLeft]
+    set _majorDim  [expr {$outerRight - $outerLeft}]
     # height
-    set _minorDim [expr $bottom - $_top]
+    set _minorDim [expr {$bottom - $_top}]
     
     set _right     $outerRight
     set _bottom    $bottom
     
     # draw in correct state...
     if { $_selected } {
-	select
+    select
     } else {
-	deselect
+    deselect
     }
 }
 
@@ -2536,7 +2544,7 @@ body iwidgets::Tab::_makeNorthTab {canvas} {
 #
 # Makes a tab that hangs to the south and opens to the north.
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_makeSouthTab {canvas} {
+itcl::body iwidgets::Tab::_makeSouthTab {canvas} {
     $canvas delete $this
     set _gLightOutline {}
     set _gBlackOutline {}
@@ -2548,99 +2556,97 @@ body iwidgets::Tab::_makeSouthTab {canvas} {
     # first get the label width and height
     _calcLabelDim $_gLabel
     
-    set bottom [expr $_top + $_labelHeight]
+    set bottom [expr {$_top + $_labelHeight}]
     
-    set angleOffset [expr $_labelHeight * $_tan($angle)]
+    set angleOffset [expr {$_labelHeight * $_tan($angle)}]
     
     set outerLeft $_left
     set outerRight \
-	    [expr $outerLeft + $angleOffset + $_labelWidth + $angleOffset]
-    set innerLeft [expr $outerLeft + $angleOffset]
-    set innerRight [expr $outerLeft + $angleOffset + $_labelWidth]
+            [expr {$outerLeft + $angleOffset + $_labelWidth + $angleOffset}]
+     set innerLeft [expr {$outerLeft + $angleOffset}]
+     set innerRight [expr {$outerLeft + $angleOffset + $_labelWidth}]
     
     # tab area... gets filled either white or selected
     set _gRegion [$canvas create polygon \
-	    $outerLeft [expr $_top + 1] \
-	    $innerLeft [expr $bottom  - $bevelamount]\
-	    [expr $innerLeft + $bevelamount] $bottom \
-	    [expr $innerRight - $bevelamount] $bottom \
-	    $innerRight [expr $bottom - $bevelamount]\
-	    $outerRight [expr $_top + 1] \
-	    $outerLeft [expr $_top + 1] \
-	    -tags $tagList  \
-	    ]
+            $outerLeft [expr {$_top + 1}] \
+            $innerLeft [expr {$bottom  - $bevelamount}]\
+            [expr {$innerLeft + $bevelamount}] $bottom \
+            [expr {$innerRight - $bevelamount}] $bottom \
+            $innerRight [expr {$bottom - $bevelamount}]\
+            $outerRight [expr {$_top + 1}] \
+            $outerLeft [expr {$_top + 1}] \
+        -tags $tagList  \
+        ]
     
     
     # lighter shadow (left edge)
     set _gLightShadow [$canvas create line \
-	    [expr $outerLeft+1] $_top \
-	    [expr $innerLeft+1] [expr $bottom-$bevelamount] \
-	    -tags $tagList \
-	    ]
+            [expr {$outerLeft+1}] $_top \
+            [expr {$innerLeft+1}] [expr {$bottom-$bevelamount}] \
+        -tags $tagList \
+        ]
     
     # darker shadow (bottom and right edges)
     set _gDarkShadow [$canvas create line \
-	    [expr $innerLeft+1] [expr $bottom-$bevelamount] \
-	    [expr $innerLeft+$bevelamount] [expr $bottom-1] \
-	    [expr $innerRight-$bevelamount] [expr $bottom-1] \
-	    [expr $innerRight-1] [expr $bottom-$bevelamount] \
-	    [expr $outerRight-1] [expr $_top + 1] \
-	    -tags $tagList \
-	    ]
+            [expr {$innerLeft+1}] [expr {$bottom-$bevelamount}] \
+            [expr {$innerLeft+$bevelamount}] [expr {$bottom-1}] \
+            [expr {$innerRight-$bevelamount}] [expr {$bottom-1}] \
+            [expr {$innerRight-1}] [expr {$bottom-$bevelamount}] \
+            [expr {$outerRight-1}] [expr {$_top + 1}] \
+        -tags $tagList \
+        ]
     # outline of tab
     set _gBlackOutline [$canvas create line \
-	    $outerLeft [expr $_top + 1] \
-	    $innerLeft [expr $bottom  -$bevelamount]\
-	    [expr $innerLeft + $bevelamount] $bottom \
-	    [expr $innerRight - $bevelamount] $bottom \
-	    $innerRight [expr $bottom - $bevelamount]\
-	    $outerRight [expr $_top + 1] \
-	    -tags $tagList \
-	    ]
+            $outerLeft [expr {$_top + 1}] \
+            $innerLeft [expr {$bottom  -$bevelamount}]\
+            [expr {$innerLeft + $bevelamount}] $bottom \
+            [expr {$innerRight - $bevelamount}] $bottom \
+            $innerRight [expr {$bottom - $bevelamount}]\
+            $outerRight [expr {$_top + 1}] \
+        -tags $tagList \
+        ]
     
     # top of tab... to make it closed off
     set _gTopLine [$canvas create line \
-	    $outerLeft [expr $_top + 1] \
-	    $outerRight [expr $_top + 1] \
-	    -tags $tagList  \
-	    ]
+            $outerLeft [expr {$_top + 1}] \
+            $outerRight [expr {$_top + 1}] \
+        -tags $tagList  \
+        ]
     
     # top of tab... to make it closed off
     set _gTopLineShadow [$canvas create line \
-	    $outerLeft $_top \
-	    $outerRight $_top \
-	    -tags $tagList \
-	    ]
+        $outerLeft $_top \
+        $outerRight $_top \
+        -tags $tagList \
+        ]
     
-    #$canvas coords $_gLabel [expr $innerLeft + $_padX + 2] \
-	    [expr $_top + $_padY]
-    $canvas coords $_gLabel [expr $innerLeft + $_labelXOrigin] \
-	    [expr $_top + $_labelYOrigin]
+     $canvas coords $_gLabel [expr {$innerLeft + $_labelXOrigin}] \
+            [expr {$_top + $_labelYOrigin}]
     
     if { $image != {} || $bitmap != {} } {
-	$canvas itemconfigure $_gLabel -anchor $anchor 
+    $canvas itemconfigure $_gLabel -anchor $anchor 
     } else {
-	$canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
+    $canvas itemconfigure $_gLabel -anchor $anchor -justify $_just
     }
     $canvas raise $_gLabel $_gRegion
     
     
-    set _offset    [expr $innerRight - $outerLeft]
+    set _offset    [expr {$innerRight - $outerLeft}]
     
     # width
-    set _majorDim  [expr $outerRight - $outerLeft]
+    set _majorDim  [expr {$outerRight - $outerLeft}]
     
     # height
-    set _minorDim [expr $bottom - $_top]
+    set _minorDim [expr {$bottom - $_top}]
     
     set _right     $outerRight
     set _bottom    $bottom
     
     # draw in correct state...
     if { $_selected } {
-	select
+    select
     } else {
-	deselect
+    deselect
     }
 }
 
@@ -2659,89 +2665,89 @@ body iwidgets::Tab::_makeSouthTab {canvas} {
 # Then we add in the padx/pady to determine final bounds.
 #
 # Uses the following option or option derived variables:
-#	-padx     ($_padX - converted to pixels)
-#	-pady     ($_padY - converted to pixels)
-#	-anchor   ($anchor)
-#	-width    ($_width) This is the width for inside tab (label area)
-#	-height   ($_height) This is the width for inside tab (label area)
+#   -padx     ($_padX - converted to pixels)
+#   -pady     ($_padY - converted to pixels)
+#   -anchor   ($anchor)
+#   -width    ($_width) This is the width for inside tab (label area)
+#   -height   ($_height) This is the width for inside tab (label area)
 #
 # Side Effects:
-#	_labelWidth will be set
-#	_labelHeight will be set
-#	_labelXOrigin will be set
-#	_labelYOrigin will be set
+#   _labelWidth will be set
+#   _labelHeight will be set
+#   _labelXOrigin will be set
+#   _labelYOrigin will be set
 # ----------------------------------------------------------------------
-body iwidgets::Tab::_calcLabelDim {labelItem} {
+itcl::body iwidgets::Tab::_calcLabelDim {labelItem} {
     # ... calculate the label width and height
     set labelBBox [$_canvas bbox $labelItem]
     
     if { $_width > 0 } {
-	set _labelWidth [expr $_width + ($_padX * 2)]
+    set _labelWidth [expr {$_width + ($_padX * 2)}]
     } else {
-	set _labelWidth [expr \
-		([lindex $labelBBox 2] - [lindex $labelBBox 0]) + ($_padX * 2)]
+        set _labelWidth [expr {
+              ([lindex $labelBBox 2] - [lindex $labelBBox 0]) + ($_padX * 2)}]
     }
     
     if { $_height > 0 } {
-	set _labelHeight [expr $_height + ($_padY * 2)]
+    set _labelHeight [expr {$_height + ($_padY * 2)}]
     } else {
-	set _labelHeight [expr \
-		([lindex $labelBBox 3] - [lindex $labelBBox 1]) + ($_padY * 2)]
+    set _labelHeight [expr {
+          ([lindex $labelBBox 3] - [lindex $labelBBox 1]) + ($_padY * 2)}]
     }
     
     # ... calculate the label anchor point
-    set centerX [expr $_labelWidth/2.0]
-    set centerY [expr $_labelHeight/2.0 - 1]
+    set centerX [expr {$_labelWidth/2.0}]
+    set centerY [expr {$_labelHeight/2.0 - 1}]
     
     switch $anchor {
-	n {
-	    set _labelXOrigin $centerX
-	    set _labelYOrigin $_padY
-	    set _just center
-	}
-	s {
-	    set _labelXOrigin $centerX
-	    set _labelYOrigin [expr $_labelHeight - $_padY]
-	    set _just center
-	}
-	e {
-	    set _labelXOrigin [expr $_labelWidth - $_padX - 1]
-	    set _labelYOrigin $centerY
-	    set _just right
-	}
-	w {
-	    set _labelXOrigin [expr $_padX + 2]
-	    set _labelYOrigin $centerY
-	    set _just left
-	}
-	c {
-	    set _labelXOrigin $centerX
-	    set _labelYOrigin $centerY
-	    set _just center
-	}
-	ne {
-	    set _labelXOrigin [expr $_labelWidth - $_padX - 1]
-	    set _labelYOrigin $_padY
-	    set _just right
-	}
-	nw {
-	    set _labelXOrigin [expr $_padX + 2]
-	    set _labelYOrigin $_padY
-	    set _just left
-	}
-	se {
-	    set _labelXOrigin [expr $_labelWidth - $_padX - 1]
-	    set _labelYOrigin [expr $_labelHeight - $_padY]
-	    set _just right
-	}
-	sw {
-	    set _labelXOrigin [expr $_padX + 2]
-	    set _labelYOrigin [expr $_labelHeight - $_padY]
-	    set _just left
-	}
-	default {
-	    error "bad anchor position: \
-		    \"$tabpos\" must be n, ne, nw, s, sw, se, e, w, or center"
-	}
+    n {
+        set _labelXOrigin $centerX
+        set _labelYOrigin $_padY
+        set _just center
+    }
+    s {
+        set _labelXOrigin $centerX
+        set _labelYOrigin [expr {$_labelHeight - $_padY}]
+        set _just center
+    }
+    e {
+        set _labelXOrigin [expr {$_labelWidth - $_padX - 1}]
+        set _labelYOrigin $centerY
+        set _just right
+    }
+    w {
+        set _labelXOrigin [expr {$_padX + 2}]
+        set _labelYOrigin $centerY
+        set _just left
+    }
+    c {
+        set _labelXOrigin $centerX
+        set _labelYOrigin $centerY
+        set _just center
+    }
+    ne {
+        set _labelXOrigin [expr {$_labelWidth - $_padX - 1}]
+        set _labelYOrigin $_padY
+        set _just right
+    }
+    nw {
+        set _labelXOrigin [expr {$_padX + 2}]
+        set _labelYOrigin $_padY
+        set _just left
+    }
+    se {
+        set _labelXOrigin [expr {$_labelWidth - $_padX - 1}]
+        set _labelYOrigin [expr {$_labelHeight - $_padY}]
+        set _just right
+    }
+    sw {
+        set _labelXOrigin [expr {$_padX + 2}]
+        set _labelYOrigin [expr {$_labelHeight - $_padY}]
+        set _just left
+    }
+    default {
+        error "bad anchor position: \
+            \"$tabpos\" must be n, ne, nw, s, sw, se, e, w, or center"
+    }
     }
 }

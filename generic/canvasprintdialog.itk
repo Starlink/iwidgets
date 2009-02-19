@@ -57,7 +57,7 @@ itk::usual Canvasprintdialog {
 # ------------------------------------------------------------------
 # CANVASPRINTDIALOG
 # ------------------------------------------------------------------
-class iwidgets::Canvasprintdialog {
+itcl::class iwidgets::Canvasprintdialog {
 	inherit iwidgets::Dialog
 
 	constructor {args} {}   
@@ -82,7 +82,7 @@ proc ::iwidgets::canvasprintdialog {args} {
 #
 # Create new file selection dialog.
 # ------------------------------------------------------------------
-body iwidgets::Canvasprintdialog::constructor {args} {
+itcl::body iwidgets::Canvasprintdialog::constructor {args} {
 	component hull configure -borderwidth 0
 
 	# 
@@ -101,7 +101,7 @@ body iwidgets::Canvasprintdialog::constructor {args} {
 	# Hide the apply and help buttons.
 	#
 	buttonconfigure OK -text Print
-	buttonconfigure Apply -command [code $this refresh] -text Refresh
+	buttonconfigure Apply -command [itcl::code $this refresh] -text Refresh
 	hide Help
 
 	eval itk_initialize $args
@@ -113,7 +113,7 @@ body iwidgets::Canvasprintdialog::constructor {args} {
 # Redefines method of dialog shell class. Stops the drawing of the
 # thumbnail (when busy) upon deactivation of the dialog.
 # ------------------------------------------------------------------
-body iwidgets::Canvasprintdialog::deactivate {args} {
+itcl::body iwidgets::Canvasprintdialog::deactivate {args} {
 	$itk_component(cpb) stop
 	return [eval Shell::deactivate $args]
 }
@@ -123,7 +123,7 @@ body iwidgets::Canvasprintdialog::deactivate {args} {
 #
 # Thinwrapped method of canvas print box class.
 # ------------------------------------------------------------------
-body iwidgets::Canvasprintdialog::getoutput {} {
+itcl::body iwidgets::Canvasprintdialog::getoutput {} {
 	return [$itk_component(cpb) getoutput]
 }
 
@@ -132,7 +132,7 @@ body iwidgets::Canvasprintdialog::getoutput {} {
 #
 # Thinwrapped method of canvas print box class.
 # ------------------------------------------------------------------
-body iwidgets::Canvasprintdialog::setcanvas {canv} {
+itcl::body iwidgets::Canvasprintdialog::setcanvas {canv} {
 	return [$itk_component(cpb) setcanvas $canv]
 }
 
@@ -141,7 +141,7 @@ body iwidgets::Canvasprintdialog::setcanvas {canv} {
 #
 # Thinwrapped method of canvas print box class.
 # ------------------------------------------------------------------
-body iwidgets::Canvasprintdialog::refresh {} {
+itcl::body iwidgets::Canvasprintdialog::refresh {} {
 	return [$itk_component(cpb) refresh]
 }
 
@@ -150,6 +150,6 @@ body iwidgets::Canvasprintdialog::refresh {} {
 #
 # Thinwrapped method of canvas print box class.
 # ------------------------------------------------------------------
-body iwidgets::Canvasprintdialog::print {} {
+itcl::body iwidgets::Canvasprintdialog::print {} {
 	return [$itk_component(cpb) print]
 }

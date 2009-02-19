@@ -11,7 +11,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Mark L. Ulferts              EMAIL: mulferts@austin.dsccc.com
 #
-#  @(#) $Id: scrolledtext.itk,v 1.5 1996/07/12 17:11:27 mulferts Exp $
+#  @(#) $Id: scrolledtext.itk,v 1.5 2002/09/10 03:05:25 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -50,7 +50,7 @@ itk::usual Scrolledtext {
 # ------------------------------------------------------------------
 #                           SCROLLEDTEXT
 # ------------------------------------------------------------------
-class iwidgets::Scrolledtext {
+itcl::class iwidgets::Scrolledtext {
     inherit iwidgets::Scrolledwidget
 
     constructor {args} {}
@@ -70,6 +70,7 @@ class iwidgets::Scrolledtext {
     public method delete {first {last {}}} 
     public method dlineinfo {index} 
     public method get {index1 {index2 {}}} 
+    public method image {option args}
     public method index {index} 
     public method insert {args} 
     public method mark {option args} 
@@ -97,7 +98,7 @@ option add *Scrolledtext.labelPos n widgetDefault
 # ------------------------------------------------------------------
 #                        CONSTRUCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::constructor {args} {
+itcl::body iwidgets::Scrolledtext::constructor {args} {
     #
     # Our -width and -height options are slightly different than
     # those implemented by our base class, so we're going to
@@ -129,9 +130,9 @@ body iwidgets::Scrolledtext::constructor {args} {
 	text $itk_component(clipper).text \
 		-width 1 -height 1 \
 	        -xscrollcommand \
-		[code $this _scrollWidget $itk_interior.horizsb] \
+		[itcl::code $this _scrollWidget $itk_interior.horizsb] \
 		-yscrollcommand \
-		[code $this _scrollWidget $itk_interior.vertsb] \
+		[itcl::code $this _scrollWidget $itk_interior.vertsb] \
 	        -borderwidth 0 -highlightthickness 0
     } {
 	usual
@@ -139,7 +140,7 @@ body iwidgets::Scrolledtext::constructor {args} {
 	ignore -highlightthickness -highlightcolor -borderwidth
 
 	keep -exportselection -padx -pady -setgrid \
-	     -spacing1 -spacing2 -spacing3 -state -wrap
+	     -spacing1 -spacing2 -spacing3 -state -tabs -wrap
 
 	rename -font -textfont textFont Font
 	rename -background -textbackground textBackground Background
@@ -152,13 +153,13 @@ body iwidgets::Scrolledtext::constructor {args} {
     # Configure the command on the vertical scroll bar in the base class.
     #
     $itk_component(vertsb) configure \
-	-command [code $itk_component(text) yview]
+	-command [itcl::code $itk_component(text) yview]
 
     #
     # Configure the command on the horizontal scroll bar in the base class.
     #
     $itk_component(horizsb) configure \
-		-command [code $itk_component(text) xview]
+		-command [itcl::code $itk_component(text) xview]
     
     #
     # Initialize the widget based on the command line options.
@@ -169,7 +170,7 @@ body iwidgets::Scrolledtext::constructor {args} {
 # ------------------------------------------------------------------
 #                           DESTURCTOR
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::destructor {} {
+itcl::body iwidgets::Scrolledtext::destructor {} {
 }
 
 # ------------------------------------------------------------------
@@ -188,7 +189,7 @@ body iwidgets::Scrolledtext::destructor {} {
 # to be applied which administers geometry constraints in a different
 # manner.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledtext::width {
+itcl::configbody iwidgets::Scrolledtext::width {
     if {$itk_option(-width) != 0} {
 	set shell [lindex [grid info $itk_component(clipper)] 1]
 
@@ -221,7 +222,7 @@ configbody iwidgets::Scrolledtext::width {
 # to be applied which administers geometry constraints in a different
 # manner.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledtext::height {
+itcl::configbody iwidgets::Scrolledtext::height {
     if {$itk_option(-height) != 0} {
 	set shell [lindex [grid info $itk_component(clipper)] 1]
 
@@ -256,7 +257,7 @@ configbody iwidgets::Scrolledtext::height {
 # are applied to the scrolled text as a whole.  The text is 
 # compressed or expanded to maintain the geometry constraints.
 # ------------------------------------------------------------------
-configbody iwidgets::Scrolledtext::visibleitems {
+itcl::configbody iwidgets::Scrolledtext::visibleitems {
     if {[regexp {^[0-9]+x[0-9]+$} $itk_option(-visibleitems)]} {
 	if {($itk_option(-width) == 0) && \
 		($itk_option(-height) == 0)} {
@@ -293,7 +294,7 @@ configbody iwidgets::Scrolledtext::visibleitems {
 #
 # Returns the path name of the child site widget.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::childsite {} {
+itcl::body iwidgets::Scrolledtext::childsite {} {
     return $itk_component(text)
 }
 
@@ -303,7 +304,7 @@ body iwidgets::Scrolledtext::childsite {} {
 # Returns four element list describing the bounding box for the list
 # item at index
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::bbox {index} {
+itcl::body iwidgets::Scrolledtext::bbox {index} {
     return [$itk_component(text) bbox $index]
 }
 
@@ -312,7 +313,7 @@ body iwidgets::Scrolledtext::bbox {index} {
 #
 # Clear the text area.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::clear {} {
+itcl::body iwidgets::Scrolledtext::clear {} {
     $itk_component(text) delete 1.0 end
 }
 
@@ -321,7 +322,7 @@ body iwidgets::Scrolledtext::clear {} {
 #
 # Load text from an existing file (import filename)
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::import {filename {index end}} {
+itcl::body iwidgets::Scrolledtext::import {filename {index end}} {
     set f [open $filename r]
     insert $index [read $f]
     close $f
@@ -332,7 +333,7 @@ body iwidgets::Scrolledtext::import {filename {index end}} {
 #
 # write text to a file (export filename)
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::export {filename} {
+itcl::body iwidgets::Scrolledtext::export {filename} {
     set f [open $filename w]
     
     set txt [$itk_component(text) get 1.0 end]
@@ -347,7 +348,7 @@ body iwidgets::Scrolledtext::export {filename} {
 #
 # Compare indices according to relational operator.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::compare {index1 op index2} {
+itcl::body iwidgets::Scrolledtext::compare {index1 op index2} {
     return [$itk_component(text) compare $index1 $op $index2]
 }
 
@@ -357,7 +358,7 @@ body iwidgets::Scrolledtext::compare {index1 op index2} {
 # Activates consistency checks in B-tree code associated with text
 # widgets.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::debug {args} {
+itcl::body iwidgets::Scrolledtext::debug {args} {
     eval $itk_component(text) debug $args
 }
 
@@ -366,7 +367,7 @@ body iwidgets::Scrolledtext::debug {args} {
 #
 # Delete a range of characters from the text.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::delete {first {last {}}} {
+itcl::body iwidgets::Scrolledtext::delete {first {last {}}} {
     $itk_component(text) delete $first $last
 }
 
@@ -376,7 +377,7 @@ body iwidgets::Scrolledtext::delete {first {last {}}} {
 # Returns a five element list describing the area occupied by the
 # display line containing index.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::dlineinfo {index} {
+itcl::body iwidgets::Scrolledtext::dlineinfo {index} {
     return [$itk_component(text) dlineinfo $index]
 }
 
@@ -385,16 +386,27 @@ body iwidgets::Scrolledtext::dlineinfo {index} {
 #
 # Return text from start index to end index.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::get {index1 {index2 {}}} {
+itcl::body iwidgets::Scrolledtext::get {index1 {index2 {}}} {
     return [$itk_component(text) get $index1 $index2]
 }
+
+# ------------------------------------------------------------------
+# METHOD image option ?arg arg ...?
+#
+# Manipulate images dependent on options.
+#
+# ------------------------------------------------------------------
+itcl::body iwidgets::Scrolledtext::image {option args} {
+  return [eval $itk_component(text) image $option $args]
+}
+
 
 # ------------------------------------------------------------------
 # METHOD index index
 #
 # Return position corresponding to index.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::index {index} {
+itcl::body iwidgets::Scrolledtext::index {index} {
     return [$itk_component(text) index $index]
 }
 
@@ -403,7 +415,7 @@ body iwidgets::Scrolledtext::index {index} {
 #
 # Insert text at index.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::insert {args} {
+itcl::body iwidgets::Scrolledtext::insert {args} {
     eval $itk_component(text) insert $args
 }
 
@@ -412,7 +424,7 @@ body iwidgets::Scrolledtext::insert {args} {
 #
 # Manipulate marks dependent on options.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::mark {option args} {
+itcl::body iwidgets::Scrolledtext::mark {option args} {
     return [eval $itk_component(text) mark $option $args]
 }
 
@@ -421,7 +433,7 @@ body iwidgets::Scrolledtext::mark {option args} {
 #
 # Implements scanning on texts.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::scan {option args} {
+itcl::body iwidgets::Scrolledtext::scan {option args} {
     eval $itk_component(text) scan $option $args
 }
 
@@ -430,8 +442,15 @@ body iwidgets::Scrolledtext::scan {option args} {
 #
 # Searches the text for characters matching a pattern.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::search {args} {
-    return [eval $itk_component(text) search $args]
+itcl::body iwidgets::Scrolledtext::search {args} {
+    #-----------------------------------------------------------
+    # BUG FIX: csmith (Chad Smith: csmith@adc.com), 11/18/99
+    #-----------------------------------------------------------
+    # Need to run this command up one level on the stack since
+    # the text widget may modify one of the arguments, which is
+    # the case when -count is specified.
+    #-----------------------------------------------------------
+    return [uplevel eval $itk_component(text) search $args]
 }
 
 # ------------------------------------------------------------------
@@ -440,7 +459,7 @@ body iwidgets::Scrolledtext::search {args} {
 # Adjusts the view in the window so the character at index is 
 # visible.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::see {index} {
+itcl::body iwidgets::Scrolledtext::see {index} {
     $itk_component(text) see $index
 }
 
@@ -449,7 +468,7 @@ body iwidgets::Scrolledtext::see {index} {
 #
 # Manipulate tags dependent on options.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::tag {option args} {
+itcl::body iwidgets::Scrolledtext::tag {option args} {
     return [eval $itk_component(text) tag $option $args]
 }
 
@@ -458,7 +477,7 @@ body iwidgets::Scrolledtext::tag {option args} {
 #
 # Manipulate embedded windows.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::window {option args} {
+itcl::body iwidgets::Scrolledtext::window {option args} {
     return [eval $itk_component(text) window $option $args]
 }
 
@@ -467,7 +486,7 @@ body iwidgets::Scrolledtext::window {option args} {
 #
 # Changes x view in widget's window.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::xview {args} {
+itcl::body iwidgets::Scrolledtext::xview {args} {
     return [eval $itk_component(text) xview $args]
 }
 
@@ -476,7 +495,7 @@ body iwidgets::Scrolledtext::xview {args} {
 #
 # Changes y view in widget's window.
 # ------------------------------------------------------------------
-body iwidgets::Scrolledtext::yview {args} {
+itcl::body iwidgets::Scrolledtext::yview {args} {
     return [eval $itk_component(text) yview $args]
 }
 

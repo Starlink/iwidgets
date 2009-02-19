@@ -1,29 +1,30 @@
 '\"
-'\" canvasprintbox (c) 1995 Tako Schotanus
+'\" iwidgets::canvasprintbox (c) 1995 Tako Schotanus
 '\"
 '\" See the file "license.terms" for information on usage and redistribution
 '\" of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 '\"
-'/" 
+'\" 
 .so man.macros
-.HS canvasprintbox iwid
+.HS iwidgets::canvasprintbox iwid
 .BS
 '\" Note:  do not modify the .SH NAME line immediately below!
 .SH NAME
-canvasprintbox \- Create and manipulate a canvas print box widget
+iwidgets::canvasprintbox \- Create and manipulate a canvas print box widget
 .SH SYNOPSIS
-\fBcanvasprintbox\fI \fIpathName \fR?\fIoptions\fR?
+\fBiwidgets::canvasprintbox\fI \fIpathName \fR?\fIoptions\fR?
 .SH "INHERITANCE"
-itk::Widget <- Canvasprintbox
+itk::Widget <- iwidgets::Canvasprintbox
 .SH "STANDARD OPTIONS"
 .LP
 .nf
 .ta 4c 8c 12c
-\fBactiveBackground\fR	\fBbackground\fR	\fBborderWidth\fR	\fBcursor\fR
-\fBforeground\fR	\fBhighlightBackground\fR	\fBhighlightColor\fR	\fBhighlightThickness\fR
-\fBinsertBackground\fR	\fBinsertBorderWidth\fR	\fBinsertOffTime\fR	\fBinsertOnTime\fR
-\fBinsertWidth\fR	\fBrelief\fR	\fBrepeatDelay\fR	\fBrepeatInterval\fR
-\fBselectBackground\fR	\fBselectBorderWidth\fR	\fBselectForeground\fR
+\fB
+activeBackground  background           borderWidth      cursor
+foreground        highlightBackground  highlightColor   highlightThickness
+insertBackground  insertBorderWidth    insertOffTime    insertOnTime
+insertWidth       relief               repeatDelay      repeatInterval
+selectBackground  selectBorderWidth    selectForeground\fR
 .fi
 .LP
 See the "options" manual entry for details on the standard options.
@@ -170,7 +171,7 @@ actions of the widget.
 
 .SH "METHODS"
 .PP
-The \fBcanvasprintbox\fR command creates a new Tcl command whose
+The \fBiwidgets::canvasprintbox\fR command creates a new Tcl command whose
 name is \fIpathName\fR.  This
 command may be used to invoke various
 operations on the widget.  It has the following general form:
@@ -186,7 +187,7 @@ commands are possible for canvasprintbox widgets:
 \fIpathName \fBcget\fR \fIoption\fR
 Returns the current value of the configuration option given
 by \fIoption\fR.
-\fIOption\fR may have any of the values accepted by the \fBcanvasprintbox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::canvasprintbox\fR
 command.
 .TP
 \fIpathName\fR \fBconfigure\fR ?\fIoption\fR? ?\fIvalue option value ...\fR?
@@ -200,7 +201,7 @@ sublist of the value returned if no \fIoption\fR is specified).  If
 one or more \fIoption\-value\fR pairs are specified, then the command
 modifies the given widget option(s) to have the given value(s);  in
 this case the command returns an empty string.
-\fIOption\fR may have any of the values accepted by the \fBcanvasprintbox\fR
+\fIOption\fR may have any of the values accepted by the \fBiwidgets::canvasprintbox\fR
 command.
 .TP
 \fIpathName\fR \fBgetoutput\fR
@@ -255,7 +256,8 @@ pages to use verticaly when \fBposterize\fR is turned on.
 
 .SH EXAMPLE
 .DS
-canvasprintbox .fsb -orient landscape -stretch 1
+package require Iwidgets 4.0
+iwidgets::canvasprintbox .fsb -orient landscape -stretch 1
 pack .fsb -padx 10 -pady 10 -fill both -expand yes 
 .DE
 .SH AUTHOR

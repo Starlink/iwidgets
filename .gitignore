@@ -1,6 +1,7 @@
 Makefile
 config.log
 config.status
+configure.lineno
 iwidgets.tcl
 pkgIndex.tcl
 

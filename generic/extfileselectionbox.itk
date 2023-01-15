@@ -11,7 +11,7 @@
 #  AUTHOR: Mark L. Ulferts               EMAIL: mulferts@spd.dsccc.com
 #          Anthony L. Parent                    tony.parent@symbios.com
 #
-#  @(#) $Id: extfileselectionbox.itk,v 1.5 2002/03/10 07:34:51 mgbacke Exp $
+#  @(#) $Id: extfileselectionbox.itk,v 1.6 2006/04/11 19:50:38 hobbs Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -797,11 +797,11 @@ itcl::body iwidgets::Extfileselectionbox::_setSelection {} {
 itcl::body iwidgets::Extfileselectionbox::_setDirList {} {
     $itk_component(dirs) clear
 
+    set currentIndex ""
     if {$itk_option(-dirsearchcommand) == {}} {
         set cwd "$_pwd"
         
-        set counter      0
-        set currentIndex ""
+        set counter 0
         foreach i [lsort [glob -nocomplain \
                   [file join $cwd .*] [file join $cwd *]]] {
             if {[file isdirectory $i]} {

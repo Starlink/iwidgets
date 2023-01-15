@@ -2,54 +2,32 @@ dnl	This file is an input file used by the GNU "autoconf" program to
 dnl	generate the file "configure", which is run during [incr Tcl]
 dnl installation to configure the system for the local environment.
 
-AC_INIT(generic/buttonbox.itk)
-# RCS: $Id: configure.in,v 1.9 2001/11/29 20:51:34 smithc Exp $
+# RCS: $Id: configure.in,v 1.17 2017/06/28 20:03:21 dgp Exp $
 
-ITCL_VERSION=3.2
-AC_SUBST(ITCL_VERSION)
+AC_INIT([iwidgets], [4.1.1])
 
-PACKAGE=iwidgets
-MAJOR_VERSION=4
-MINOR_VERSION=0
-PATCHLEVEL=.1
+TEA_INIT([3.2])
 
-VERSION=${MAJOR_VERSION}.${MINOR_VERSION}${PATCHLEVEL}
-IWIDGETS_SRC_DIR=`pwd`
+AC_CONFIG_AUX_DIR(tclconfig)
 
-AC_SUBST(PACKAGE)
-AC_SUBST(VERSION)
+AC_CONFIG_SRCDIR([generic/buttonbox.itk])
 
-AC_PREREQ(2.0)
-
-case "`uname -s`" in
-    *win32* | *WIN32*)
-	CYGPATH="cygpath -w"
-	RELPATH=".. .. bin"
-    ;;
-    *)
-	CYGPATH=echo
-	RELPATH=..
-    ;;
-esac
-
-AC_SUBST(CYGPATH)
-AC_SUBST(RELPATH)
 
 #--------------------------------------------------------------------
-#   See if there was a command-line option for where Tcl is;  if
-#   not, search for Tcl.
+#   See if there was a command-line option for where Tcl or Tk is;  if
+#   not, search for Tcl and/or Tk.
 #--------------------------------------------------------------------
 
-SC_PATH_TCLCONFIG
-SC_LOAD_TCLCONFIG
+TEA_PATH_TCLCONFIG
+TEA_LOAD_TCLCONFIG
 
-#--------------------------------------------------------------------
-#   See if there was a command-line option for where Tk is;  if
-#   not, search for Tk.
-#--------------------------------------------------------------------
+TEA_PATH_TKCONFIG
+TEA_LOAD_TKCONFIG
 
-SC_PATH_TKCONFIG
-SC_LOAD_TKCONFIG
+TEA_PATH_CONFIG(itcl)
+TEA_LOAD_CONFIG(itcl)
+
+AC_PROG_INSTALL
 
 #--------------------------------------------------------------------
 # See if --with-itcl was specified to give the [incr Tcl] and [incr Tk]
@@ -57,31 +35,45 @@ SC_LOAD_TKCONFIG
 # package is being installed directly beneath the toplevel Itcl directory.
 #--------------------------------------------------------------------
 
-AC_ARG_WITH(itcl, [  --with-itcl=DIR         use Itcl 3.0 binaries from DIR],
-        itcl_search=$withval, itcl_search=`cd ${IWIDGETS_SRC_DIR}/..; pwd`)
+#AC_ARG_WITH(itcl, [  --with-itcl=DIR         use Itcl 3.0 binaries from DIR],
+#        itcl_search=$withval, itcl_search=`cd ${srcdir}/..; pwd`)
 
 ITCL_LIB_DIR=""
-if test -r $itcl_search/itcl/library/itcl.tcl; then
-    if test -r $itcl_search/itk/library/itk.tcl; then
-        if test -r $itcl_search/config/mkinstalldirs; then
-            ITCL_LIB_DIR=$itcl_search/itcl/library
-            ITCL_SRC_DIR=$itcl_search/itcl
-            ITK_LIB_DIR=$itcl_search/itk/library
-            ITK_SRC_DIR=$itcl_search/itk
-        fi
-    fi
+if test -r $itcl_SRC_DIR/library/itcl.tcl; then
+    ITCL_LIB_DIR=$itcl_SRC_DIR/library
 fi
 
 if test -z "$ITCL_LIB_DIR"; then
-    AC_MSG_ERROR(Can't find Itcl source.  Use --with-itcl to specify the the toplevel [incr Tcl] directory on your system.  (This directory should contain itcl/library/itcl.tcl, itk/library/itk.tcl, and config/mkinstalldirs.))
+    AC_MSG_ERROR([Can't find Itcl source.  Use --with-itcl to specify the the toplevel [incr Tcl] directory on your system.  This directory should contain library/itcl.tcl.])
 fi
 
+AC_ARG_WITH(itk, [  --with-itk=DIR         use Itk 3.0 binaries from DIR],
+        itk_search=$withval, itk_search=`cd ${srcdir}/..; pwd`)
+
+ITK_LIB_DIR=""
+if test -r $itk_search/library/itk.tcl; then
+    ITK_LIB_DIR=$itk_search/library
+    ITK_SRC_DIR=$itk_search
+fi
+
+if test -z "$ITK_LIB_DIR"; then
+    AC_MSG_ERROR([Can't find Itk source.  Use --with-itk to specify the the toplevel [incr Tk] directory on your system.  This directory should contain library/itk.tcl.])
+fi
+
+#--------------------------------------------------------------------
+# Handle the --prefix=... option by defaulting to what Tcl gave.
+# Must be called after TEA_LOAD_TCLCONFIG and before $prefix is used.
+#--------------------------------------------------------------------
+
+TEA_PREFIX
 
 #--------------------------------------------------------------------
 #   Needed for running the test suite
 #--------------------------------------------------------------------
 
-SC_PROG_TCLSH
+TEA_CONFIG_CFLAGS([])
+TEA_PROG_TCLSH
+TEA_PROG_WISH
 
 #--------------------------------------------------------------------
 #   Fill in template files with the proper info.
@@ -89,11 +81,8 @@ SC_PROG_TCLSH
 AC_SUBST(TCL_SRC_DIR)
 AC_SUBST(TK_SRC_DIR)
 AC_SUBST(ITCL_LIB_DIR)
-AC_SUBST(ITCL_SRC_DIR)
 AC_SUBST(ITK_LIB_DIR)
 AC_SUBST(ITK_SRC_DIR)
 AC_SUBST(IWIDGETS_SRC_DIR)
 
-AC_OUTPUT(Makefile \
-	iwidgets.tcl \
-	pkgIndex.tcl)
+AC_OUTPUT([Makefile iwidgets.tcl pkgIndex.tcl])

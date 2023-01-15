@@ -8,7 +8,7 @@
 # ----------------------------------------------------------------------
 #   AUTHOR:  Mark L. Ulferts          E-mail: mulferts@austin.dsccc.com
 #
-#   @(#) $Id: dateentry.itk,v 1.6 2002/09/05 19:33:58 smithc Exp $
+#   @(#) $Id: dateentry.itk,v 1.7 2003/01/30 20:56:05 smithc Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -364,9 +364,9 @@ itcl::body iwidgets::Dateentry::_popup {} {
     # Perform either a local or global grab based on the -grab option.
     #
     if {$itk_option(-grab) == "local"} {
-	grab $itk_component(popup)
+	::grab $itk_component(popup)
     } else {
-	grab -global $itk_component(popup)
+	::grab -global $itk_component(popup)
     }
 
     #
@@ -417,7 +417,7 @@ itcl::body iwidgets::Dateentry::_releaseGrabCheck {rootx rooty} {
 # to the icon button that engages the popup action.
 # ------------------------------------------------------------------
 itcl::body iwidgets::Dateentry::_releaseGrab {} {
-    grab release $itk_component(popup)
+    ::grab release $itk_component(popup)
     $itk_component(iconbutton) configure -relief raised
     destroy $itk_component(popup) 
     bind $itk_component(iconbutton) <Button-1> [itcl::code $this _popup]

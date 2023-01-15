@@ -11,10 +11,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: tabset.test,v 1.4 2001/08/07 19:56:48 smithc Exp $
+# @(#) $Id: tabset.test,v 1.6 2017/07/07 18:29:13 dgp Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
+loadTestedCommands
 
 if [catch {package require Iwidgets 4.0}] {
   # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
@@ -291,7 +292,7 @@ foreach test {
 		{0 {.ts add} {}}
 		{0 {.ts add} {}}
 		{1 {.ts insert 2} {bad value}}
-		{1 {.ts insert -1} {bad option}}
+		{1 {.ts insert -1} {bad }}
 		{0 {.ts delete 0 end} {}}
 		{1 {.ts next} {can't goto next tab, no tabs in the tabset}}
 		{1 {.ts prev} {can't goto previous tab, no tabs in the tabset}}

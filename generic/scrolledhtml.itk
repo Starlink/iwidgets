@@ -42,7 +42,7 @@
 # ----------------------------------------------------------------------
 #  AUTHOR: Kris Raney                    EMAIL: kraney@spd.dsccc.com
 #
-#  @(#) $Id: scrolledhtml.itk,v 1.7 2002/02/16 05:11:08 mgbacke Exp $
+#  @(#) $Id: scrolledhtml.itk,v 1.8 2004/12/02 17:49:18 davygrvy Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1996 DSC Technologies Corporation
 # ======================================================================
@@ -1418,7 +1418,7 @@ itcl::body iwidgets::Scrolledhtml::_entity_font {{args {}}} {
       if {![regexp {^[+-].*} $ar(size)]} {
          set _pointsndx $ar(size)
       } else {
-        set _pointsndx [expr {$_basefontsize $ar(size)}]
+        set _pointsndx [expr $_basefontsize $ar(size)]
       }
       if { $_pointsndx > 6 } {
        set _pointsndx 6

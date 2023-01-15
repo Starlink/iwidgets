@@ -14,7 +14,7 @@
 #            DSC Communications
 #            mulferts@austin.dsccc.com
 #
-#      RCS:  $Id: hierarchy.itk,v 1.9 2002/09/06 16:27:03 smithc Exp $
+#      RCS:  $Id: hierarchy.itk,v 1.10 2017/06/28 18:43:52 dgp Exp $
 # ----------------------------------------------------------------------
 #                Copyright (c) 1996  Lucent Technologies
 # ======================================================================
@@ -291,7 +291,10 @@ itcl::body iwidgets::Hierarchy::constructor {args} {
     # bindings for mouse button 1 to do selection and button 3 to 
     # display a popup.
     #
-    bindtags $itk_component(list) [list $itk_component(list) . all]
+    
+    set tags [bindtags $itk_component(list)]
+    set idx [lsearch -exact $tags Text]
+    bindtags $itk_component(list) [lreplace $tags $idx $idx]
     
     bind $itk_component(list) <ButtonPress-1> \
             [itcl::code $this _select %x %y]

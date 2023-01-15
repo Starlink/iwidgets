@@ -7,7 +7,7 @@
 #   AUTHOR:  Sue Yockey               E-mail: yockey@acm.org
 #            Mark L. Ulferts          E-mail: mulferts@austin.dsccc.com
 #
-#   @(#) $Id: entryfield.itk,v 1.6 2001/09/17 19:24:46 smithc Exp $
+#   @(#) $Id: entryfield.itk,v 1.7 2002/09/23 05:10:38 mgbacke Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1995 DSC Technologies Corporation
 # ======================================================================
@@ -102,7 +102,7 @@ itcl::body iwidgets::Entryfield::constructor {args} {
     component hull configure -borderwidth 0
     
     itk_component add entry {
-	entry $itk_interior.entry
+	    entry $itk_interior.entry
     } {
 	keep -borderwidth -cursor -exportselection \
 		-foreground -highlightcolor \
@@ -120,7 +120,7 @@ itcl::body iwidgets::Entryfield::constructor {args} {
     # Create the child site widget.
     #
     itk_component add -protected efchildsite {
-	frame $itk_interior.efchildsite
+	    frame $itk_interior.efchildsite
     } 
     set itk_interior $itk_component(efchildsite)
     
@@ -203,27 +203,27 @@ itcl::configbody iwidgets::Entryfield::invalid {}
 # to enter into the entryfield.
 # ------------------------------------------------------------------
 itcl::configbody iwidgets::Entryfield::pasting {
-  set oldtags [bindtags $itk_component(entry)]
-  if {[lindex $oldtags 0] != "pastetag"} {
-    bindtags $itk_component(entry) [linsert $oldtags 0 pastetag] 
-  }
-
-  if ($itk_option(-pasting)) {
-    bind pastetag <ButtonRelease-2> [itcl::code $this _checkLength]
-    bind pastetag <Control-v> [itcl::code $this _checkLength]
-    bind pastetag <Insert> [itcl::code $this _checkLength]
-    bind pastetag <KeyPress> {}
-  } else {
-    bind pastetag <ButtonRelease-2> {break}
-    bind pastetag <Control-v> {break}
-    bind pastetag <Insert> {break}
-    bind pastetag <KeyPress> {
-      # Disable function keys > F9.
-      if {[regexp {^F[1,2][0-9]+$} "%K"]} {
-	break
-      }
+    set oldtags [bindtags $itk_component(entry)]
+    if {[lindex $oldtags 0] != "pastetag"} {
+        bindtags $itk_component(entry) [linsert $oldtags 0 pastetag] 
     }
-  }
+
+    if {($itk_option(-pasting))} {
+        bind pastetag <ButtonRelease-2> [itcl::code $this _checkLength]
+        bind pastetag <Control-v> [itcl::code $this _checkLength]
+        bind pastetag <Insert> [itcl::code $this _checkLength]
+        bind pastetag <KeyPress> {}
+    } else {
+        bind pastetag <ButtonRelease-2> {break}
+        bind pastetag <Control-v> {break}
+        bind pastetag <Insert> {break}
+        bind pastetag <KeyPress> {
+            # Disable function keys > F9.
+            if {[regexp {^F[1,2][0-9]+$} "%K"]} {
+	            break
+            }
+        }
+    }
 }
 
 # ------------------------------------------------------------------
@@ -494,15 +494,22 @@ itcl::body iwidgets::Entryfield::_keyPress {char sym state} {
     # A Return key invokes the optionally specified command option.
     #
     if {$sym == "Return"} {
-	uplevel #0 $itk_option(-command)
-	return -code break 1
+        if {$itk_option(-command) == ""} {
+            #
+            # Allow <Return> to propagate to parent if the -command option
+            # isn't defined.
+            #
+            return -code continue 1
+        }
+	    uplevel #0 $itk_option(-command)
+	    return -code break 1
     } 
     
     #
     # Tabs, BackSpace, and Delete are passed on for other bindings.
     #
     if {($sym == "Tab") || ($sym == "BackSpace") || ($sym == "Delete")} {
-	return -code continue 1
+	    return -code continue 1
     }
 
     # 
@@ -523,18 +530,18 @@ itcl::body iwidgets::Entryfield::_keyPress {char sym state} {
     set CTRL 4
     global tcl_platform
     if {$tcl_platform(platform) == "unix"} {
-      set ALT 8
+        set ALT 8
     } elseif {$tcl_platform(platform) == "windows"} {
-      set ALT 16
+        set ALT 16
     } else {
-      # This is something other than UNIX or WINDOWS.  Default to the
-      # old behavior (UNIX).
-      set ALT 8
+        # This is something other than UNIX or WINDOWS.  Default to the
+        # old behavior (UNIX).
+        set ALT 8
     }
     # Thanks to Rolf Schroedter for the following elegant conditional.  This
     # masks out all <Ctrl> and <Alt> key combinations.
     if {($char == "") || ($state & ($CTRL | $ALT))} {
-      return -code continue 1
+        return -code continue 1
     }
 
     #
@@ -543,10 +550,10 @@ itcl::body iwidgets::Entryfield::_keyPress {char sym state} {
     # invoke the invalid command procedure.
     #
     if {$itk_option(-fixed) != 0} {
-	if {[string length [get]] >= $itk_option(-fixed)} {
-	    uplevel #0 $itk_option(-invalid)
-	    return -code break 0
-	}
+	    if {[string length [get]] >= $itk_option(-fixed)} {
+	        uplevel #0 $itk_option(-invalid)
+	        return -code break 0
+	    }
     } 
     
     #
@@ -558,20 +565,20 @@ itcl::body iwidgets::Entryfield::_keyPress {char sym state} {
     # invalid procedure is called.
     #
     if {$itk_option(-validate) != {}} {
-	set cmd $itk_option(-validate)
+	    set cmd $itk_option(-validate)
 
-	regsub -all "%W" "$cmd" $itk_component(hull) cmd
-	regsub -all "%P" "$cmd" [list [_peek $char]] cmd
-	regsub -all "%S" "$cmd" [list [get]] cmd
-	regsub -all "%c" "$cmd" [list $char] cmd
+	    regsub -all "%W" "$cmd" $itk_component(hull) cmd
+	    regsub -all "%P" "$cmd" [list [_peek $char]] cmd
+	    regsub -all "%S" "$cmd" [list [get]] cmd
+	    regsub -all "%c" "$cmd" [list $char] cmd
         regsub -all {\\} "$cmd" {\\\\} cmd
 
-	set valid [uplevel #0 $cmd]
+	    set valid [uplevel #0 $cmd]
 	
-	if {($valid == "") || ([regexp 0|false|off|no $valid])} {
-	    uplevel #0 $itk_option(-invalid)
-	    return -code break 0
-	}
+	    if {($valid == "") || ([regexp 0|false|off|no $valid])} {
+	        uplevel #0 $itk_option(-invalid)
+	        return -code break 0
+	    }
     }
     
     return -code continue 1
@@ -586,18 +593,18 @@ itcl::body iwidgets::Entryfield::_keyPress {char sym state} {
 # specified by the -fixed option.
 # ------------------------------------------------------------------
 itcl::body iwidgets::Entryfield::_checkLength {} {
-  if {$itk_option(-fixed) != 0} {
-    if [catch {::selection get -selection CLIPBOARD} pending] {
-      # Nothing in the clipboard.  Check the primary selection.
-      if [catch {::selection get -selection PRIMARY} pending] {
-        # Nothing here either.  Goodbye.
-        return
-      }
+    if {$itk_option(-fixed) != 0} {
+        if {[catch {::selection get -selection CLIPBOARD} pending]} {
+            # Nothing in the clipboard.  Check the primary selection.
+            if {[catch {::selection get -selection PRIMARY} pending]} {
+                # Nothing here either.  Goodbye.
+                return
+            }
+        }
+        set len [expr {[string length $pending] + [string length [get]]}]
+        if {$len > $itk_option(-fixed)} {
+            uplevel #0 $itk_option(-invalid)
+            return -code break 0
+        }
     }
-    set len [expr {[string length $pending] + [string length [get]]}]
-    if {$len > $itk_option(-fixed)} {
-      uplevel #0 $itk_option(-invalid)
-      return -code break 0
-    }
-  }
 }

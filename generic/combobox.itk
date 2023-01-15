@@ -282,7 +282,7 @@ itcl::configbody iwidgets::Combobox::editable {
 	    }
 	}
 	0 - false - no - off {
-	    $itk_component(entry) configure -state disabled
+	    $itk_component(entry) configure -state readonly
 	}
 	default {
 	    error "bad editable option \"$itk_option(-editable)\":\
@@ -355,7 +355,7 @@ itcl::configbody iwidgets::Combobox::state {
 		    $itk_component(entry) configure -state normal
 		}
 		0 - false - no - off {
-		    $itk_component(entry) configure -state disabled
+		    $itk_component(entry) configure -state readonly
 		}
 	    }
 	}
@@ -521,7 +521,7 @@ itcl::body iwidgets::Combobox::insert {component index args} {
 	    } else {
 		if {$itk_option(-state) == "normal"} {
 		    eval iwidgets::Entryfield::insert $index $args
-		    [itcl::code $this _lookup ""]
+		    eval [itcl::code $this _lookup ""]
 		}
 	    }
 	}
@@ -788,7 +788,7 @@ itcl::body iwidgets::Combobox::_deleteText {first {last {}}} {
     set rtrn [delete $first $last]
     switch -- $itk_option(-editable) {
 	0 - false - no - off {
-	    $itk_component(entry) configure -state disabled
+	    $itk_component(entry) configure -state readonly
 	}
     }
     return $rtrn
@@ -1067,7 +1067,7 @@ itcl::body iwidgets::Combobox::_selectCmd {} {
     $itk_component(entry) insert 0 $item
     switch -- $itk_option(-editable) {
 	0 - false - no - off {
-	    $itk_component(entry) configure -state disabled
+	    $itk_component(entry) configure -state readonly
 	}
     }
 }
@@ -1134,7 +1134,7 @@ itcl::body iwidgets::Combobox::_unpostList {} {
 	    $itk_component(entry) configure -state normal
 	}
 	0 - false - no - off {
-	    $itk_component(entry) configure -state disabled
+	    $itk_component(entry) configure -state readonly
 	}
     }
 
@@ -1441,3 +1441,5 @@ itcl::body iwidgets::Combobox::_lookup {key} {
     set _inlookup 0
     return
 }
+
+ 	  	 

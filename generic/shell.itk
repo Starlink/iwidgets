@@ -8,7 +8,7 @@
 #  AUTHOR: Mark L. Ulferts              EMAIL: mulferts@austin.dsccc.com
 #          Kris Raney                   EMAIL: kraney@spd.dsccc.com
 #
-#  @(#) $Id: shell.itk,v 1.7 2002/02/25 06:43:26 mgbacke Exp $
+#  @(#) $Id: shell.itk,v 1.9 2007/06/10 19:35:04 hobbs Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1996 DSC Technologies Corporation
 # ======================================================================
@@ -60,7 +60,8 @@ itcl::class iwidgets::Shell {
     public method deactivate {args}
     public method center {{widget {}}}
  
-    private variable _result {}     ;# Resultant value for modal activation.
+    protected variable _result {}     ;# Resultant value for modal activation.
+
     private variable _busied {}     ;# List of busied top level widgets.
 
     common grabstack {}
@@ -243,6 +244,17 @@ itcl::body iwidgets::Shell::activate {} {
     raise $itk_component(hull)
     wm deiconify $itk_component(hull)
     tkwait visibility $itk_component(hull)
+    # For some mysterious reason, Tk sometimes returns too late from the
+    # "tkwait visibility", i.e. after the "deactivate" method was invoked,
+    # i.e. after the dialog window already disappeared. This would lead to
+    # an infinite vwait on _wait($this) further on. Trap this case.
+    # See also 2002-03-15 message to the Tcl/Tk newsgroup.
+    # Remark that tests show that if "raise" is given *after* "deiconify" 
+    # (see above), "tkwait visibility" always returns duly on time.....
+    if {![winfo ismapped $itk_component(hull)]} {
+	# means "deactivate" went already through the grab-release stuff.
+	return $_result
+    }
 
     # Need to flush the event loop.  This line added as a result of
     # SF ticket #227885.

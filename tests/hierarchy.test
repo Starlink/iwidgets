@@ -11,10 +11,11 @@
 # See the file "license.terms" for information on usage and redistribution
 # of this file, and for a DISCLAIMER OF ALL WARRANTIES.
 #
-# @(#) $Id: hierarchy.test,v 1.5 2001/08/22 19:08:09 smithc Exp $
+# @(#) $Id: hierarchy.test,v 1.7 2017/07/07 18:29:13 dgp Exp $
 
 package require tcltest
 namespace import -force ::tcltest::*
+loadTestedCommands
 
 if [catch {package require Iwidgets 4.0}] {
   # Let's try modifying the auto_path.  Note that the IWIDGETS_LIBRARY
@@ -216,7 +217,7 @@ foreach test {
 #
 # Addtional test for selection/mark get
 #
-test Hierarchy-1.$m {Hierarchy selection/mark get} {
+test Hierarchy-3.$m {Hierarchy selection/mark get} {
     .h draw -now
     .h selection clear
     eval .h selection add $homelist

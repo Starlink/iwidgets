@@ -462,7 +462,11 @@ itcl::configbody ::iwidgets::Disjointlistbox::buttonplacement {
                 grid configure $itk_component(bbox) \
                         -in $itk_interior -row 0 -column 1 -columnspan 1 \
                                 -sticky nsew
-    
+
+		# Tk8.5: enforce compatibility to previous versions
+		# see Tk-ticket 2062394
+		catch {grid anchor $itk_component(bbox) center}
+
                 grid configure $itk_component(rhsbutton) \
                         -in $itk_component(bbox) -row 0 -column 0 -sticky ew
                 grid configure $itk_component(lhsbutton) \

@@ -23,13 +23,18 @@ option add *boxColor blue startupFile
 option add *boxTextColor white startupFile
 
 # ----------------------------------------------------------------------
+
+global selfdir
+set    selfdir [file normalize [file dirname [info script]]]
+
+# ----------------------------------------------------------------------
 # USAGE:  iw_demo_file <name>
 #
 # Returns the proper demo file name for a demo called <name>.
 # ----------------------------------------------------------------------
 proc iw_demo_file {name} {
-    global iwidgets::library
-    return [file join $library demos $name]
+    global selfdir
+    return [file join $selfdir $name]
 }
 
 # ----------------------------------------------------------------------
@@ -38,8 +43,8 @@ proc iw_demo_file {name} {
 # Returns the proper man page file for a demo called <name>.
 # ----------------------------------------------------------------------
 proc iw_demo_manpage {name} {
-    global iwidgets::library
-    return [file join $library demos html $name.n.html]
+    global selfdir
+    return [file join $selfdir html $name.n.html]
 }
 
 # ----------------------------------------------------------------------
@@ -357,7 +362,7 @@ label $win.title -text {[incr Widgets]}
 pack $win.title
 catch {$win.title configure -font -*-helvetica-bold-o-normal-*-*-180-*}
 
-set file [file join ${iwidgets::library} demos iwidgets.gif]
+set file [file join $selfdir iwidgets.gif]
 label $win.icon -image [image create photo -file $file]
 pack $win.icon -side left
 
@@ -387,7 +392,7 @@ catch {$win.authors configure -font -*-helvetica-medium-o-normal-*-*-120-*}
 # ----------------------------------------------------------------------
 # Load up a list of demos...
 # ----------------------------------------------------------------------
-foreach file [lsort [glob [file join ${iwidgets::library} demos *]]] {
+foreach file [lsort [glob [file join $selfdir *]]] {
     set name [file tail $file]
     if {![file isdirectory $file] && ![string match *.* $name] 
         && ![string match catalog $name]

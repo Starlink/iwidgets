@@ -20,7 +20,7 @@
 # mega-widget and the command and option interface was expanded to make 
 # it even more configurable, but the underlying logic is the same.
 #
-# @(#) $Id: calendar.itk,v 1.7 2002/09/05 19:33:06 smithc Exp $
+# @(#) $Id: calendar.itk,v 1.9 2007/05/24 22:41:02 hobbs Exp $
 # ----------------------------------------------------------------------
 #            Copyright (c) 1997 DSC Technologies Corporation
 # ======================================================================
@@ -614,11 +614,11 @@ itcl::body iwidgets::Calendar::_drawtext {canvas_ day_ date_ now_ x0_ y0_ x1_ y1
     if {$date_ == $now_} {
 	$canvas_ itemconfigure $item \
 	    -font $itk_option(-currentdatefont) \
-	    -tags [list all-page date text now]
+	    -tags [list all-page date $date_-date text now]
     } else {
 	$canvas_ itemconfigure $item \
 	    -font $itk_option(-datefont) \
-	    -tags [list all-page date text]
+	    -tags [list all-page date $date_-date text]
     }
 }
 
@@ -789,6 +789,9 @@ itcl::body iwidgets::Calendar::_redraw {} {
 
         $itk_component(page) bind $date-sensor <ButtonPress-1> \
             [itcl::code $this _selectEvent $date]
+
+        $itk_component(page) bind $date-date <ButtonPress-1> \
+            [itcl::code $this _selectEvent $date]
     }
 
     #
@@ -859,10 +862,15 @@ itcl::body iwidgets::Calendar::_layout {time_} {
     set month [clock format $time_ -format "%m"]
     set year  [clock format $time_ -format "%Y"]
 
-    foreach lastday {31 30 29 28} {
-        if {[catch {clock scan "$month/$lastday/$year"}] == 0} {
-            break
-        }
+    if {[info tclversion] >= 8.5} {
+	set startOfMonth [clock scan "$year-$month-01" -format %Y-%m-%d]
+	set lastday [clock format [clock add $startOfMonth 1 month -1 day] -format %d]
+    } else {
+	foreach lastday {31 30 29 28} {
+	    if {[catch {clock scan "$month/$lastday/$year"}] == 0} {
+		break
+	    }
+	}
     }
     set seconds [clock scan "$month/1/$year"]
     set firstday [_adjustday [clock format $seconds -format %w]]

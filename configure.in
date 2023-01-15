@@ -4,7 +4,7 @@ dnl installation to configure the system for the local environment.
 
 # RCS: $Id: configure.in,v 1.17 2017/06/28 20:03:21 dgp Exp $
 
-AC_INIT([iwidgets], [4.1.0])
+AC_INIT([iwidgets], [4.1.1])
 
 TEA_INIT([3.2])
 

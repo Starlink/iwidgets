@@ -48,7 +48,7 @@ if test -z "$ITCL_LIB_DIR"; then
 fi
 
 AC_ARG_WITH(itk, [  --with-itk=DIR         use Itk 3.0 binaries from DIR],
-        itk_search=$withval, itk_search=`cd ${srcdir}/..; pwd`)
+        itk_search=$withval, itk_search=`cd ${srcdir}/../itk; pwd`)
 
 ITK_LIB_DIR=""
 if test -r $itk_search/library/itk.tcl; then

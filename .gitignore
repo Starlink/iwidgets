@@ -1,7 +1,9 @@
+*~
+.*.swp
 Makefile
 config.log
 config.status
 configure.lineno
 iwidgets.tcl
 pkgIndex.tcl
-
+/autom4te.cache
